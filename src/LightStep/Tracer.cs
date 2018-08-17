@@ -1,21 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using LightStep.Tracer.Propagation;
+using LightStep.Collector;
+using LightStep.Propagation;
 using OpenTracing;
 using OpenTracing.Propagation;
+using OpenTracing.Util;
 
-namespace LightStep.Tracer
+namespace LightStep
 {
-    public class Tracer : ITracer
+    public class Tracer : ITracer, IDisposable
     {
         private readonly ISpanContextFactory _spanContextFactory;
         private readonly ISpanRecorder _spanRecorder;
 
         private readonly TextMapCarrierHandler _textMapCarrierHandler = new TextMapCarrierHandler();
+        private readonly Options _options;
 
+        
         public Tracer(
             ISpanContextFactory spanContextFactory,
-            ISpanRecorder spanRecorder)
+            ISpanRecorder spanRecorder,
+            Options options)
         {
             if (spanContextFactory == null)
             {
@@ -29,6 +34,26 @@ namespace LightStep.Tracer
 
             _spanContextFactory = spanContextFactory;
             _spanRecorder = spanRecorder;
+            _options = options;
+            
+        }
+
+        public void Close()
+        {
+            Dispose();
+        }
+
+        public void Flush()
+        {
+            var url =
+                $"http://{_options.Satellite.Item1}:{_options.Satellite.Item2}/{LightStepConstants.SatelliteReportPath}";
+            using (var client = new LightStepHttpClient(url, _options))
+            {
+                var data = client.Translate(_spanRecorder.GetSpanBuffer());
+                var resp = client.SendReport(data).Result;
+                Console.WriteLine($"resp: {resp.Commands} {resp.Errors}");
+                _spanRecorder.ClearSpanBuffer();
+            }
         }
 
         public ISpanBuilder BuildSpan(string operationName)
@@ -47,7 +72,7 @@ namespace LightStep.Tracer
         {
             var spanContext = _spanContextFactory.CreateSpanContext(references);
 
-            var span = new Span(_spanRecorder, spanContext, operationName, startTimestamp ?? DateTimeOffset.UtcNow, tags);
+            var span = new Span(_spanRecorder, spanContext, operationName, startTimestamp ?? DateTime.UtcNow, tags);
 
             return span;
         }
@@ -57,10 +82,10 @@ namespace LightStep.Tracer
             // TODO add other formats (and maybe don't use if/else :D )
 
             var typedContext = (SpanContext)spanContext;
-
+            
             if (format.Equals(BuiltinFormats.TextMap))
             {
-                _textMapCarrierHandler.MapContextToCarrier(typedContext, (ITextMap) carrier);
+                TextMapCarrierHandler.MapContextToCarrier(typedContext, (ITextMap) carrier);
             }
             else
             {
@@ -74,10 +99,15 @@ namespace LightStep.Tracer
 
             if (format.Equals(BuiltinFormats.TextMap))
             {
-                return _textMapCarrierHandler.MapCarrierToContext((ITextMap) carrier);
+                return TextMapCarrierHandler.MapCarrierToContext((ITextMap) carrier);
             }
             
             throw new FormatException($"The format '{format}' is not supported.");
+        }
+
+        public void Dispose()
+        {
+            Flush();
         }
     }
 }

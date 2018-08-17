@@ -1,6 +1,6 @@
 ﻿using OpenTracing;
 
-namespace LightStep.Tracer
+namespace LightStep
 {
     public static class TypedContextExtensions
     {

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using OpenTracing;
 using OpenTracing.Tag;
 
-namespace LightStep.Tracer
+namespace LightStep
 {
     public class SpanBuilder : ISpanBuilder
     {
-     private readonly Tracer _tracer;
+        private readonly Tracer _tracer;
         private readonly string _operationName;
 
         // not initialized to save allocations in case there are no references.
@@ -17,6 +18,8 @@ namespace LightStep.Tracer
         private IDictionary<string, object> _tags;
 
         private DateTimeOffset? _startTimestamp;
+
+        private bool _ignoreActiveSpan;
 
         public SpanBuilder(Tracer tracer, string operationName)
         {
@@ -75,12 +78,14 @@ namespace LightStep.Tracer
 
         public ISpanBuilder IgnoreActiveSpan()
         {
-            throw new NotImplementedException();
+            _ignoreActiveSpan = true;
+            return this;
         }
 
         public ISpanBuilder WithTag(StringTag tag, string value)
         {
-            throw new NotImplementedException();
+            _tags[tag.Key] = value;
+            return this;
         }
 
         public ISpanBuilder WithStartTimestamp(DateTimeOffset startTimestamp)
@@ -91,12 +96,13 @@ namespace LightStep.Tracer
 
         public IScope StartActive()
         {
-            throw new NotImplementedException();
+            return StartActive(true);
         }
 
         public IScope StartActive(bool finishSpanOnDispose)
         {
-            throw new NotImplementedException();
+            var span = Start();
+            return _tracer.ScopeManager.Activate(span, finishSpanOnDispose);
         }
 
         public ISpanBuilder WithTag(string key, bool value)
@@ -123,17 +129,20 @@ namespace LightStep.Tracer
 
         public ISpanBuilder WithTag(BooleanTag tag, bool value)
         {
-            throw new NotImplementedException();
+            _tags[tag.Key] = value;
+            return this;
         }
 
         public ISpanBuilder WithTag(IntOrStringTag tag, string value)
         {
-            throw new NotImplementedException();
+            _tags[tag.Key] = value;
+            return this;
         }
 
         public ISpanBuilder WithTag(IntTag tag, int value)
         {
-            throw new NotImplementedException();
+            _tags[tag.Key] = value;
+            return this;
         }
 
         public ISpanBuilder WithTag(string key, int value)

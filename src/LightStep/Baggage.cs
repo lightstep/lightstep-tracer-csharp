@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace LightStep.Tracer
+namespace LightStep
 {
     public class Baggage
     {
