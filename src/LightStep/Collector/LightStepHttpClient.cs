@@ -28,7 +28,7 @@ namespace LightStep.Collector
             _options = options;
         }
         
-        public async Task<ReportResponse> SendReport(ReportRequest report)
+        public ReportResponse SendReport(ReportRequest report)
         {
             var client = new HttpClient();
             
@@ -43,9 +43,9 @@ namespace LightStep.Collector
             
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
             Console.WriteLine(ReportRequest.Parser.ParseFrom(report.ToByteArray()));
-
+            
             var response = client.SendAsync(request).Result;
-            var responseData = await response.Content.ReadAsStreamAsync();
+            var responseData = response.Content.ReadAsStreamAsync().Result;
             return ReportResponse.Parser.ParseFrom(responseData);     
         }
 
