@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using OpenTracing;
 
-namespace LightStep.Tracer
+namespace LightStep
 {
     public interface ISpanContextFactory
     {

@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="OpenTracing" Version="0.12.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LightStep\LightStep.csproj" />
+  </ItemGroup>
+</Project>

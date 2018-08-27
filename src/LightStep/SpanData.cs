@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace LightStep.Tracer
+namespace LightStep
 {
     public class SpanData
     {
@@ -11,5 +11,6 @@ namespace LightStep.Tracer
         public TimeSpan Duration { get; internal set; }
         public IDictionary<string, object> Tags { get; internal set; }
         public IList<LogData> LogData { get; internal set; }
+        
     }
 }

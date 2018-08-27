@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenTracing;
 
-namespace LightStep.Tracer
+namespace LightStep
 {
     public class SpanContext : ISpanContext
     {
@@ -9,13 +9,13 @@ namespace LightStep.Tracer
 
         public string TraceId { get; }
         public string SpanId { get; }
-        public bool Sampled { get; }
+        public string ParentSpanId { get; }
 
-        public SpanContext(string traceId, string spanId, bool sampled, Baggage baggage = null)
+        public SpanContext(string traceId, string spanId, Baggage baggage = null, string parentId = null)
         {
             TraceId = traceId;
             SpanId = spanId;
-            Sampled = sampled;
+            ParentSpanId = parentId;
             _baggage.Merge(baggage);
         }
 

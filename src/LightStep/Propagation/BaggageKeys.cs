@@ -1,4 +1,4 @@
-﻿namespace LightStep.Tracer.Propagation
+﻿namespace LightStep.Propagation
 {
     public class BaggageKeys
     {

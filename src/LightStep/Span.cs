@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using OpenTracing;
 using OpenTracing.Tag;
 
-namespace LightStep.Tracer
+namespace LightStep
 {
     public class Span : ISpan
     {
@@ -41,6 +41,7 @@ namespace LightStep.Tracer
             {
                 throw new ArgumentNullException(operationName);
             }
+            
 
             _spanRecorder = spanRecorder;
 
