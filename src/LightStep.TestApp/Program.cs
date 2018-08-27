@@ -12,7 +12,7 @@ namespace LightStep.TestApp
         static void Main(string[] args)
         {
             // substitute your own LS API Key here
-            var lsKey = "49e45413c56dec0372b1ed47cf92315f";
+            var lsKey = "TEST_TOKEN";
             var lsSettings = ("localhost", 9996, false);
             var tracer = new Tracer(new SpanContextFactory(), new LightStepSpanRecorder(), new Options(lsKey, lsSettings));
             GlobalTracer.Register(tracer);

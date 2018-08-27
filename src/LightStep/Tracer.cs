@@ -50,7 +50,7 @@ namespace LightStep
             using (var client = new LightStepHttpClient(url, _options))
             {
                 var data = client.Translate(_spanRecorder.GetSpanBuffer());
-                var resp = client.SendReport(data).Result;
+                var resp = client.SendReport(data);
                 Console.WriteLine($"resp: {resp.Commands} {resp.Errors}");
                 _spanRecorder.ClearSpanBuffer();
             }
