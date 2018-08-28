@@ -69,5 +69,13 @@ namespace LightStep
         {
             return _propagator.Extract(format, carrier);
         }
+
+        internal void AppendFinishedSpan(SpanData span)
+        {
+            lock (_lock)
+            {
+                _spanRecorder.RecordSpan(span);
+            }
+        }
     }
 }

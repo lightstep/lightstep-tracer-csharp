@@ -17,27 +17,18 @@ namespace LightStep.TestApp
             var tracer = new Tracer(new Options(lsKey, lsSettings));
             GlobalTracer.Register(tracer);
 
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < 50; i++)
             {
-                Console.WriteLine("starting a sample span");
-                var parentSpan = tracer.BuildSpan("outer").Start();
-                var span = tracer.BuildSpan("sample").AsChildOf(parentSpan).Start();
-
-                span.Log($"iteration {i}");
-                Thread.Sleep(new Random().Next(0, 50));
-                span.SetTag("testapp", "true");
-        
-                Console.WriteLine("span should be finished");
-                span.Finish();
-                parentSpan.Finish(); 
+                using (IScope scope = tracer.BuildSpan("testParent").WithTag("testSpan", "true").StartActive(true))
+                {
+                    Console.WriteLine("sleeping for a bit");
+                    Thread.Sleep(new Random().Next(5, 10));
+                    var innerSpan = tracer.BuildSpan("childSpan").Start();
+                    Console.WriteLine("sleeping more...");
+                    Thread.Sleep(new Random().Next(10, 20));
+                    innerSpan.Finish();
+                }
                 tracer.Flush();
-            }
-            
-            // TODO: locking NYI so this will crash!
-            using (IScope scope = tracer.BuildSpan("work").StartActive(finishSpanOnDispose: true))
-            {
-               Tags.Error.Set(scope.Span, true);
-                scope.Span.Log("error!");
             }
         }
     }

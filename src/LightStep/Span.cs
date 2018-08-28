@@ -19,7 +19,6 @@ namespace LightStep
         private readonly List<Reference> _references;
         private readonly List<LogData> _logs = new List<LogData>();
         private readonly List<Exception> _errors = new List<Exception>();
-        private readonly ISpanRecorder _spanRecorder;
         
         public string ParentId { get; }
         
@@ -321,7 +320,7 @@ namespace LightStep
                 LogData = Logs,
             };
 
-            _spanRecorder.RecordSpan(spanData);
+            _tracer.AppendFinishedSpan(spanData);
         }
     }
 }
