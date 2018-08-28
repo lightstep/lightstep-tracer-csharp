@@ -46,7 +46,7 @@ namespace LightStep.Collector
             
             var response = client.SendAsync(request).Result;
             var responseData = response.Content.ReadAsStreamAsync().Result;
-            return ReportResponse.Parser.ParseFrom(responseData);     
+            return ReportResponse.Parser.ParseFrom(responseData);
         }
 
         public ReportRequest Translate(IEnumerable<SpanData> spans)

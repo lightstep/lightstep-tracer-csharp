@@ -52,7 +52,7 @@ namespace LightStep
             #if NETSTANDARD1_3
             compName = Environment.GetEnvironmentVariable("LS_COMPONENT");
             #endif
-            #if NETSTANDARD2_0
+            #if NETSTANDARD2_0 || NET45
             compName = Process.GetCurrentProcess().ProcessName;
             #endif
             return compName;
@@ -62,10 +62,10 @@ namespace LightStep
         private string GetHostName()
         {
             string hostname = "";
-            #if NETSTANDARD1_3
+            #if NETSTANDARD1_3 
             hostname = Environment.GetEnvironmentVariable("LS_HOSTNAME");
             #endif
-            #if NETSTANDARD2_0
+            #if NETSTANDARD2_0 || NET45
             hostname = Environment.MachineName;
             #endif
             return hostname;
@@ -77,7 +77,7 @@ namespace LightStep
             #if NETSTANDARD1_3
             commandLine = Environment.GetEnvironmentVariable("LS_COMMANDLINE");
             #endif
-            #if NETSTANDARD2_0
+            #if NETSTANDARD2_0 || NET45
             commandLine = Environment.CommandLine;
             #endif
             return commandLine;
