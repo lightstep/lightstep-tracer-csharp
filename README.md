@@ -9,20 +9,7 @@ $ dotnet pack
 This will create a .nupkg file at `./src/LightStep/bin/Debug/LightStep.1.0.0.nupkg`. You can import this into another C# project.
 
 # Basic Usage
-There are two main ways to initialize the LightStep tracer, either via `using` or registering it as the global tracer.
-
-With `using`:
-```c#
-var lightStepAccessToken = "ACCESS_TOKEN";
-var lightStepOptions = new Options() // see LightStep.Options for more info on tuning.
-using (var tracer = new Tracer(new SpanContextFactory(), new LightStepSpanRecorder(), new Options(lightStepAccessToken, lightStepOptions))
-{
-    tracer.BuildSpan() //see opentracing-csharp documentation for more info
-    ...
-}
-```
-
-With 'GlobalTracer'
+It's recommended to initialize the tracer once at the beginning of your application and assign it as the global tracer, as follows:
 ```c#
 var lightStepAccessToken = "ACCESS_TOKEN";
 var lightStepOptions = new Options()
@@ -32,5 +19,10 @@ tracer.BuildSpan()
 ...
 ```
 
-Generally, it's preferable to create the tracer once in your applications initialization, register it as the global tracer, and use that.
-
+# Compatability Notes
+If you're using .NET Standard 1.3, then you need to set the following values per-process:
+```c#
+LS_HOSTNAME
+LS_COMPONENT
+LS_COMMANDLINE
+```

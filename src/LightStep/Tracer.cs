@@ -47,7 +47,7 @@ namespace LightStep
             lock (_lock)
             {
                 var url =
-                    $"http://{_options.Satellite.Item1}:{_options.Satellite.Item2}/{LightStepConstants.SatelliteReportPath}";
+                    $"http://{_options.Satellite.SatelliteHost}:{_options.Satellite.SatellitePort}/{LightStepConstants.SatelliteReportPath}";
                 using (var client = new LightStepHttpClient(url, _options))
                 {
                     var data = client.Translate(_spanRecorder.GetSpanBuffer());

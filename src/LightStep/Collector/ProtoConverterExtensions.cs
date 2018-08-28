@@ -5,36 +5,24 @@ namespace LightStep.Collector
 {
     public static class ProtoConverterExtensions
     {
-        public static bool IsNumericDatatype(this object obj)
+        public static bool IsNumericDatatype(this object value)
         {
-            switch(Type.GetTypeCode(obj.GetType()))
-            {
-                case TypeCode.Byte:
-                case TypeCode.SByte:
-                case TypeCode.UInt16:
-                case TypeCode.UInt32:
-                case TypeCode.UInt64:
-                case TypeCode.Int16:
-                case TypeCode.Int32:
-                case TypeCode.Int64:
-                case TypeCode.Decimal:
-                case TypeCode.Double:
-                case TypeCode.Single:
-                    return true;
-                default:
-                    return false;
-            }
+            return value is sbyte
+                   || value is byte
+                   || value is short
+                   || value is ushort
+                   || value is int
+                   || value is uint
+                   || value is long
+                   || value is ulong
+                   || value is float
+                   || value is double
+                   || value is decimal;
         }
 
-        public static bool IsBooleanDatatype(this object obj)
+        public static bool IsBooleanDatatype(this object value)
         {
-            switch (Type.GetTypeCode(obj.GetType()))
-            {
-                case TypeCode.Boolean:
-                    return true;
-                default:
-                    return false;
-            }
+            return value is bool;
         }
     }
 }
