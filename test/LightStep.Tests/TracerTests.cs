@@ -13,10 +13,9 @@ namespace LightStep.Tests
         private Tracer GetTracer(ISpanRecorder recorder = null)
         {
             var spanRecorder = recorder ?? new SimpleMockRecorder();
-            var spanContextFactory = new SpanContextFactory();
             var tracerOptions = new Options("TEST");
             
-            return new Tracer(spanContextFactory, spanRecorder, tracerOptions);
+            return new Tracer(tracerOptions, spanRecorder);
         }
 
         [Fact]

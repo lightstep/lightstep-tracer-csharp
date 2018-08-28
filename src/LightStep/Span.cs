@@ -158,14 +158,17 @@ namespace LightStep
         
         public ISpan SetOperationName(string operationName)
         {
-            if (string.IsNullOrWhiteSpace(operationName))
+            lock (_lock)
             {
-                throw new ArgumentNullException(nameof(operationName));
-            }
+                if (string.IsNullOrWhiteSpace(operationName))
+                {
+                    throw new ArgumentNullException(nameof(operationName));
+                }
             
-            CheckIfSpanFinished("Setting operationName [{0}] on finished span.", operationName);
-            OperationName = operationName;
-            return this;
+                CheckIfSpanFinished("Setting operationName [{0}] on finished span.", operationName);
+                OperationName = operationName;
+                return this;
+            }      
         }
 
         public ISpan SetTag(string key, bool value)

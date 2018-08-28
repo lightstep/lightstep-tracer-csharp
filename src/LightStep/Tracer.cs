@@ -21,17 +21,23 @@ namespace LightStep
 
         public ISpan ActiveSpan => _scopeManager?.Active?.Span;
         
-        public Tracer(Options options) : this(new AsyncLocalScopeManager(), Propagators.TextMap, options)
+        public Tracer(Options options) : this(new AsyncLocalScopeManager(), Propagators.TextMap, options, new LightStepSpanRecorder())
         {
         }
 
-        public Tracer(Options options, IScopeManager scopeManager) : this(scopeManager, Propagators.TextMap, options)
+        public Tracer(Options options, ISpanRecorder spanRecorder) : this(new AsyncLocalScopeManager(),
+            Propagators.TextMap, options, spanRecorder)
         {
         }
         
-        public Tracer(IScopeManager scopeManager, IPropagator propagator, Options options)
+        public Tracer(Options options, IScopeManager scopeManager) : this(scopeManager, Propagators.TextMap, options, new LightStepSpanRecorder())
+        {
+        }
+        
+        public Tracer(IScopeManager scopeManager, IPropagator propagator, Options options, ISpanRecorder spanRecorder)
         {
             _scopeManager = scopeManager;
+            _spanRecorder = spanRecorder;
             _propagator = propagator;
             _options = options;
         }
