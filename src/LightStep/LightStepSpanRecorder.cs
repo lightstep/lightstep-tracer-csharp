@@ -4,7 +4,7 @@ using OpenTracing;
 
 namespace LightStep
 {
-    public class LightStepSpanRecorder : ISpanRecorder
+    public sealed class LightStepSpanRecorder : ISpanRecorder
     {
         private List<SpanData> Spans { get; }= new List<SpanData>();
         

@@ -8,51 +8,50 @@ using OpenTracing.Util;
 
 namespace LightStep
 {
-    public class Tracer : ITracer, IDisposable
+    public sealed class Tracer : ITracer
     {
-        private readonly ISpanContextFactory _spanContextFactory;
-        private readonly ISpanRecorder _spanRecorder;
+        private readonly object _lock = new object();
 
-        private readonly TextMapCarrierHandler _textMapCarrierHandler = new TextMapCarrierHandler();
+        private readonly ISpanRecorder _spanRecorder = new LightStepSpanRecorder();
+        private readonly IPropagator _propagator;
+        private readonly IScopeManager _scopeManager;
         private readonly Options _options;
 
+        public IScopeManager ScopeManager => _scopeManager;
+
+        public ISpan ActiveSpan => _scopeManager?.Active?.Span;
         
-        public Tracer(
-            ISpanContextFactory spanContextFactory,
-            ISpanRecorder spanRecorder,
-            Options options)
+        public Tracer(Options options) : this(new AsyncLocalScopeManager(), Propagators.TextMap, options)
         {
-            if (spanContextFactory == null)
-            {
-                throw new ArgumentNullException(nameof(spanContextFactory));
-            }
-
-            if (spanRecorder == null)
-            {
-                throw new ArgumentNullException(nameof(spanRecorder));
-            }
-
-            _spanContextFactory = spanContextFactory;
-            _spanRecorder = spanRecorder;
-            _options = options;
-            
         }
 
-        public void Close()
+        public Tracer(Options options, IScopeManager scopeManager) : this(scopeManager, Propagators.TextMap, options)
         {
-            Dispose();
+        }
+        
+        public Tracer(IScopeManager scopeManager, IPropagator propagator, Options options)
+        {
+            _scopeManager = scopeManager;
+            _propagator = propagator;
+            _options = options;
         }
 
         public void Flush()
         {
-            var url =
-                $"http://{_options.Satellite.Item1}:{_options.Satellite.Item2}/{LightStepConstants.SatelliteReportPath}";
-            using (var client = new LightStepHttpClient(url, _options))
+            lock (_lock)
             {
-                var data = client.Translate(_spanRecorder.GetSpanBuffer());
-                var resp = client.SendReport(data);
-                Console.WriteLine($"resp: {resp.Commands} {resp.Errors}");
-                _spanRecorder.ClearSpanBuffer();
+                var url =
+                    $"http://{_options.Satellite.Item1}:{_options.Satellite.Item2}/{LightStepConstants.SatelliteReportPath}";
+                using (var client = new LightStepHttpClient(url, _options))
+                {
+                    var data = client.Translate(_spanRecorder.GetSpanBuffer());
+                    var resp = client.SendReport(data);
+                    if (resp.Errors.Count > 0)
+                    {
+                        Console.WriteLine($"Errors sending report to LightStep: {resp.Errors}");
+                    }
+                    _spanRecorder.ClearSpanBuffer();
+                }    
             }
         }
 
@@ -61,53 +60,14 @@ namespace LightStep
             return new SpanBuilder(this, operationName);
         }
 
-        public IScopeManager ScopeManager { get; }
-        public ISpan ActiveSpan { get; }
-
-        public ISpan StartSpan(
-            string operationName,
-            DateTimeOffset? startTimestamp,
-            IList<Tuple<string, ISpanContext>> references,
-            IDictionary<string, object> tags)
-        {
-            var spanContext = _spanContextFactory.CreateSpanContext(references);
-
-            var span = new Span(_spanRecorder, spanContext, operationName, startTimestamp ?? DateTime.UtcNow, tags);
-
-            return span;
-        }
-
         public void Inject<TCarrier>(ISpanContext spanContext, IFormat<TCarrier> format, TCarrier carrier)
         {
-            // TODO add other formats (and maybe don't use if/else :D )
-
-            var typedContext = (SpanContext)spanContext;
-            
-            if (format.Equals(BuiltinFormats.TextMap))
-            {
-                TextMapCarrierHandler.MapContextToCarrier(typedContext, (ITextMap) carrier);
-            }
-            else
-            {
-                throw new FormatException($"The format '{format}' is not supported.");
-            }
+           _propagator.Inject((SpanContext)spanContext, format, carrier);
         }
 
         public ISpanContext Extract<TCarrier>(IFormat<TCarrier> format, TCarrier carrier)
         {
-            // TODO add other formats (and maybe don't use if/else :D )
-
-            if (format.Equals(BuiltinFormats.TextMap))
-            {
-                return TextMapCarrierHandler.MapCarrierToContext((ITextMap) carrier);
-            }
-            
-            throw new FormatException($"The format '{format}' is not supported.");
-        }
-
-        public void Dispose()
-        {
-            Flush();
+            return _propagator.Extract(format, carrier);
         }
     }
 }
