@@ -16,7 +16,7 @@ namespace LightStep
         public IDictionary<string, object> Tags { get; set; }       
         public readonly UInt64 TracerGuid = new Random().NextUInt64();
 
-        public Options(string token, SatelliteOptions satelliteOptions = null)
+        public Options(string token, SatelliteOptions satelliteOptions)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
@@ -28,7 +28,7 @@ namespace LightStep
             MaximumReportPeriod = TimeSpan.FromMilliseconds(2500);
             ReportTimeout = TimeSpan.FromSeconds(30);
             AccessToken = token;
-            Satellite = satelliteOptions ?? new SatelliteOptions();
+            Satellite = satelliteOptions;
         }
 
         private IDictionary<string, object> InitializeDefaultTags()

@@ -6,12 +6,7 @@ namespace LightStep
         public int SatellitePort { get; }
         public bool UsePlaintext { get; }
 
-        public SatelliteOptions() : this("collector.lightstep.com", 443, false)
-        {
-            
-        }
-
-        public SatelliteOptions(string host, int port, bool usePlaintext)
+        public SatelliteOptions(string host, int port = 443, bool usePlaintext = false)
         {
             SatelliteHost = host;
             SatellitePort = port;
