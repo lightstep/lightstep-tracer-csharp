@@ -17,7 +17,7 @@ namespace LightStep.TestApp
             var tracer = new Tracer(new Options(lsKey, lsSettings));
             GlobalTracer.Register(tracer);
 
-            for (var i = 0; i < 50; i++)
+            for (var i = 0; i < 500; i++)
             {
                 using (IScope scope = tracer.BuildSpan("testParent").WithTag("testSpan", "true").StartActive(true))
                 {

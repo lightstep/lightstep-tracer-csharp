@@ -89,7 +89,7 @@ namespace LightStep
             else
             {
                 // we are a child span
-                _context = new SpanContext(parentContext.TraceId, GetRandomId(), MergeBaggages(_references));
+                _context = new SpanContext(parentContext.TraceId, GetRandomId(), MergeBaggages(_references), parentContext.SpanId);
                 ParentId = parentContext.SpanId;
             }
         }
