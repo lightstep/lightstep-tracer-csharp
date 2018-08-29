@@ -254,7 +254,7 @@ namespace LightStep
 
         public ISpan Log(IEnumerable<KeyValuePair<string, object>> fields)
         {
-            return Log(DateTimeOffset.UtcNow, fields);
+            return Log(DateTimeOffset.Now, fields);
         }
 
         public ISpan Log(DateTimeOffset timestamp, IEnumerable<KeyValuePair<string, object>> fields)
@@ -262,14 +262,14 @@ namespace LightStep
             lock (_lock)
             {
                 CheckIfSpanFinished("Adding logs {0} at {1} to already finished span.", fields, timestamp);
-                Logs.Add(new LogData(timestamp, fields));
+                _logs.Add(new LogData(timestamp, fields));
                 return this;  
             }   
         }
 
         public ISpan Log(string eventName)
         {
-            return Log(DateTimeOffset.UtcNow, eventName);
+            return Log(DateTimeOffset.Now, eventName);
         }
 
         public ISpan Log(DateTimeOffset timestamp, string eventName)
@@ -319,8 +319,8 @@ namespace LightStep
                 OperationName = OperationName,
                 StartTimestamp = StartTimestamp,
                 Duration = FinishTimestamp - StartTimestamp,
-                Tags = Tags,
-                LogData = Logs,
+                Tags = _tags,
+                LogData = _logs
             };
 
             _tracer.AppendFinishedSpan(spanData);

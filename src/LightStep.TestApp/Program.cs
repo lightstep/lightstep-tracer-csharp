@@ -19,11 +19,14 @@ namespace LightStep.TestApp
 
             for (var i = 0; i < 500; i++)
             {
-                using (tracer.BuildSpan("testParent").WithTag("testSpan", "true").StartActive(true))
+                using (IScope scope = tracer.BuildSpan("testParent").WithTag("testSpan", "true").StartActive(true))
                 {
+                    scope.Span.Log("test");
+                    tracer.ActiveSpan.Log($"iteration {i}");
                     Console.WriteLine("sleeping for a bit");
                     Thread.Sleep(new Random().Next(5, 10));
                     var innerSpan = tracer.BuildSpan("childSpan").Start();
+                    innerSpan.SetTag("innerTestTag", "true");
                     Console.WriteLine("sleeping more...");
                     Thread.Sleep(new Random().Next(10, 20));
                     innerSpan.Finish();
