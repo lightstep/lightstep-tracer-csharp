@@ -11,11 +11,11 @@ namespace LightStep.Propagation
             {
                 foreach (var entry in context.GetBaggageItems())
                 {
-                    text.Set(BaggageKeys.BaggagePrefix + entry.Key, entry.Value);
+                    text.Set(Keys.BaggagePrefix + entry.Key, entry.Value);
                 }
                 
-                text.Set(BaggageKeys.SpanId, context.SpanId);
-                text.Set(BaggageKeys.TraceId, context.TraceId);
+                text.Set(Keys.SpanId, context.SpanId);
+                text.Set(Keys.TraceId, context.TraceId);
             }
             else
             {
@@ -32,17 +32,17 @@ namespace LightStep.Propagation
             {
                 foreach (var entry in text)
                 {
-                    if (BaggageKeys.TraceId.Equals(entry.Key))
+                    if (Keys.TraceId.Equals(entry.Key))
                     {
                         traceId = entry.Value;
                     }
-                    else if (BaggageKeys.SpanId.Equals(entry.Key))
+                    else if (Keys.SpanId.Equals(entry.Key))
                     {
                         spanId = entry.Value;
                     }
-                    else if (entry.Key.StartsWith(BaggageKeys.BaggagePrefix))
+                    else if (entry.Key.StartsWith(Keys.BaggagePrefix))
                     {
-                        var key = entry.Key.Substring(BaggageKeys.BaggagePrefix.Length);
+                        var key = entry.Key.Substring(Keys.BaggagePrefix.Length);
                         baggage.Set(key, entry.Value);
                     }
                 }

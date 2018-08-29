@@ -12,7 +12,7 @@ namespace LightStep
     {
         private readonly object _lock = new object();
 
-        private readonly ISpanRecorder _spanRecorder = new LightStepSpanRecorder();
+        private readonly ISpanRecorder _spanRecorder;
         private readonly IPropagator _propagator;
         private readonly IScopeManager _scopeManager;
         private readonly Options _options;
@@ -34,7 +34,7 @@ namespace LightStep
         {
         }
         
-        public Tracer(IScopeManager scopeManager, IPropagator propagator, Options options, ISpanRecorder spanRecorder)
+        private Tracer(IScopeManager scopeManager, IPropagator propagator, Options options, ISpanRecorder spanRecorder)
         {
             _scopeManager = scopeManager;
             _spanRecorder = spanRecorder;
@@ -44,21 +44,18 @@ namespace LightStep
 
         public void Flush()
         {
-            lock (_lock)
+            var url =
+                $"http://{_options.Satellite.SatelliteHost}:{_options.Satellite.SatellitePort}/{LightStepConstants.SatelliteReportPath}";
+            using (var client = new LightStepHttpClient(url, _options))
             {
-                var url =
-                    $"http://{_options.Satellite.SatelliteHost}:{_options.Satellite.SatellitePort}/{LightStepConstants.SatelliteReportPath}";
-                using (var client = new LightStepHttpClient(url, _options))
+                var data = client.Translate(_spanRecorder.GetSpanBuffer());
+                var resp = client.SendReport(data);
+                if (resp.Errors.Count > 0)
                 {
-                    var data = client.Translate(_spanRecorder.GetSpanBuffer());
-                    var resp = client.SendReport(data);
-                    if (resp.Errors.Count > 0)
-                    {
-                        Console.WriteLine($"Errors sending report to LightStep: {resp.Errors}");
-                    }
-                    _spanRecorder.ClearSpanBuffer();
-                }    
-            }
+                    Console.WriteLine($"Errors sending report to LightStep: {resp.Errors}");
+                }
+                _spanRecorder.ClearSpanBuffer();
+            }     
         }
 
         public ISpanBuilder BuildSpan(string operationName)
