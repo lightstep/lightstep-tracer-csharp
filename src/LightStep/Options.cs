@@ -10,8 +10,7 @@ namespace LightStep
     {        
         public string AccessToken { get; set; }
         public SatelliteOptions Satellite { get; set; }
-        public TimeSpan MinimumReportPeriod { get; set; }
-        public TimeSpan MaximumReportPeriod { get; set; }
+        public TimeSpan ReportPeriod { get; set; }
         public TimeSpan ReportTimeout { get; set; }
         public IDictionary<string, object> Tags { get; set; }       
         public readonly UInt64 TracerGuid = new Random().NextUInt64();
@@ -24,8 +23,7 @@ namespace LightStep
             }
             
             Tags = InitializeDefaultTags();
-            MinimumReportPeriod = TimeSpan.FromMilliseconds(500);
-            MaximumReportPeriod = TimeSpan.FromMilliseconds(2500);
+            ReportPeriod = TimeSpan.FromMilliseconds(5000);
             ReportTimeout = TimeSpan.FromSeconds(30);
             AccessToken = token;
             Satellite = satelliteOptions;

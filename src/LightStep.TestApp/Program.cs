@@ -19,7 +19,7 @@ namespace LightStep.TestApp
 
             for (var i = 0; i < 500; i++)
             {
-                using (IScope scope = tracer.BuildSpan("testParent").WithTag("testSpan", "true").StartActive(true))
+                using (tracer.BuildSpan("testParent").WithTag("testSpan", "true").StartActive(true))
                 {
                     Console.WriteLine("sleeping for a bit");
                     Thread.Sleep(new Random().Next(5, 10));
@@ -28,8 +28,8 @@ namespace LightStep.TestApp
                     Thread.Sleep(new Random().Next(10, 20));
                     innerSpan.Finish();
                 }
-                tracer.Flush();
             }
+            tracer.Flush();
         }
     }
 }

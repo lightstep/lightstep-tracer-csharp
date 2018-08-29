@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using LightStep.Collector;
 using LightStep.Propagation;
 using OpenTracing;
@@ -40,21 +42,26 @@ namespace LightStep
             _spanRecorder = spanRecorder;
             _propagator = propagator;
             _options = options;
+            // assignment to a variable here is to suppress warnings that we're not awaiting an async method
+            var reportLoop = DoReportLoop(_options.ReportPeriod);
         }
-
+        
         public void Flush()
         {
+            // save current spans and clear the buffer
+            // TODO: add retry logic so as to not drop spans on unreachable satellite
+            var currentSpans = _spanRecorder.GetSpanBuffer().ToList();
+            _spanRecorder.ClearSpanBuffer();
             var url =
                 $"http://{_options.Satellite.SatelliteHost}:{_options.Satellite.SatellitePort}/{LightStepConstants.SatelliteReportPath}";
             using (var client = new LightStepHttpClient(url, _options))
             {
-                var data = client.Translate(_spanRecorder.GetSpanBuffer());
+                var data = client.Translate(currentSpans);
                 var resp = client.SendReport(data);
                 if (resp.Errors.Count > 0)
                 {
                     Console.WriteLine($"Errors sending report to LightStep: {resp.Errors}");
                 }
-                _spanRecorder.ClearSpanBuffer();
             }     
         }
 
@@ -78,6 +85,15 @@ namespace LightStep
             lock (_lock)
             {
                 _spanRecorder.RecordSpan(span);
+            }
+        }
+
+        private async Task DoReportLoop(TimeSpan reportingPeriod)
+        {
+            while (true)
+            {
+                Flush();   
+                await Task.Delay(reportingPeriod);
             }
         }
     }

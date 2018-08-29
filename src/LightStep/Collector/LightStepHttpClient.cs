@@ -42,7 +42,6 @@ namespace LightStep.Collector
             };
             
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-            Console.WriteLine(ReportRequest.Parser.ParseFrom(report.ToByteArray()));
             
             var response = client.SendAsync(request).Result;
             var responseData = response.Content.ReadAsStreamAsync().Result;
