@@ -2,21 +2,20 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using OpenTracing.Tag;
+using System.Reflection;
 
 namespace LightStep
 {
     public class Options
     {        
         public string AccessToken { get; set; }
-        public (string, int, bool) Satellite { get; set; }
-        public TimeSpan MinimumReportPeriod { get; set; }
-        public TimeSpan MaximumReportPeriod { get; set; }
+        public SatelliteOptions Satellite { get; set; }
+        public TimeSpan ReportPeriod { get; set; }
         public TimeSpan ReportTimeout { get; set; }
         public IDictionary<string, object> Tags { get; set; }       
         public readonly UInt64 TracerGuid = new Random().NextUInt64();
 
-        public Options(string token, (string, int, bool)? satellite = null)
+        public Options(string token, SatelliteOptions satelliteOptions)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
@@ -24,13 +23,10 @@ namespace LightStep
             }
             
             Tags = InitializeDefaultTags();
-            MinimumReportPeriod = TimeSpan.FromMilliseconds(500);
-            MaximumReportPeriod = TimeSpan.FromMilliseconds(2500);
+            ReportPeriod = TimeSpan.FromMilliseconds(5000);
             ReportTimeout = TimeSpan.FromSeconds(30);
-            Satellite = satellite.HasValue ? 
-                (satellite.Value.Item1, satellite.Value.Item2, satellite.Value.Item3) : 
-                ("collector.lightstep.com", 443, false);
             AccessToken = token;
+            Satellite = satelliteOptions;
         }
 
         private IDictionary<string, object> InitializeDefaultTags()
@@ -40,12 +36,49 @@ namespace LightStep
                 [LightStepConstants.TracerPlatformKey] = LightStepConstants.TracerPlatformValue,
                 [LightStepConstants.TracerPlatformVersionKey] = "0.1",
                 [LightStepConstants.TracerVersionKey] = "0.1",
-                [LightStepConstants.ComponentNameKey] = Process.GetCurrentProcess().ProcessName,
-                [LightStepConstants.HostnameKey] = Environment.MachineName,
-                [LightStepConstants.CommandLineKey] = Environment.CommandLine
+                [LightStepConstants.ComponentNameKey] = GetComponentName(),
+                [LightStepConstants.HostnameKey] = GetHostName(),
+                [LightStepConstants.CommandLineKey] = GetCommandLine()
                 
             };
             return attributes;
+        }
+
+        private string GetComponentName()
+        {
+            string compName = "";
+            #if NETSTANDARD1_3
+            compName = Environment.GetEnvironmentVariable("LS_COMPONENT");
+            #endif
+            #if NETSTANDARD2_0 || NET45
+            compName = Assembly.GetEntryAssembly().GetName().Name;
+            #endif
+            return compName;
+        }
+        
+
+        private string GetHostName()
+        {
+            string hostname = "";
+            #if NETSTANDARD1_3 
+            hostname = Environment.GetEnvironmentVariable("LS_HOSTNAME");
+            #endif
+            #if NETSTANDARD2_0 || NET45
+            hostname = Environment.MachineName;
+            #endif
+            return hostname;
+        }
+
+        private string GetCommandLine()
+        {
+            string commandLine = "";
+            #if NETSTANDARD1_3
+            commandLine = Environment.GetEnvironmentVariable("LS_COMMANDLINE");
+            #endif
+            #if NETSTANDARD2_0 || NET45
+            commandLine = Environment.CommandLine;
+            #endif
+            return commandLine;
         }
     }
 }

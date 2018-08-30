@@ -1,6 +1,6 @@
 ﻿namespace LightStep.Propagation
 {
-    public class BaggageKeys
+    public static class Keys
     {
         public const string BaggagePrefix = "ot-bg-";
 

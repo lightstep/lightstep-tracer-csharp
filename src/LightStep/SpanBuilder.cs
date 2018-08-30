@@ -10,40 +10,40 @@ namespace LightStep
     {
         private readonly Tracer _tracer;
         private readonly string _operationName;
-
-        // not initialized to save allocations in case there are no references.
-        private List<Tuple<string, ISpanContext>> _references;
-
-        // not initialized to save allocations in case there are no tags.
-        private IDictionary<string, object> _tags;
-
-        private DateTimeOffset? _startTimestamp;
-
+        private DateTimeOffset _startTimestamp = DateTimeOffset.MinValue;
+        private readonly List<Reference> _references = new List<Reference>();
+        private Dictionary<string, object> _tags = new Dictionary<string, object>();
         private bool _ignoreActiveSpan;
 
         public SpanBuilder(Tracer tracer, string operationName)
         {
-            if (tracer == null)
-            {
-                throw new ArgumentNullException(nameof(tracer));
-            }
             if (string.IsNullOrWhiteSpace(operationName))
             {
                 throw new ArgumentNullException(nameof(operationName));
             }
 
-            _tracer = tracer;
+            _tracer = tracer ?? throw new ArgumentNullException(nameof(tracer));
             _operationName = operationName;
         }
 
-        public ISpanBuilder AsChildOf(ISpanContext spanContext)
+        public ISpanBuilder AsChildOf(ISpanContext parent)
         {
-            return AddReference(References.ChildOf, spanContext);
+            if (parent == null)
+            {
+                return this;
+            }
+            
+            return AddReference(References.ChildOf, parent);
         }
 
-        public ISpanBuilder AsChildOf(ISpan span)
+        public ISpanBuilder AsChildOf(ISpan parent)
         {
-            return AsChildOf(span?.Context);
+            if (parent == null)
+            {
+                return this;
+            }
+            
+            return AsChildOf(parent.Context);
         }
 
         public ISpanBuilder FollowsFrom(ISpanContext spanContext)
@@ -65,12 +65,7 @@ namespace LightStep
 
             if (referencedContext != null)
             {
-                if (_references == null)
-                {
-                    _references = new List<Tuple<string, ISpanContext>>();
-                }
-
-                _references.Add(Tuple.Create(referenceType, referencedContext));
+                _references.Add(new Reference((SpanContext)referencedContext, referenceType));
             }
 
             return this;
@@ -169,7 +164,17 @@ namespace LightStep
 
         public ISpan Start()
         {
-            return _tracer.StartSpan(_operationName, _startTimestamp, _references, _tags);
+            if (_startTimestamp == DateTimeOffset.MinValue)
+            {
+                _startTimestamp = DateTimeOffset.Now;
+            }
+            
+            ISpanContext activeSpanContext = _tracer.ActiveSpan?.Context;
+            if (!_references.Any() && !_ignoreActiveSpan && activeSpanContext != null)
+            {
+                AddReference(References.ChildOf, activeSpanContext);
+            }
+            return new Span(_tracer, _operationName, _startTimestamp, _tags, _references);
         }   
     }
 }

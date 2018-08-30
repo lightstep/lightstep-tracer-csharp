@@ -13,32 +13,26 @@ namespace LightStep.TestApp
         {
             // substitute your own LS API Key here
             var lsKey = "TEST_TOKEN";
-            var lsSettings = ("localhost", 9996, false);
-            var tracer = new Tracer(new SpanContextFactory(), new LightStepSpanRecorder(), new Options(lsKey, lsSettings));
+            var lsSettings = new SatelliteOptions("localhost", 9996, false);
+            var tracer = new Tracer(new Options(lsKey, lsSettings));
             GlobalTracer.Register(tracer);
 
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < 500; i++)
             {
-                Console.WriteLine("starting a sample span");
-                var parentSpan = tracer.BuildSpan("outer").Start();
-                var span = tracer.BuildSpan("sample").AsChildOf(parentSpan).Start();
-
-                span.Log($"iteration {i}");
-                Thread.Sleep(new Random().Next(0, 50));
-                span.SetTag("testapp", "true");
-        
-                Console.WriteLine("span should be finished");
-                span.Finish();
-                parentSpan.Finish(); 
-                tracer.Flush();
+                using (IScope scope = tracer.BuildSpan("testParent").WithTag("testSpan", "true").StartActive(true))
+                {
+                    scope.Span.Log("test");
+                    tracer.ActiveSpan.Log($"iteration {i}");
+                    Console.WriteLine("sleeping for a bit");
+                    Thread.Sleep(new Random().Next(5, 10));
+                    var innerSpan = tracer.BuildSpan("childSpan").Start();
+                    innerSpan.SetTag("innerTestTag", "true");
+                    Console.WriteLine("sleeping more...");
+                    Thread.Sleep(new Random().Next(10, 20));
+                    innerSpan.Finish();
+                }
             }
-            
-            // TODO: locking NYI so this will crash!
-            using (IScope scope = tracer.BuildSpan("work").StartActive(finishSpanOnDispose: true))
-            {
-               Tags.Error.Set(scope.Span, true);
-                scope.Span.Log("error!");
-            }
+            tracer.Flush();
         }
     }
 }

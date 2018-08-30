@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using LightStep.Collector;
 using LightStep.Propagation;
 using OpenTracing;
@@ -8,52 +10,59 @@ using OpenTracing.Util;
 
 namespace LightStep
 {
-    public class Tracer : ITracer, IDisposable
+    public sealed class Tracer : ITracer
     {
-        private readonly ISpanContextFactory _spanContextFactory;
-        private readonly ISpanRecorder _spanRecorder;
+        private readonly object _lock = new object();
 
-        private readonly TextMapCarrierHandler _textMapCarrierHandler = new TextMapCarrierHandler();
+        private readonly ISpanRecorder _spanRecorder;
+        private readonly IPropagator _propagator;
+        private readonly IScopeManager _scopeManager;
         private readonly Options _options;
 
+        public IScopeManager ScopeManager => _scopeManager;
+
+        public ISpan ActiveSpan => _scopeManager?.Active?.Span;
         
-        public Tracer(
-            ISpanContextFactory spanContextFactory,
-            ISpanRecorder spanRecorder,
-            Options options)
+        public Tracer(Options options) : this(new AsyncLocalScopeManager(), Propagators.TextMap, options, new LightStepSpanRecorder())
         {
-            if (spanContextFactory == null)
-            {
-                throw new ArgumentNullException(nameof(spanContextFactory));
-            }
+        }
 
-            if (spanRecorder == null)
-            {
-                throw new ArgumentNullException(nameof(spanRecorder));
-            }
-
-            _spanContextFactory = spanContextFactory;
+        public Tracer(Options options, ISpanRecorder spanRecorder) : this(new AsyncLocalScopeManager(),
+            Propagators.TextMap, options, spanRecorder)
+        {
+        }
+        
+        public Tracer(Options options, IScopeManager scopeManager) : this(scopeManager, Propagators.TextMap, options, new LightStepSpanRecorder())
+        {
+        }
+        
+        private Tracer(IScopeManager scopeManager, IPropagator propagator, Options options, ISpanRecorder spanRecorder)
+        {
+            _scopeManager = scopeManager;
             _spanRecorder = spanRecorder;
+            _propagator = propagator;
             _options = options;
-            
+            // assignment to a variable here is to suppress warnings that we're not awaiting an async method
+            var reportLoop = DoReportLoop(_options.ReportPeriod);
         }
-
-        public void Close()
-        {
-            Dispose();
-        }
-
+        
         public void Flush()
         {
+            // save current spans and clear the buffer
+            // TODO: add retry logic so as to not drop spans on unreachable satellite
+            var currentSpans = _spanRecorder.GetSpanBuffer().ToList();
+            _spanRecorder.ClearSpanBuffer();
             var url =
-                $"http://{_options.Satellite.Item1}:{_options.Satellite.Item2}/{LightStepConstants.SatelliteReportPath}";
+                $"http://{_options.Satellite.SatelliteHost}:{_options.Satellite.SatellitePort}/{LightStepConstants.SatelliteReportPath}";
             using (var client = new LightStepHttpClient(url, _options))
             {
-                var data = client.Translate(_spanRecorder.GetSpanBuffer());
+                var data = client.Translate(currentSpans);
                 var resp = client.SendReport(data);
-                Console.WriteLine($"resp: {resp.Commands} {resp.Errors}");
-                _spanRecorder.ClearSpanBuffer();
-            }
+                if (resp.Errors.Count > 0)
+                {
+                    Console.WriteLine($"Errors sending report to LightStep: {resp.Errors}");
+                }
+            }     
         }
 
         public ISpanBuilder BuildSpan(string operationName)
@@ -61,53 +70,31 @@ namespace LightStep
             return new SpanBuilder(this, operationName);
         }
 
-        public IScopeManager ScopeManager { get; }
-        public ISpan ActiveSpan { get; }
-
-        public ISpan StartSpan(
-            string operationName,
-            DateTimeOffset? startTimestamp,
-            IList<Tuple<string, ISpanContext>> references,
-            IDictionary<string, object> tags)
-        {
-            var spanContext = _spanContextFactory.CreateSpanContext(references);
-
-            var span = new Span(_spanRecorder, spanContext, operationName, startTimestamp ?? DateTime.UtcNow, tags);
-
-            return span;
-        }
-
         public void Inject<TCarrier>(ISpanContext spanContext, IFormat<TCarrier> format, TCarrier carrier)
         {
-            // TODO add other formats (and maybe don't use if/else :D )
-
-            var typedContext = (SpanContext)spanContext;
-            
-            if (format.Equals(BuiltinFormats.TextMap))
-            {
-                TextMapCarrierHandler.MapContextToCarrier(typedContext, (ITextMap) carrier);
-            }
-            else
-            {
-                throw new FormatException($"The format '{format}' is not supported.");
-            }
+           _propagator.Inject((SpanContext)spanContext, format, carrier);
         }
 
         public ISpanContext Extract<TCarrier>(IFormat<TCarrier> format, TCarrier carrier)
         {
-            // TODO add other formats (and maybe don't use if/else :D )
-
-            if (format.Equals(BuiltinFormats.TextMap))
-            {
-                return TextMapCarrierHandler.MapCarrierToContext((ITextMap) carrier);
-            }
-            
-            throw new FormatException($"The format '{format}' is not supported.");
+            return _propagator.Extract(format, carrier);
         }
 
-        public void Dispose()
+        internal void AppendFinishedSpan(SpanData span)
         {
-            Flush();
+            lock (_lock)
+            {
+                _spanRecorder.RecordSpan(span);
+            }
+        }
+
+        private async Task DoReportLoop(TimeSpan reportingPeriod)
+        {
+            while (true)
+            {
+                Flush();   
+                await Task.Delay(reportingPeriod);
+            }
         }
     }
 }
