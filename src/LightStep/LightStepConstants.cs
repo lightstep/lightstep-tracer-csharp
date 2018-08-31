@@ -1,5 +1,8 @@
 ﻿namespace LightStep
 {
+    /// <summary>
+    ///     Constants and other values used by LightStep.
+    /// </summary>
     public static class LightStepConstants
     {
         public static readonly string ParentSpanGuidKey = "parent_span_guid";

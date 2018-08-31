@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using LightStep.Collector;
@@ -10,42 +9,71 @@ using OpenTracing.Util;
 
 namespace LightStep
 {
+    /// <inheritdoc />
     public sealed class Tracer : ITracer
     {
         private readonly object _lock = new object();
+        private readonly Options _options;
+        private readonly IPropagator _propagator;
 
         private readonly ISpanRecorder _spanRecorder;
-        private readonly IPropagator _propagator;
-        private readonly IScopeManager _scopeManager;
-        private readonly Options _options;
 
-        public IScopeManager ScopeManager => _scopeManager;
-
-        public ISpan ActiveSpan => _scopeManager?.Active?.Span;
-        
-        public Tracer(Options options) : this(new AsyncLocalScopeManager(), Propagators.TextMap, options, new LightStepSpanRecorder())
+        /// <inheritdoc />
+        public Tracer(Options options) : this(new AsyncLocalScopeManager(), Propagators.TextMap, options,
+            new LightStepSpanRecorder())
         {
         }
 
+        /// <inheritdoc />
         public Tracer(Options options, ISpanRecorder spanRecorder) : this(new AsyncLocalScopeManager(),
             Propagators.TextMap, options, spanRecorder)
         {
         }
-        
-        public Tracer(Options options, IScopeManager scopeManager) : this(scopeManager, Propagators.TextMap, options, new LightStepSpanRecorder())
+
+        /// <inheritdoc />
+        public Tracer(Options options, IScopeManager scopeManager) : this(scopeManager, Propagators.TextMap, options,
+            new LightStepSpanRecorder())
         {
         }
-        
+
         private Tracer(IScopeManager scopeManager, IPropagator propagator, Options options, ISpanRecorder spanRecorder)
         {
-            _scopeManager = scopeManager;
+            ScopeManager = scopeManager;
             _spanRecorder = spanRecorder;
             _propagator = propagator;
             _options = options;
             // assignment to a variable here is to suppress warnings that we're not awaiting an async method
             var reportLoop = DoReportLoop(_options.ReportPeriod);
         }
-        
+
+        /// <inheritdoc />
+        public IScopeManager ScopeManager { get; }
+
+        /// <inheritdoc />
+        public ISpan ActiveSpan => ScopeManager?.Active?.Span;
+
+        /// <inheritdoc />
+        public ISpanBuilder BuildSpan(string operationName)
+        {
+            return new SpanBuilder(this, operationName);
+        }
+
+        /// <inheritdoc />
+        public void Inject<TCarrier>(ISpanContext spanContext, IFormat<TCarrier> format, TCarrier carrier)
+        {
+            _propagator.Inject((SpanContext) spanContext, format, carrier);
+        }
+
+        /// <inheritdoc />
+        public ISpanContext Extract<TCarrier>(IFormat<TCarrier> format, TCarrier carrier)
+        {
+            return _propagator.Extract(format, carrier);
+        }
+
+        /// <summary>
+        ///     Transmits the current contents of the span buffer to the LightStep Satellite.
+        ///     Note that this creates a copy of the current spans and clears the span buffer!
+        /// </summary>
         public void Flush()
         {
             // save current spans and clear the buffer
@@ -58,26 +86,8 @@ namespace LightStep
             {
                 var data = client.Translate(currentSpans);
                 var resp = client.SendReport(data);
-                if (resp.Errors.Count > 0)
-                {
-                    Console.WriteLine($"Errors sending report to LightStep: {resp.Errors}");
-                }
-            }     
-        }
-
-        public ISpanBuilder BuildSpan(string operationName)
-        {
-            return new SpanBuilder(this, operationName);
-        }
-
-        public void Inject<TCarrier>(ISpanContext spanContext, IFormat<TCarrier> format, TCarrier carrier)
-        {
-           _propagator.Inject((SpanContext)spanContext, format, carrier);
-        }
-
-        public ISpanContext Extract<TCarrier>(IFormat<TCarrier> format, TCarrier carrier)
-        {
-            return _propagator.Extract(format, carrier);
+                if (resp.Errors.Count > 0) Console.WriteLine($"Errors sending report to LightStep: {resp.Errors}");
+            }
         }
 
         internal void AppendFinishedSpan(SpanData span)
@@ -92,7 +102,7 @@ namespace LightStep
         {
             while (true)
             {
-                Flush();   
+                Flush();
                 await Task.Delay(reportingPeriod);
             }
         }

@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Threading;
-using LightStep;
-using OpenTracing;
-using OpenTracing.Tag;
 using OpenTracing.Util;
 
 namespace LightStep.TestApp
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             // substitute your own LS API Key here
             var lsKey = "TEST_TOKEN";
@@ -18,8 +15,7 @@ namespace LightStep.TestApp
             GlobalTracer.Register(tracer);
 
             for (var i = 0; i < 500; i++)
-            {
-                using (IScope scope = tracer.BuildSpan("testParent").WithTag("testSpan", "true").StartActive(true))
+                using (var scope = tracer.BuildSpan("testParent").WithTag("testSpan", "true").StartActive(true))
                 {
                     scope.Span.Log("test");
                     tracer.ActiveSpan.Log($"iteration {i}");
@@ -31,7 +27,7 @@ namespace LightStep.TestApp
                     Thread.Sleep(new Random().Next(10, 20));
                     innerSpan.Finish();
                 }
-            }
+
             tracer.Flush();
         }
     }
