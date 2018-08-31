@@ -6,6 +6,7 @@ using OpenTracing.Tag;
 
 namespace LightStep
 {
+    /// <inheritdoc />
     public class SpanBuilder : ISpanBuilder
     {
         private readonly Tracer _tracer;
@@ -15,6 +16,7 @@ namespace LightStep
         private Dictionary<string, object> _tags = new Dictionary<string, object>();
         private bool _ignoreActiveSpan;
 
+        /// <inheritdoc />
         public SpanBuilder(Tracer tracer, string operationName)
         {
             if (string.IsNullOrWhiteSpace(operationName))
@@ -26,6 +28,7 @@ namespace LightStep
             _operationName = operationName;
         }
 
+        /// <inheritdoc />
         public ISpanBuilder AsChildOf(ISpanContext parent)
         {
             if (parent == null)
@@ -36,6 +39,7 @@ namespace LightStep
             return AddReference(References.ChildOf, parent);
         }
 
+        /// <inheritdoc />
         public ISpanBuilder AsChildOf(ISpan parent)
         {
             if (parent == null)
@@ -46,16 +50,22 @@ namespace LightStep
             return AsChildOf(parent.Context);
         }
 
-        public ISpanBuilder FollowsFrom(ISpanContext spanContext)
+        private ISpanBuilder FollowsFrom(ISpanContext spanContext)
         {
             return AddReference(References.FollowsFrom, spanContext);
         }
-
+        
+        /// <summary>
+        /// Indicates that this span follows from a prior span.
+        /// </summary>
+        /// <param name="span">An <see cref="ISpan"/></param>
+        /// <returns></returns>
         public ISpanBuilder FollowsFrom(ISpan span)
         {
             return FollowsFrom(span?.Context);
         }
 
+        /// <inheritdoc />
         public ISpanBuilder AddReference(string referenceType, ISpanContext referencedContext)
         {
             if (string.IsNullOrWhiteSpace(referenceType))
@@ -71,35 +81,41 @@ namespace LightStep
             return this;
         }
 
+        /// <inheritdoc />
         public ISpanBuilder IgnoreActiveSpan()
         {
             _ignoreActiveSpan = true;
             return this;
         }
 
+        /// <inheritdoc />
         public ISpanBuilder WithTag(StringTag tag, string value)
         {
             _tags[tag.Key] = value;
             return this;
         }
 
+        /// <inheritdoc />
         public ISpanBuilder WithStartTimestamp(DateTimeOffset startTimestamp)
         {
             _startTimestamp = startTimestamp;
             return this;
         }
 
+        /// <inheritdoc />
         public IScope StartActive()
         {
             return StartActive(true);
         }
 
+        /// <inheritdoc />
         public IScope StartActive(bool finishSpanOnDispose)
         {
             var span = Start();
             return _tracer.ScopeManager.Activate(span, finishSpanOnDispose);
         }
 
+        /// <inheritdoc />
         public ISpanBuilder WithTag(string key, bool value)
         {
             if (_tags == null)
@@ -111,6 +127,7 @@ namespace LightStep
             return this;
         }
 
+        /// <inheritdoc />
         public ISpanBuilder WithTag(string key, double value)
         {
             if (_tags == null)
@@ -122,24 +139,28 @@ namespace LightStep
             return this;
         }
 
+        /// <inheritdoc />
         public ISpanBuilder WithTag(BooleanTag tag, bool value)
         {
             _tags[tag.Key] = value;
             return this;
         }
 
+        /// <inheritdoc />
         public ISpanBuilder WithTag(IntOrStringTag tag, string value)
         {
             _tags[tag.Key] = value;
             return this;
         }
 
+        /// <inheritdoc />
         public ISpanBuilder WithTag(IntTag tag, int value)
         {
             _tags[tag.Key] = value;
             return this;
         }
 
+        /// <inheritdoc />
         public ISpanBuilder WithTag(string key, int value)
         {
             if (_tags == null)
@@ -151,6 +172,7 @@ namespace LightStep
             return this;
         }
 
+        /// <inheritdoc />
         public ISpanBuilder WithTag(string key, string value)
         {
             if (_tags == null)
@@ -162,6 +184,7 @@ namespace LightStep
             return this;
         }
 
+        /// <inheritdoc />
         public ISpan Start()
         {
             if (_startTimestamp == DateTimeOffset.MinValue)
@@ -169,7 +192,7 @@ namespace LightStep
                 _startTimestamp = DateTimeOffset.Now;
             }
             
-            ISpanContext activeSpanContext = _tracer.ActiveSpan?.Context;
+            var activeSpanContext = _tracer.ActiveSpan?.Context;
             if (!_references.Any() && !_ignoreActiveSpan && activeSpanContext != null)
             {
                 AddReference(References.ChildOf, activeSpanContext);

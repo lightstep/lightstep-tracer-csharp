@@ -10,6 +10,7 @@ using OpenTracing.Util;
 
 namespace LightStep
 {
+    /// <inheritdoc />
     public sealed class Tracer : ITracer
     {
         private readonly object _lock = new object();
@@ -19,20 +20,27 @@ namespace LightStep
         private readonly IScopeManager _scopeManager;
         private readonly Options _options;
 
+        /// <inheritdoc />
         public IScopeManager ScopeManager => _scopeManager;
 
+        /// <inheritdoc />
         public ISpan ActiveSpan => _scopeManager?.Active?.Span;
-        
-        public Tracer(Options options) : this(new AsyncLocalScopeManager(), Propagators.TextMap, options, new LightStepSpanRecorder())
+
+        /// <inheritdoc />
+        public Tracer(Options options) : this(new AsyncLocalScopeManager(), Propagators.TextMap, options,
+            new LightStepSpanRecorder())
         {
         }
 
+        /// <inheritdoc />
         public Tracer(Options options, ISpanRecorder spanRecorder) : this(new AsyncLocalScopeManager(),
             Propagators.TextMap, options, spanRecorder)
         {
         }
-        
-        public Tracer(Options options, IScopeManager scopeManager) : this(scopeManager, Propagators.TextMap, options, new LightStepSpanRecorder())
+
+        /// <inheritdoc />
+        public Tracer(Options options, IScopeManager scopeManager) : this(scopeManager, Propagators.TextMap, options,
+            new LightStepSpanRecorder())
         {
         }
         
@@ -46,6 +54,10 @@ namespace LightStep
             var reportLoop = DoReportLoop(_options.ReportPeriod);
         }
         
+        /// <summary>
+        /// Transmits the current contents of the span buffer to the LightStep Satellite.
+        /// Note that this creates a copy of the current spans and clears the span buffer!
+        /// </summary>
         public void Flush()
         {
             // save current spans and clear the buffer
@@ -65,16 +77,19 @@ namespace LightStep
             }     
         }
 
+        /// <inheritdoc />
         public ISpanBuilder BuildSpan(string operationName)
         {
             return new SpanBuilder(this, operationName);
         }
 
+        /// <inheritdoc />
         public void Inject<TCarrier>(ISpanContext spanContext, IFormat<TCarrier> format, TCarrier carrier)
         {
            _propagator.Inject((SpanContext)spanContext, format, carrier);
         }
 
+        /// <inheritdoc />
         public ISpanContext Extract<TCarrier>(IFormat<TCarrier> format, TCarrier carrier)
         {
             return _propagator.Extract(format, carrier);

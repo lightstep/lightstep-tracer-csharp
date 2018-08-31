@@ -7,12 +7,13 @@ using OpenTracing.Tag;
 
 namespace LightStep
 {
+    /// <inheritdoc />
     public sealed class Span : ISpan
     {
         private readonly object _lock = new object();
 
         private readonly Tracer _tracer;
-        private SpanContext _context;
+        private readonly SpanContext _context;
         private DateTimeOffset _finishTimestamp;
         private bool _finished;
         private readonly Dictionary<string, object> _tags;
@@ -20,10 +21,20 @@ namespace LightStep
         private readonly List<LogData> _logs = new List<LogData>();
         private readonly List<Exception> _errors = new List<Exception>();
         
-        public string ParentId { get; }
+        /// <summary>
+        /// SpanID of this span's parent.
+        /// </summary>
+        private string ParentId { get; }
         
-        public DateTimeOffset StartTimestamp { get; }
-        public DateTimeOffset FinishTimestamp
+        /// <summary>
+        /// The start time of the span.
+        /// </summary>
+        private DateTimeOffset StartTimestamp { get; }
+        /// <summary>
+        /// The finish time of the span.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">A span must be finished before setting the finish timestamp.</exception>
+        private DateTimeOffset FinishTimestamp
         {
             get
             {
@@ -36,13 +47,19 @@ namespace LightStep
             }
         }
         
-        public string OperationName { get; private set; }
+        /// <summary>
+        /// The operation name of the span.
+        /// </summary>
+        private string OperationName { get; set; }
         
         public Dictionary<string, object> Tags => new Dictionary<string, object>(_tags);
         public List<LogData> Logs => new List<LogData>(_logs);
         public List<Exception> Errors => new List<Exception>(_errors);
 
-        public SpanContext Context
+        /// <summary>
+        /// The span's <see cref="SpanContext"/>
+        /// </summary>
+        private SpanContext Context
         {
             get
             {
@@ -55,12 +72,20 @@ namespace LightStep
 
         ISpanContext ISpan.Context => Context;
         
+        /// <summary>
+        /// Create a new Span.
+        /// </summary>
+        /// <param name="tracer">Tracer that will record the span.</param>
+        /// <param name="operationName">Operation name being recorded by the span.</param>
+        /// <param name="startTimestamp">The <see cref="DateTimeOffset"/> at which the span begun.</param>
+        /// <param name="tags">Tags for the span.</param>
+        /// <param name="references">References to other spans.</param>
         public Span(
             Tracer tracer,
             string operationName,
             DateTimeOffset startTimestamp,
             IDictionary<string, object> tags,
-            List<Reference> references)
+            IReadOnlyCollection<Reference> references)
         {
             _tracer = tracer;
             OperationName = operationName;
@@ -155,7 +180,8 @@ namespace LightStep
         }
 
         #region Setters
-        
+
+        /// <inheritdoc />
         public ISpan SetOperationName(string operationName)
         {
             lock (_lock)
@@ -171,6 +197,7 @@ namespace LightStep
             }      
         }
 
+        /// <inheritdoc />
         public ISpan SetTag(string key, bool value)
         {
             if (string.IsNullOrWhiteSpace(key))
@@ -181,6 +208,7 @@ namespace LightStep
             return SetObjectTag(key, value);
         }
 
+        /// <inheritdoc />
         public ISpan SetTag(string key, double value)
         {
             if (string.IsNullOrWhiteSpace(key))
@@ -190,7 +218,8 @@ namespace LightStep
 
             return SetObjectTag(key, value);
         }
-        
+
+        /// <inheritdoc />
         public ISpan SetTag(string key, int value)
         {
             if (string.IsNullOrWhiteSpace(key))
@@ -201,6 +230,7 @@ namespace LightStep
             return SetObjectTag(key, value);
         }
 
+        /// <inheritdoc />
         public ISpan SetTag(string key, string value)
         {
             if (string.IsNullOrWhiteSpace(key))
@@ -211,6 +241,7 @@ namespace LightStep
             return SetObjectTag(key, value);
         }
 
+        /// <inheritdoc />
         public ISpan SetTag(BooleanTag tag, bool value)
         {
             if (string.IsNullOrWhiteSpace(tag.Key))
@@ -221,6 +252,7 @@ namespace LightStep
             return SetObjectTag(tag.Key, value);
         }
 
+        /// <inheritdoc />
         public ISpan SetTag(IntOrStringTag tag, string value)
         {
             if (string.IsNullOrWhiteSpace(tag.Key))
@@ -231,6 +263,7 @@ namespace LightStep
             return SetObjectTag(tag.Key, value);
         }
 
+        /// <inheritdoc />
         public ISpan SetTag(IntTag tag, int value)
         {
             if (string.IsNullOrWhiteSpace(tag.Key))
@@ -241,6 +274,7 @@ namespace LightStep
             return SetObjectTag(tag.Key, value);
         }
 
+        /// <inheritdoc />
         public ISpan SetTag(StringTag tag, string value)
         {
             if (string.IsNullOrWhiteSpace(tag.Key))
@@ -252,11 +286,13 @@ namespace LightStep
         }
         #endregion
 
+        /// <inheritdoc />
         public ISpan Log(IEnumerable<KeyValuePair<string, object>> fields)
         {
             return Log(DateTimeOffset.Now, fields);
         }
 
+        /// <inheritdoc />
         public ISpan Log(DateTimeOffset timestamp, IEnumerable<KeyValuePair<string, object>> fields)
         {
             lock (_lock)
@@ -267,16 +303,19 @@ namespace LightStep
             }   
         }
 
+        /// <inheritdoc />
         public ISpan Log(string eventName)
         {
             return Log(DateTimeOffset.Now, eventName);
         }
 
+        /// <inheritdoc />
         public ISpan Log(DateTimeOffset timestamp, string eventName)
         {
             return Log(timestamp, new Dictionary<string, object> { { "event", eventName }});
         }
 
+        /// <inheritdoc />
         public ISpan SetBaggageItem(string key, string value)
         {
             lock (_lock)
@@ -287,6 +326,7 @@ namespace LightStep
             }
         }
 
+        /// <inheritdoc />
         public string GetBaggageItem(string key)
         {
             lock (_lock)
@@ -295,11 +335,13 @@ namespace LightStep
             }
         }
 
+        /// <inheritdoc />
         public void Finish()
         {
             Finish(DateTimeOffset.UtcNow);
         }
 
+        /// <inheritdoc />
         public void Finish(DateTimeOffset finishTimestamp)
         {
             lock (_lock)
