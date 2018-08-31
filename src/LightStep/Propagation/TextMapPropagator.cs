@@ -3,8 +3,10 @@ using OpenTracing.Propagation;
 
 namespace LightStep.Propagation
 {
+    /// <inheritdoc />
     public class TextMapPropagator : IPropagator
     {
+        /// <inheritdoc />
         public void Inject<TCarrier>(SpanContext context, IFormat<TCarrier> format, TCarrier carrier)
         {
             if (carrier is ITextMap text)
@@ -23,6 +25,7 @@ namespace LightStep.Propagation
             }
         }
 
+        /// <inheritdoc />
         public SpanContext Extract<TCarrier>(IFormat<TCarrier> format, TCarrier carrier)
         {
             string traceId = null;
