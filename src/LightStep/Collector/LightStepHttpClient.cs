@@ -17,17 +17,30 @@ using Type = System.Type;
 
 namespace LightStep.Collector
 {    
+    /// <summary>
+    /// Contains methods to communicate to a LightStep Satellite via Proto over HTTP.
+    /// </summary>
     public class LightStepHttpClient : IDisposable
     {
         private readonly string _url;
         private readonly Options _options;
 
+        /// <summary>
+        /// Create a new client.
+        /// </summary>
+        /// <param name="satelliteUrl">URL to send results to.</param>
+        /// <param name="options">An <see cref="Options"/> object.</param>
         public LightStepHttpClient(string satelliteUrl, Options options)
         {
             _url = satelliteUrl;
             _options = options;
         }
         
+        /// <summary>
+        /// Send a report of spans to the LightStep Satellite.
+        /// </summary>
+        /// <param name="report">An <see cref="ReportRequest"/></param>
+        /// <returns>A <see cref="ReportResponse"/>. This is usually not very interesting.</returns>
         public ReportResponse SendReport(ReportRequest report)
         {
             var client = new HttpClient();
@@ -48,6 +61,11 @@ namespace LightStep.Collector
             return ReportResponse.Parser.ParseFrom(responseData);
         }
 
+        /// <summary>
+        /// Translate SpanData to a protobuf ReportRequest for sending to the Satellite.
+        /// </summary>
+        /// <param name="spans">An enumerable of <see cref="SpanData"/></param>
+        /// <returns>A <see cref="ReportRequest"/></returns>
         public ReportRequest Translate(IEnumerable<SpanData> spans)
         {
             var request = new ReportRequest
@@ -65,7 +83,7 @@ namespace LightStep.Collector
 
         public void Dispose()
         {
-            
+             
         }
     }
 }
