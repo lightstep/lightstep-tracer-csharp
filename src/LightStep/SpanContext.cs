@@ -9,16 +9,6 @@ namespace LightStep
         private readonly Baggage _baggage = new Baggage();
 
         /// <inheritdoc />
-        public string TraceId { get; }
-
-        /// <inheritdoc />
-        public string SpanId { get; }
-        /// <summary>
-        /// The parent span ID, if any.
-        /// </summary>
-        public string ParentSpanId { get; }
-
-        /// <inheritdoc />
         public SpanContext(string traceId, string spanId, Baggage baggage = null, string parentId = null)
         {
             TraceId = traceId;
@@ -27,6 +17,17 @@ namespace LightStep
             _baggage.Merge(baggage);
         }
 
+        /// <summary>
+        ///     The parent span ID, if any.
+        /// </summary>
+        public string ParentSpanId { get; }
+
+        /// <inheritdoc />
+        public string TraceId { get; }
+
+        /// <inheritdoc />
+        public string SpanId { get; }
+
         /// <inheritdoc />
         public IEnumerable<KeyValuePair<string, string>> GetBaggageItems()
         {
@@ -34,7 +35,7 @@ namespace LightStep
         }
 
         /// <summary>
-        /// Get a single item from the baggage.
+        ///     Get a single item from the baggage.
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
@@ -44,7 +45,7 @@ namespace LightStep
         }
 
         /// <summary>
-        /// Set an item on the baggage.
+        ///     Set an item on the baggage.
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>

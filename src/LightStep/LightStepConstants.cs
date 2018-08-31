@@ -1,7 +1,7 @@
 ﻿namespace LightStep
 {
     /// <summary>
-    /// Constants and other values used by LightStep.
+    ///     Constants and other values used by LightStep.
     /// </summary>
     public static class LightStepConstants
     {

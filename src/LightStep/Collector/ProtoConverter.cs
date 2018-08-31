@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Google.Protobuf.WellKnownTypes;
-using LightStep.Collector;
-using OpenTracing;
 
 namespace LightStep.Collector
 {
@@ -11,7 +9,7 @@ namespace LightStep.Collector
     public partial class SpanContext
     {
         /// <summary>
-        /// Converts a <see cref="LightStep.SpanContext"/> to a <see cref="SpanContext"/>
+        ///     Converts a <see cref="LightStep.SpanContext" /> to a <see cref="SpanContext" />
         /// </summary>
         /// <param name="ctx">A SpanContext</param>
         /// <returns>Proto SpanContext</returns>
@@ -23,12 +21,12 @@ namespace LightStep.Collector
             return this;
         }
     }
-    
+
     /// <inheritdoc />
     public partial class Span
     {
         /// <summary>
-        /// Converts a <see cref="SpanData"/> to a <see cref="Span"/>
+        ///     Converts a <see cref="SpanData" /> to a <see cref="Span" />
         /// </summary>
         /// <param name="span">A SpanData</param>
         /// <returns>Proto Span</returns>
@@ -38,20 +36,12 @@ namespace LightStep.Collector
             OperationName = span.OperationName;
             SpanContext = new SpanContext().MakeSpanContextFromOtSpanContext(span.Context);
             StartTimestamp = Timestamp.FromDateTime(span.StartTimestamp.UtcDateTime);
-            foreach (var logData in span.LogData)
-            {
-                Logs.Add(new Log().MakeLogFromLogData(logData));
-            }
-            foreach (var keyValuePair in span.Tags)
-            {
-                Tags.Add(new KeyValue().MakeKeyValueFromKvp(keyValuePair));
-            }
+            foreach (var logData in span.LogData) Logs.Add(new Log().MakeLogFromLogData(logData));
+            foreach (var keyValuePair in span.Tags) Tags.Add(new KeyValue().MakeKeyValueFromKvp(keyValuePair));
 
             if (!string.IsNullOrWhiteSpace(span.Context.ParentSpanId))
-            {
                 References.Add(Reference.MakeReferenceFromParentSpanId(span.Context.ParentSpanId));
-            }
-            
+
             return this;
         }
     }
@@ -60,13 +50,12 @@ namespace LightStep.Collector
     public partial class Reference
     {
         /// <summary>
-        /// Converts a ParentSpanId string into a <see cref="Reference"/>
+        ///     Converts a ParentSpanId string into a <see cref="Reference" />
         /// </summary>
         /// <param name="id">A ParentSpanId as a string</param>
         /// <returns>Proto Reference</returns>
         public static Reference MakeReferenceFromParentSpanId(string id)
         {
-           
             var reference = new Reference();
             reference.Relationship = Types.Relationship.ChildOf;
             reference.SpanContext = new SpanContext {SpanId = Convert.ToUInt64(id)};
@@ -79,17 +68,14 @@ namespace LightStep.Collector
     public partial class Log
     {
         /// <summary>
-        /// Converts a <see cref="LogData"/> into a <see cref="Log"/>
+        ///     Converts a <see cref="LogData" /> into a <see cref="Log" />
         /// </summary>
         /// <param name="log">A LogData object</param>
         /// <returns>Proto Log</returns>
         public Log MakeLogFromLogData(LogData log)
         {
             Timestamp = Timestamp.FromDateTime(log.Timestamp.DateTime.ToUniversalTime());
-            foreach (var keyValuePair in log.Fields)
-            {                
-                Fields.Add(new KeyValue().MakeKeyValueFromKvp(keyValuePair));
-            }
+            foreach (var keyValuePair in log.Fields) Fields.Add(new KeyValue().MakeKeyValueFromKvp(keyValuePair));
 
             return this;
         }
@@ -100,25 +86,18 @@ namespace LightStep.Collector
     {
         //TODO: this is incomplete, needs to be able to convert more stuff.
         /// <summary>
-        /// Converts a <see cref="KeyValuePair{TKey,TValue}"/> into a <see cref="KeyValue"/>
+        ///     Converts a <see cref="KeyValuePair{TKey,TValue}" /> into a <see cref="KeyValue" />
         /// </summary>
         /// <param name="input">A KeyValuePair used in Tags, etc.</param>
         /// <returns>Proto KeyValue</returns>
         public KeyValue MakeKeyValueFromKvp(KeyValuePair<string, object> input)
         {
             Key = input.Key;
-            if (input.Value.GetType().IsNumericDataType())
-            {
-                DoubleValue = Convert.ToDouble(input.Value);
-            }
+            if (input.Value.GetType().IsNumericDataType()) DoubleValue = Convert.ToDouble(input.Value);
             if (input.Value.GetType().IsBooleanDataType())
-            {
                 BoolValue = Convert.ToBoolean(input.Value);
-            }
             else
-            {
                 StringValue = Convert.ToString(input.Value);
-            }
             return this;
         }
     }

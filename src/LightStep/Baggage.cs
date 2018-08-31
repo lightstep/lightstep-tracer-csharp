@@ -4,14 +4,15 @@ using System.Collections.Generic;
 namespace LightStep
 {
     /// <summary>
-    /// Baggage is a dictionary of key:value information that is propagated via the SpanContext.
+    ///     Baggage is a dictionary of key:value information that is propagated via the SpanContext.
     /// </summary>
     public class Baggage
     {
-        private readonly IDictionary<string, string> _items = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private readonly IDictionary<string, string> _items =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
-        /// Sets key to value.
+        ///     Sets key to value.
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
@@ -21,7 +22,7 @@ namespace LightStep
         }
 
         /// <summary>
-        /// Gets value for key; Will return null if key does not exist.
+        ///     Gets value for key; Will return null if key does not exist.
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
@@ -32,7 +33,7 @@ namespace LightStep
         }
 
         /// <summary>
-        /// Gets all <see cref="KeyValuePair{TKey,TValue}"/> from baggage.
+        ///     Gets all <see cref="KeyValuePair{TKey,TValue}" /> from baggage.
         /// </summary>
         /// <returns></returns>
         public IEnumerable<KeyValuePair<string, string>> GetAll()
@@ -41,7 +42,7 @@ namespace LightStep
         }
 
         /// <summary>
-        /// Combines two baggage into one.
+        ///     Combines two baggage into one.
         /// </summary>
         /// <param name="other"></param>
         public void Merge(Baggage other)
@@ -56,10 +57,7 @@ namespace LightStep
 
             // Copy entries into local dictionary instead of setting it directly
             // to make sure the case insensitive comparer is used.
-            foreach (var kvp in other)
-            {
-                Set(kvp.Key, kvp.Value);
-            }
+            foreach (var kvp in other) Set(kvp.Key, kvp.Value);
         }
     }
 }

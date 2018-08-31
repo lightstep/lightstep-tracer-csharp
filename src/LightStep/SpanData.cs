@@ -4,34 +4,38 @@ using System.Collections.Generic;
 namespace LightStep
 {
     /// <summary>
-    /// An internal representation of a span.
+    ///     An internal representation of a span.
     /// </summary>
     public class SpanData
     {
         /// <summary>
-        /// The Span Context
+        ///     The Span Context
         /// </summary>
         public SpanContext Context { get; internal set; }
+
         /// <summary>
-        /// The span operation
+        ///     The span operation
         /// </summary>
         public string OperationName { get; internal set; }
+
         /// <summary>
-        /// The start of the span.
+        ///     The start of the span.
         /// </summary>
         public DateTimeOffset StartTimestamp { get; internal set; }
+
         /// <summary>
-        /// How long the span ran.
+        ///     How long the span ran.
         /// </summary>
         public TimeSpan Duration { get; internal set; }
+
         /// <summary>
-        /// Tags for the span.
+        ///     Tags for the span.
         /// </summary>
         public IDictionary<string, object> Tags { get; internal set; }
+
         /// <summary>
-        /// Logs emitted as part of the span.
+        ///     Logs emitted as part of the span.
         /// </summary>
         public IList<LogData> LogData { get; internal set; }
-        
     }
 }
