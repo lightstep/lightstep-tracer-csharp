@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net45;netcoreapp2.1</TargetFrameworks>
+    <AssemblyName>LightStep.CSharpTestApp</AssemblyName>
+    <RootNamespace>LightStep.CSharpTestApp</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="OpenTracing" Version="0.12.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\LightStep\LightStep.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="OpenTracing, Version=0.12.0.0, Culture=neutral, PublicKeyToken=61503406977abdaf">
+      <HintPath>..\..\..\..\.nuget\packages\opentracing\0.12.0\lib\net45\OpenTracing.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
