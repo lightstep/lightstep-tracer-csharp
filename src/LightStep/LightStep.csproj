@@ -22,10 +22,6 @@
     <None Remove="lightstep.proto" />
   </ItemGroup>
   
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
-    <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
-    <FrameworkPathOverride>$(NuGetPackageRoot)microsoft.targetingpack.netframework.v4.5.2\1.0.1\lib\net452\</FrameworkPathOverride>
-  </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
     <PackageReference Include="System.Net.Http" Version="4.3.3" />
   </ItemGroup>
