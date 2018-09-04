@@ -2,27 +2,29 @@
 The LightStep distributed tracing library for C#
 
 # Installation
-```
-$ dotnet pack
-```
-
-This will create a .nupkg file at `./src/LightStep/bin/Debug/LightStep.1.0.0.nupkg`. You can import this into another C# project.
+Install the package via NuGet into your solution, or use `Install-Package LightStep`.
 
 # Basic Usage
 It's recommended to initialize the tracer once at the beginning of your application and assign it as the global tracer, as follows:
 ```c#
-var lightStepAccessToken = "ACCESS_TOKEN";
-var lightStepOptions = new Options()
-var tracer = new Tracer(new SpanContextFactory(), new LightStepSpanRecorder(), new Options(lightStepAccessToken, lightStepOptions))
+// substitute your own LS API Key here
+var lsKey = "TEST_TOKEN";
+
+// substitute your satellite endpoint (host, port) here.
+var lsSettings = new SatelliteOptions("localhost", 9996, false);
+
+// create a new tracer and register it
+var tracer = new Tracer(new Options(lsKey, lsSettings));
 GlobalTracer.Register(tracer);
-tracer.BuildSpan()
 ...
 ```
 
-# Compatability Notes
-If you're using .NET Standard 1.3, then you need to set the following values per-process:
-```c#
-LS_HOSTNAME
-LS_COMPONENT
-LS_COMMANDLINE
-```
+Once you've initialized a tracer, you can begin to create and emit spans.
+
+Please refer to the [OpenTracing C# documentation](https://github.com/opentracing/opentracing-csharp) for information on how to create spans.
+
+
+
+
+
+
