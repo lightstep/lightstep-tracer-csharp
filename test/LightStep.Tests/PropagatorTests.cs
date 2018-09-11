@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using LightStep.Propagation;
 using OpenTracing.Propagation;
 using Xunit;
@@ -48,6 +50,35 @@ namespace LightStep.Tests
             Assert.Equal(2, ps.Propagators.Count);
             Assert.Equal(ps.Propagators[0], Propagators.HttpHeadersPropagator);
             Assert.Equal(ps.Propagators[1], b3Propagator);
+        }
+
+        [Fact]
+        public void PropagatorStackShouldInjectExtractAllPropagators()
+        {
+            var ps = new PropagatorStack(BuiltinFormats.TextMap);
+            var httpPropagator = new HttpHeadersPropagator();
+            var b3Propagator = new B3Propagator();
+            var textPropagator = new TextMapPropagator();
+            
+            ps.AddPropagator(httpPropagator);
+            ps.AddPropagator(b3Propagator);
+            ps.AddPropagator(textPropagator);
+
+            var carrier = new Dictionary<string, string>();
+            var context = new SpanContext("0", "0");
+            
+            ps.Inject(context, BuiltinFormats.TextMap, new TextMapInjectAdapter(carrier));
+
+            var propagators = new List<IPropagator> {httpPropagator, b3Propagator, textPropagator};
+
+            foreach (var t in propagators)
+            {
+                var extractedContext =
+                    t.Extract(BuiltinFormats.TextMap, new TextMapExtractAdapter(carrier));
+                Assert.NotNull(extractedContext);
+                Assert.Equal(context.TraceId, extractedContext.TraceId);
+                Assert.Equal(context.SpanId, extractedContext.SpanId);
+            }
         }
     }
 

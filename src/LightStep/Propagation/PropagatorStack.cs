@@ -36,14 +36,33 @@ namespace LightStep.Propagation
         
         public void Inject<TCarrier>(SpanContext context, IFormat<TCarrier> format, TCarrier carrier)
         {
-            Propagators.ForEach(propagator => propagator.Inject(context, format, carrier));
+            Propagators.ForEach(propagator =>
+            {
+                try
+                {
+                    propagator.Inject(context, format, carrier);
+                }
+                catch
+                {
+                    // suppress errors
+                }
+            });
         }
 
         public SpanContext Extract<TCarrier>(IFormat<TCarrier> format, TCarrier carrier)
         {
             for (int i = Propagators.Count - 1; i >= 0; i--)
             {
-                var context = Propagators[i].Extract(format, carrier);
+                SpanContext context = null;
+                try
+                {
+                    context = Propagators[i].Extract(format, carrier);
+                }
+                catch
+                {
+                    // suppress errors
+                }
+                
                 if (context != null)
                 {
                     return context;
