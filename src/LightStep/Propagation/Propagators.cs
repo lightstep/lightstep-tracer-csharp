@@ -14,5 +14,11 @@ namespace LightStep.Propagation
         ///     A key:value store for string pairs.
         /// </summary>
         public static readonly IPropagator TextMap = new TextMapPropagator();
+        
+        /// <summary>
+        ///    Supports B3 headers, such as those used in Zipkin or StageMonitor.
+        /// </summary>
+        public static readonly IPropagator B3Propagator = new B3Propagator();
     }
+
 }
