@@ -107,9 +107,8 @@ namespace LightStep.Tests
                 item => item.Fields.First(
                     f => f.Value.Equals("hello world!")
                 ).Value).ToArray()[0];
-            
+
             Assert.Equal("hello world!", (string) finishedSpanLogData);
-            
         }
     }
 }

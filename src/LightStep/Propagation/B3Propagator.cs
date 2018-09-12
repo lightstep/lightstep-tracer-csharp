@@ -13,8 +13,8 @@ namespace LightStep.Propagation
         /// <inheritdoc />
         public void Inject<TCarrier>(SpanContext context, IFormat<TCarrier> format, TCarrier carrier)
         {
-            ulong traceId = Convert.ToUInt64(context.TraceId);
-            ulong spanId = Convert.ToUInt64(context.SpanId);
+            var traceId = Convert.ToUInt64(context.TraceId);
+            var spanId = Convert.ToUInt64(context.SpanId);
 
             if (carrier is ITextMap text)
             {
@@ -29,18 +29,13 @@ namespace LightStep.Propagation
         {
             string traceId = null;
             string spanId = null;
-            
+
             if (carrier is ITextMap text)
                 foreach (var entry in text)
                     if (TraceIdName.Equals(entry.Key))
-                    {
                         traceId = entry.Value;
-                    }
-                    else if (SpanIdName.Equals(entry.Key))
-                    {
-                        spanId = entry.Value;
-                    }
-                   
+                    else if (SpanIdName.Equals(entry.Key)) spanId = entry.Value;
+
             if (!string.IsNullOrEmpty(traceId) && !string.IsNullOrEmpty(spanId))
                 return new SpanContext(traceId, spanId);
 

@@ -43,7 +43,7 @@ namespace LightStep.Propagation
                         var key = entry.Key.Substring(Keys.BaggagePrefix.Length);
                         baggage.Set(key, entry.Value);
                     }
-            
+
             if (!string.IsNullOrEmpty(traceId) && !string.IsNullOrEmpty(spanId))
                 return new SpanContext(traceId, spanId, baggage);
 

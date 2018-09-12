@@ -61,8 +61,8 @@ namespace LightStep
             var attributes = new Dictionary<string, object>
             {
                 [LightStepConstants.TracerPlatformKey] = LightStepConstants.TracerPlatformValue,
-                [LightStepConstants.TracerPlatformVersionKey] = "0.1",
-                [LightStepConstants.TracerVersionKey] = "0.1",
+                [LightStepConstants.TracerPlatformVersionKey] = "0.2",
+                [LightStepConstants.TracerVersionKey] = "0.2",
                 [LightStepConstants.ComponentNameKey] = GetComponentName(),
                 [LightStepConstants.HostnameKey] = GetHostName(),
                 [LightStepConstants.CommandLineKey] = GetCommandLine()

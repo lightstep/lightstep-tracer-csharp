@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using LightStep.Propagation;
 using OpenTracing.Propagation;
 using Xunit;
@@ -10,17 +9,55 @@ namespace LightStep.Tests
     public class PropagatorTests
     {
         [Fact]
-        public void PropagatorStackShouldThrowOnNullConstructor()
+        public void PropagatorStackInTracerShouldInjectAndExtract()
         {
-            Assert.Throws<ArgumentNullException>(() => new PropagatorStack(null));
+            var ps = new PropagatorStack(BuiltinFormats.HttpHeaders);
+            ps.AddPropagator(new B3Propagator());
+            ps.AddPropagator(new HttpHeadersPropagator());
+            ps.AddPropagator(new TextMapPropagator());
+
+            var sr = new SimpleMockRecorder();
+            var satOpts = new SatelliteOptions("localhost", 80, true);
+            var tracerOpts = new Options("TEST", satOpts);
+
+            var tracer = new Tracer(tracerOpts, sr, ps);
+
+            var span = tracer.BuildSpan("propTest").Start();
+
+            var traceId = span.TypedContext().TraceId;
+            var spanId = span.TypedContext().SpanId;
+
+            var hexTraceId = Convert.ToUInt64(traceId).ToString("X");
+            var hexSpanId = Convert.ToUInt64(spanId).ToString("X");
+
+            var data = new Dictionary<string, string>();
+
+            tracer.Inject(span.Context, BuiltinFormats.HttpHeaders, new TextMapInjectAdapter(data));
+
+            Assert.Equal(traceId, data["ot-traceid"]);
+            Assert.Equal(hexTraceId, data["X-B3-TraceId"]);
+            Assert.Equal(spanId, data["ot-spanid"]);
+            Assert.Equal(hexSpanId, data["X-B3-SpanId"]);
+
+            span.Finish();
+
+            var ctx = tracer.Extract(BuiltinFormats.HttpHeaders, new TextMapExtractAdapter(data));
+
+            Assert.Equal(ctx.SpanId, spanId);
+            Assert.Equal(ctx.TraceId, traceId);
         }
 
         [Fact]
-        public void PropagatorStackShouldHandleEmptyConstructor()
+        public void PropagatorStackShouldAddPropagator()
         {
-            var ps = new PropagatorStack(BuiltinFormats.TextMap);
-            Assert.True(ps.Propagators.Count == 0);
-            Assert.Equal(ps.Format, BuiltinFormats.TextMap);
+            var b3Propagator = new B3Propagator();
+            var ps = new PropagatorStack(BuiltinFormats.HttpHeaders);
+
+            Assert.Equal(ps.AddPropagator(Propagators.HttpHeadersPropagator), ps);
+            Assert.Equal(ps.AddPropagator(b3Propagator), ps);
+            Assert.Equal(2, ps.Propagators.Count);
+            Assert.Equal(ps.Propagators[0], Propagators.HttpHeadersPropagator);
+            Assert.Equal(ps.Propagators[1], b3Propagator);
         }
 
         [Fact]
@@ -33,23 +70,11 @@ namespace LightStep.Tests
         }
 
         [Fact]
-        public void PropagatorStackShouldThrowOnNullPropagator()
+        public void PropagatorStackShouldHandleEmptyConstructor()
         {
             var ps = new PropagatorStack(BuiltinFormats.TextMap);
-            Assert.Throws<ArgumentNullException>(() => ps.AddPropagator(null));
-        }
-
-        [Fact]
-        public void PropagatorStackShouldAddPropagator()
-        {
-            var b3Propagator = new B3Propagator();
-            var ps = new PropagatorStack(BuiltinFormats.HttpHeaders);
-            
-            Assert.Equal(ps.AddPropagator(Propagators.HttpHeadersPropagator), ps);
-            Assert.Equal(ps.AddPropagator(b3Propagator), ps);
-            Assert.Equal(2, ps.Propagators.Count);
-            Assert.Equal(ps.Propagators[0], Propagators.HttpHeadersPropagator);
-            Assert.Equal(ps.Propagators[1], b3Propagator);
+            Assert.True(ps.Propagators.Count == 0);
+            Assert.Equal(ps.Format, BuiltinFormats.TextMap);
         }
 
         [Fact]
@@ -59,14 +84,14 @@ namespace LightStep.Tests
             var httpPropagator = new HttpHeadersPropagator();
             var b3Propagator = new B3Propagator();
             var textPropagator = new TextMapPropagator();
-            
+
             ps.AddPropagator(httpPropagator);
             ps.AddPropagator(b3Propagator);
             ps.AddPropagator(textPropagator);
 
             var carrier = new Dictionary<string, string>();
             var context = new SpanContext("0", "0");
-            
+
             ps.Inject(context, BuiltinFormats.TextMap, new TextMapInjectAdapter(carrier));
 
             var propagators = new List<IPropagator> {httpPropagator, b3Propagator, textPropagator};
@@ -79,6 +104,19 @@ namespace LightStep.Tests
                 Assert.Equal(context.TraceId, extractedContext.TraceId);
                 Assert.Equal(context.SpanId, extractedContext.SpanId);
             }
+        }
+
+        [Fact]
+        public void PropagatorStackShouldThrowOnNullConstructor()
+        {
+            Assert.Throws<ArgumentNullException>(() => new PropagatorStack(null));
+        }
+
+        [Fact]
+        public void PropagatorStackShouldThrowOnNullPropagator()
+        {
+            var ps = new PropagatorStack(BuiltinFormats.TextMap);
+            Assert.Throws<ArgumentNullException>(() => ps.AddPropagator(null));
         }
     }
 

@@ -36,6 +36,12 @@ namespace LightStep
         {
         }
 
+        /// <inheritdoc />
+        public Tracer(Options options, ISpanRecorder spanRecorder, IPropagator propagator) : this(
+            new AsyncLocalScopeManager(), propagator, options, spanRecorder)
+        {
+        }
+
         private Tracer(IScopeManager scopeManager, IPropagator propagator, Options options, ISpanRecorder spanRecorder)
         {
             ScopeManager = scopeManager;
