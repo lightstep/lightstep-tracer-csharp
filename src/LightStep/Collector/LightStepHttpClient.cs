@@ -10,9 +10,10 @@ namespace LightStep.Collector
     /// <summary>
     ///     Contains methods to communicate to a LightStep Satellite via Proto over HTTP.
     /// </summary>
-    public class LightStepHttpClient : IDisposable
+    public class LightStepHttpClient
     {
         private readonly Options _options;
+        private readonly HttpClient _client;
         private readonly string _url;
 
         /// <summary>
@@ -20,14 +21,11 @@ namespace LightStep.Collector
         /// </summary>
         /// <param name="satelliteUrl">URL to send results to.</param>
         /// <param name="options">An <see cref="Options" /> object.</param>
-        public LightStepHttpClient(string satelliteUrl, Options options)
+        public LightStepHttpClient(string url, Options options)
         {
-            _url = satelliteUrl;
+            _url = url;
             _options = options;
-        }
-
-        public void Dispose()
-        {
+            _client = new HttpClient();
         }
 
         /// <summary>
@@ -37,9 +35,8 @@ namespace LightStep.Collector
         /// <returns>A <see cref="ReportResponse" />. This is usually not very interesting.</returns>
         public ReportResponse SendReport(ReportRequest report)
         {
-            var client = new HttpClient();
-
-            client.DefaultRequestHeaders.Accept.Add(
+            
+            _client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/octet-stream"));
 
             var request = new HttpRequestMessage(HttpMethod.Post, _url)
@@ -50,7 +47,7 @@ namespace LightStep.Collector
 
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
 
-            var response = client.SendAsync(request).Result;
+            var response = _client.SendAsync(request).Result;
             var responseData = response.Content.ReadAsStreamAsync().Result;
             return ReportResponse.Parser.ParseFrom(responseData);
         }

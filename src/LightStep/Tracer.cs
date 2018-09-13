@@ -15,7 +15,7 @@ namespace LightStep
         private readonly object _lock = new object();
         private readonly Options _options;
         private readonly IPropagator _propagator;
-
+        private readonly LightStepHttpClient _httpClient;
         private readonly ISpanRecorder _spanRecorder;
 
         /// <inheritdoc />
@@ -48,6 +48,12 @@ namespace LightStep
             _spanRecorder = spanRecorder;
             _propagator = propagator;
             _options = options;
+
+            // TODO: refactor to support changing proto
+            var url =
+                $"http://{_options.Satellite.SatelliteHost}:{_options.Satellite.SatellitePort}/{LightStepConstants.SatelliteReportPath}";
+            _httpClient = new LightStepHttpClient(url, _options);
+
             // assignment to a variable here is to suppress warnings that we're not awaiting an async method
             var reportLoop = DoReportLoop(_options.ReportPeriod);
         }
@@ -86,14 +92,11 @@ namespace LightStep
             // TODO: add retry logic so as to not drop spans on unreachable satellite
             var currentSpans = _spanRecorder.GetSpanBuffer().ToList();
             _spanRecorder.ClearSpanBuffer();
-            var url =
-                $"http://{_options.Satellite.SatelliteHost}:{_options.Satellite.SatellitePort}/{LightStepConstants.SatelliteReportPath}";
-            using (var client = new LightStepHttpClient(url, _options))
-            {
-                var data = client.Translate(currentSpans);
-                var resp = client.SendReport(data);
-                if (resp.Errors.Count > 0) Console.WriteLine($"Errors sending report to LightStep: {resp.Errors}");
-            }
+            
+            var data = _httpClient.Translate(currentSpans);
+            var resp = _httpClient.SendReport(data);
+            if (resp.Errors.Count > 0) Console.WriteLine($"Errors sending report to LightStep: {resp.Errors}");
+            
         }
 
         internal void AppendFinishedSpan(SpanData span)
