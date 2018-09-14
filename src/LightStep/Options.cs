@@ -77,30 +77,23 @@ namespace LightStep
             {
                 entryAssembly = Assembly.GetEntryAssembly().GetName().Name;
             }
-            catch (NullReferenceException ex)
+            catch (NullReferenceException)
             {
                 // could not get assembly name, possibly because we're running a test
                 entryAssembly = "unknown";
-            }
-            
+            }  
             return entryAssembly;
-
-
         }
 
 
         private static string GetHostName()
         {
-
            return Environment.MachineName;
-
         }
 
         private static string GetCommandLine()
         {
-
             return Environment.CommandLine;
-
         }
     }
 }

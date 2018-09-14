@@ -6,14 +6,15 @@ jobs:
     steps:
       - checkout
       - run: msbuild /t:Restore
-      - run: msbuild /t:Build
+      - run: msbuild src/LightStep/LightStep.csproj /t:Build
   test:
     docker:
       - image: aparker/circleci-dotnet-mono:latest
     steps:
       - checkout
       - run: msbuild /t:Restore
-      - run: msbuild /t:Build
+      - run: msbuild src/LightStep/LightStep.csproj /t:Build
+      - run: msbuild test/LightStep.Tests/LightStep.Tests.csproj /t:Build
       - run: msbuild test/LightStep.Tests/LightStep.Tests.csproj /t:Test
   publish:
     docker:
