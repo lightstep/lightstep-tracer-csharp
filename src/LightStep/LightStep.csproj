@@ -25,28 +25,25 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <PackageReference Include="System.Net.Http" Version="4.3.3" />
   </ItemGroup>
+      
+  <PropertyGroup>
+      <Authors>Austin Parker</Authors>
+      <PackageVersion>0.0.2-alpha-$(CIRCLE_BUILD_NUM)</PackageVersion>
+      <Company>LightStep</Company>
+      <NeutralLanguage>en-US</NeutralLanguage>
+      <AssemblyTitle>LightStep</AssemblyTitle>
+      <Description>OpenTracing compliant tracer for LightStep.</Description>
+      <Copyright>LightStep 2018</Copyright>
+  </PropertyGroup>
   
   <PropertyGroup>
-    <VersionPrefix>0.0.2</VersionPrefix>
-    <VersionSuffix>alpha</VersionSuffix>
+      <PackageTags>tracing</PackageTags>
+      <PackageReleaseNotes>add b3 propagator support</PackageReleaseNotes>
+      <PackageIconUrl>https://raw.githubusercontent.com/lightstep/lightstep-tracer-csharp/master/ls128x128.md</PackageIconUrl>
+      <PackageProjectUrl>http://www.lightstep.com</PackageProjectUrl>
+      <PackageLicenseUrl>https://raw.githubusercontent.com/lightstep/lightstep-tracer-csharp/master/LICENSE.md</PackageLicenseUrl>
+      <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+      <RepositoryType>git</RepositoryType>
+      <RepositoryUrl>https://raw.githubusercontent.com/lightstep/lightstep-tracer-csharp</RepositoryUrl>
   </PropertyGroup>
-    
-    <PropertyGroup>
-        <Authors>Austin Parker</Authors>
-        <Company>LightStep</Company>
-        <NeutralLanguage>en-US</NeutralLanguage>
-        <AssemblyTitle>LightStep</AssemblyTitle>
-        <Description>OpenTracing compliant tracer for LightStep.</Description>
-        <Copyright>LightStep 2018</Copyright>
-    </PropertyGroup>
-    <PropertyGroup>
-        <PackageTags>tracing</PackageTags>
-        <PackageReleaseNotes>add b3 propagator support</PackageReleaseNotes>
-        <PackageIconUrl>https://raw.githubusercontent.com/lightstep/lightstep-tracer-csharp/master/ls128x128.md</PackageIconUrl>
-        <PackageProjectUrl>http://www.lightstep.com</PackageProjectUrl>
-        <PackageLicenseUrl>https://raw.githubusercontent.com/lightstep/lightstep-tracer-csharp/master/LICENSE.md</PackageLicenseUrl>
-        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-        <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>https://raw.githubusercontent.com/lightstep/lightstep-tracer-csharp</RepositoryUrl>
-    </PropertyGroup>
 </Project>
