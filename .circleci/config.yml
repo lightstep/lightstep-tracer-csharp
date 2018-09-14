@@ -13,6 +13,7 @@ jobs:
     steps:
       - checkout
       - run: msbuild /t:Restore
+      - run: msbuild /t:Build
       - run: msbuild test/LightStep.Tests/LightStep.Tests.csproj /t:Test
   publish:
     docker:
