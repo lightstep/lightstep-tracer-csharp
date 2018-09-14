@@ -37,14 +37,18 @@ jobs:
       - run: msbuild /t:Build
       - run: msbuild src/LightStep/LightStep.csproj /t:Pack
       - run: dotnet nuget push src/LightStep/bin/Debug/*.nupkg -k $NuGet
+
 workflows:
   version: 2
   build-test-and-pack:
   jobs:
     - build
     - test:
-        requires:
-          - build
+      requires:
+        - build
     - pack:
-        requires:
-          - test
+      requires:
+        - test
+      filters:
+        branches:
+          only: master
