@@ -27,7 +27,7 @@ jobs:
 
       - store_artifacts:
           path: /pkg
-          
+
   publish:
     docker:
       - image: aparker/circleci-dotnet-mono:latest
@@ -39,12 +39,12 @@ jobs:
       - run: dotnet nuget push src/LightStep/bin/Debug/*.nupkg -k $NuGet
 workflows:
   version: 2
-  build_and_test:
-    jobs:
-      - build
-      - test:
+  build-test-and-pack:
+  jobs:
+    - build
+    - test:
         requires:
           - build
-      - pack:
+    - pack:
         requires:
           - test
