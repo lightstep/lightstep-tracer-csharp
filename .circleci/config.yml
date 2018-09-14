@@ -41,14 +41,14 @@ jobs:
 workflows:
   version: 2
   build-test-and-pack:
-  jobs:
-    - build
-    - test:
-      requires:
-        - build
-    - pack:
-      requires:
-        - test
-      filters:
-        branches:
-          only: master
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+      - pack:
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
