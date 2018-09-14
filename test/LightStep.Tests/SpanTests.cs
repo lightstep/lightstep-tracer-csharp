@@ -44,8 +44,8 @@ namespace LightStep.Tests
             var finishedSpan = recorder.GetSpanBuffer().First();
 
             // we expect there to be 2 logs and 3 tags
-            Assert.Equal(2, finishedSpan.LogData.Count);
-            Assert.Equal(3, finishedSpan.Tags.Count);
+            Assert.True(finishedSpan.LogData.Count == 2);
+            Assert.True(finishedSpan.Tags.Count == 3);
         }
 
         [Fact]
@@ -63,8 +63,8 @@ namespace LightStep.Tests
             span.Finish();
             var finishedSpan = recorder.GetSpanBuffer().First();
 
-            Assert.Equal(true, finishedSpan.Tags["boolTrueTag"]);
-            Assert.Equal(false, finishedSpan.Tags["boolFalseTag"]);
+            Assert.True((bool) finishedSpan.Tags["boolTrueTag"]);
+            Assert.False((bool) finishedSpan.Tags["boolFalseTag"]);
             Assert.Equal(0, finishedSpan.Tags["intTag"]);
             Assert.Equal("test", finishedSpan.Tags["stringTag"]);
             Assert.Equal(0.1, finishedSpan.Tags["doubleTag"]);
@@ -85,7 +85,7 @@ namespace LightStep.Tests
             span.Finish();
             var finishedSpan = recorder.GetSpanBuffer().First();
 
-            Assert.Equal(true, finishedSpan.Tags["testBoolTag"]);
+            Assert.True((bool) finishedSpan.Tags["testBoolTag"]);
             Assert.Equal(1, finishedSpan.Tags["testIntTag"]);
             Assert.Equal("test", finishedSpan.Tags["testStringTag"]);
             Assert.Equal("string", finishedSpan.Tags["testIntOrStringTagAsString"]);
@@ -102,8 +102,13 @@ namespace LightStep.Tests
             span.Finish();
 
             var finishedSpan = recorder.GetSpanBuffer().First();
+            // project the sequence of logdata into an array with one item, the aforementioned log message
+            var finishedSpanLogData = finishedSpan.LogData.Select(
+                item => item.Fields.First(
+                    f => f.Value.Equals("hello world!")
+                ).Value).ToArray()[0];
 
-            Assert.True(finishedSpan.LogData.Any(item => item.Fields.Any(x => x.Value.Equals("hello world!"))));
+            Assert.Equal("hello world!", (string) finishedSpanLogData);
         }
     }
 }

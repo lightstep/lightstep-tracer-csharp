@@ -61,8 +61,8 @@ namespace LightStep
             var attributes = new Dictionary<string, object>
             {
                 [LightStepConstants.TracerPlatformKey] = LightStepConstants.TracerPlatformValue,
-                [LightStepConstants.TracerPlatformVersionKey] = "0.1",
-                [LightStepConstants.TracerVersionKey] = "0.1",
+                [LightStepConstants.TracerPlatformVersionKey] = "0.2",
+                [LightStepConstants.TracerVersionKey] = "0.2",
                 [LightStepConstants.ComponentNameKey] = GetComponentName(),
                 [LightStepConstants.HostnameKey] = GetHostName(),
                 [LightStepConstants.CommandLineKey] = GetCommandLine()
@@ -72,39 +72,28 @@ namespace LightStep
 
         private static string GetComponentName()
         {
-            var compName = "";
-#if NETSTANDARD1_3
-            compName = Environment.GetEnvironmentVariable("LS_COMPONENT");
-            #endif
-#if NETSTANDARD2_0 || NET45
-            compName = Assembly.GetEntryAssembly().GetName().Name;
-#endif
-            return compName;
+            var entryAssembly = "";
+            try
+            {
+                entryAssembly = Assembly.GetEntryAssembly().GetName().Name;
+            }
+            catch (NullReferenceException)
+            {
+                // could not get assembly name, possibly because we're running a test
+                entryAssembly = "unknown";
+            }  
+            return entryAssembly;
         }
 
 
         private static string GetHostName()
         {
-            var hostname = "";
-#if NETSTANDARD1_3
-            hostname = Environment.GetEnvironmentVariable("LS_HOSTNAME");
-            #endif
-#if NETSTANDARD2_0 || NET45
-            hostname = Environment.MachineName;
-#endif
-            return hostname;
+           return Environment.MachineName;
         }
 
         private static string GetCommandLine()
         {
-            var commandLine = "";
-#if NETSTANDARD1_3
-            commandLine = Environment.GetEnvironmentVariable("LS_COMMANDLINE");
-            #endif
-#if NETSTANDARD2_0 || NET45
-            commandLine = Environment.CommandLine;
-#endif
-            return commandLine;
+            return Environment.CommandLine;
         }
     }
 }

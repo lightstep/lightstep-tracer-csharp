@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using OpenTracing.Util;
 
@@ -30,5 +31,6 @@ namespace LightStep.TestApp
 
             tracer.Flush();
         }
+        
     }
 }

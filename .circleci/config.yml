@@ -1,0 +1,50 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: aparker/circleci-dotnet-mono:latest
+    steps:
+      - checkout
+      - run: msbuild /t:Restore
+      - run: msbuild src/LightStep/LightStep.csproj /t:Build
+  test:
+    docker:
+      - image: aparker/circleci-dotnet-mono:latest
+    steps:
+      - checkout
+      - run: msbuild /t:Restore
+      - run: msbuild src/LightStep/LightStep.csproj /t:Build
+      - run: msbuild test/LightStep.Tests/LightStep.Tests.csproj /t:Build
+      - run: msbuild test/LightStep.Tests/LightStep.Tests.csproj /t:Test
+  pack:
+    docker:
+      - image: aparker/circleci-dotnet-mono:latest
+    steps:
+      - checkout
+      - run: msbuild /t:Restore
+      - run: msbuild src/LightStep/LightStep.csproj /t:Build
+      - run: msbuild src/LightStep/LightStep.csproj /t:Pack /p:PackageOutputPath="/pkg"
+
+      - store_artifacts:
+          path: /pkg
+          
+  publish:
+    docker:
+      - image: aparker/circleci-dotnet-mono:latest
+    steps:
+      - checkout
+      - run: msbuild /t:Restore
+      - run: msbuild /t:Build
+      - run: msbuild src/LightStep/LightStep.csproj /t:Pack
+      - run: dotnet nuget push src/LightStep/bin/Debug/*.nupkg -k $NuGet
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test:
+        requires:
+          - build
+      - pack:
+        requires:
+          - test

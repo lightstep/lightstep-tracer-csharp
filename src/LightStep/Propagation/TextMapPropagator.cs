@@ -43,8 +43,6 @@ namespace LightStep.Propagation
                         var key = entry.Key.Substring(Keys.BaggagePrefix.Length);
                         baggage.Set(key, entry.Value);
                     }
-            else
-                throw new InvalidOperationException($"Unknown carrier {carrier.GetType()}");
 
             if (!string.IsNullOrEmpty(traceId) && !string.IsNullOrEmpty(spanId))
                 return new SpanContext(traceId, spanId, baggage);
