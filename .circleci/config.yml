@@ -1,0 +1,22 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: aparker/circleci-dotnet-mono:latest
+    steps:
+      - checkout
+      - run: msbuild /t:Restore
+      - run: msbuild /t:Build
+  test:
+    docker:
+      - image: aparker/circleci-dotnet-mono:latest
+    steps:
+      - checkout
+      - run: msbuild /t:Restore
+      - run: msbuild test/LightStep.Tests/LightStep.Tests.csproj /t:Test
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test
