@@ -16,6 +16,18 @@ jobs:
       - run: msbuild src/LightStep/LightStep.csproj /t:Build
       - run: msbuild test/LightStep.Tests/LightStep.Tests.csproj /t:Build
       - run: msbuild test/LightStep.Tests/LightStep.Tests.csproj /t:Test
+  pack:
+    docker:
+      - image: aparker/circleci-dotnet-mono:latest
+    steps:
+      - checkout
+      - run: msbuild /t:Restore
+      - run: msbuild src/LightStep/LightStep.csproj /t:Build
+      - run: msbuild src/LightStep/LightStep.csproj /t:Pack /p:PackageOutputPath="/pkg"
+
+      - store_artifacts:
+          path: /pkg
+          
   publish:
     docker:
       - image: aparker/circleci-dotnet-mono:latest
@@ -30,4 +42,9 @@ workflows:
   build_and_test:
     jobs:
       - build
-      - test
+      - test:
+        requires:
+          - build
+      - pack:
+        requires:
+          - test
