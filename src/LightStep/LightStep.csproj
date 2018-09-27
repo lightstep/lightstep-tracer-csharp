@@ -28,7 +28,7 @@
       
   <PropertyGroup>
       <Authors>Austin Parker</Authors>
-      <PackageVersion>0.0.2-alpha-$(CIRCLE_BUILD_NUM)</PackageVersion>
+      <PackageVersion>0.0.3-alpha-$(CIRCLE_BUILD_NUM)</PackageVersion>
       <Company>LightStep</Company>
       <NeutralLanguage>en-US</NeutralLanguage>
       <AssemblyTitle>LightStep</AssemblyTitle>
@@ -38,7 +38,7 @@
 
   <PropertyGroup>
       <PackageTags>tracing</PackageTags>
-      <PackageReleaseNotes>add b3 propagator support</PackageReleaseNotes>
+      <PackageReleaseNotes>choose protocol based on usePlaintext satellite option</PackageReleaseNotes>
       <PackageIconUrl>https://raw.githubusercontent.com/lightstep/lightstep-tracer-csharp/master/ls128x128.md</PackageIconUrl>
       <PackageProjectUrl>http://www.lightstep.com</PackageProjectUrl>
       <PackageLicenseUrl>https://raw.githubusercontent.com/lightstep/lightstep-tracer-csharp/master/LICENSE.md</PackageLicenseUrl>

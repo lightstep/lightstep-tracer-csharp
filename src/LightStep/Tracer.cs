@@ -49,9 +49,10 @@ namespace LightStep
             _propagator = propagator;
             _options = options;
 
+            var protocol = _options.Satellite.UsePlaintext ? "http" : "https";
             // TODO: refactor to support changing proto
             var url =
-                $"http://{_options.Satellite.SatelliteHost}:{_options.Satellite.SatellitePort}/{LightStepConstants.SatelliteReportPath}";
+                $"{protocol}://{_options.Satellite.SatelliteHost}:{_options.Satellite.SatellitePort}/{LightStepConstants.SatelliteReportPath}";
             _httpClient = new LightStepHttpClient(url, _options);
 
             // assignment to a variable here is to suppress warnings that we're not awaiting an async method
