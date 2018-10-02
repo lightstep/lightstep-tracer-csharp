@@ -41,7 +41,7 @@ namespace LightStep.Collector
 
             var request = new HttpRequestMessage(HttpMethod.Post, _url)
             {
-                Version = new Version(2, 0),
+                Version = _options.UseHttp2 ? new Version(1, 1) : new Version(2, 0),
                 Content = new ByteArrayContent(report.ToByteArray())
             };
 
