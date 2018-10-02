@@ -29,12 +29,18 @@ namespace LightStep
             ReportTimeout = TimeSpan.FromSeconds(30);
             AccessToken = token;
             Satellite = satelliteOptions;
+            UseHttp2 = true;
         }
 
         /// <summary>
         ///     API key for a LightStep project.
         /// </summary>
         public string AccessToken { get; set; }
+        
+        /// <summary>
+        ///     True if the satellite connection should use HTTP/2, false otherwise.
+        /// </summary>
+        public bool UseHttp2;
 
         /// <summary>
         ///     LightStep Satellite endpoint configuration.
