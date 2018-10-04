@@ -15,6 +15,7 @@ namespace LightStep.Propagation
 
                 text.Set(Keys.SpanId, context.SpanId);
                 text.Set(Keys.TraceId, context.TraceId);
+                text.Set(Keys.SampledId, "true");
             }
             else
             {
