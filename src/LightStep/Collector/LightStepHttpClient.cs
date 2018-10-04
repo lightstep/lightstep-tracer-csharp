@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Google.Protobuf;
@@ -35,6 +36,8 @@ namespace LightStep.Collector
         /// <returns>A <see cref="ReportResponse" />. This is usually not very interesting.</returns>
         public ReportResponse SendReport(ReportRequest report)
         {
+            // force net45 to attempt tls12 first and fallback appropriately
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
             
             _client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/octet-stream"));
