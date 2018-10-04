@@ -34,8 +34,8 @@ namespace LightStep.Tests
             var spanId = new Random().NextUInt64().ToString();
             var data = new Dictionary<string, string>
             {
-                {"ot-traceid", traceId},
-                {"ot-spanid", spanId}
+                {"ot-tracer-traceid", traceId},
+                {"ot-tracer-spanid", spanId}
             };
 
             var spanContext = tracer.Extract(BuiltinFormats.TextMap, new TextMapExtractAdapter(data));
@@ -67,8 +67,8 @@ namespace LightStep.Tests
 
             tracer.Inject(span.Context, BuiltinFormats.TextMap, new TextMapInjectAdapter(data));
 
-            Assert.Equal(traceId, data["ot-traceid"]);
-            Assert.Equal(spanId, data["ot-spanid"]);
+            Assert.Equal(traceId, data["ot-tracer-traceid"]);
+            Assert.Equal(spanId, data["ot-tracer-spanid"]);
         }
 
         [Fact]
