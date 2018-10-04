@@ -25,6 +25,7 @@ namespace LightStep.Collector
     /// <inheritdoc />
     public partial class Span
     {
+        const long TicksPerMicrosecond = 10;
         /// <summary>
         ///     Converts a <see cref="SpanData" /> to a <see cref="Span" />
         /// </summary>
@@ -32,7 +33,8 @@ namespace LightStep.Collector
         /// <returns>Proto Span</returns>
         public Span MakeSpanFromSpanData(SpanData span)
         {
-            DurationMicros = Convert.ToUInt64(span.Duration.Ticks);
+            // ticks are not equal to microseconds, so convert
+            DurationMicros = Convert.ToUInt64(span.Duration.Ticks / TicksPerMicrosecond);
             OperationName = span.OperationName;
             SpanContext = new SpanContext().MakeSpanContextFromOtSpanContext(span.Context);
             StartTimestamp = Timestamp.FromDateTime(span.StartTimestamp.UtcDateTime);
