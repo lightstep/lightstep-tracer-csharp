@@ -8,7 +8,7 @@
         /// <summary>
         ///     OpenTracing Baggage Prefix
         /// </summary>
-        public const string BaggagePrefix = "ot-baggage";
+        public const string BaggagePrefix = "ot-baggage-";
 
         /// <summary>
         ///     OpenTracing TraceId Prefix
