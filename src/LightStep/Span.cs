@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using OpenTracing;
 using OpenTracing.Tag;
 
@@ -187,7 +188,10 @@ namespace LightStep
 
         private static string GetRandomId()
         {
-            return new Random().NextUInt64().ToString();
+            var provider = new RNGCryptoServiceProvider();
+            var buffer = new byte[64];
+            provider.GetBytes(buffer);
+            return BitConverter.ToUInt64(buffer, 0).ToString();
         }
 
         private static SpanContext FindPreferredParentRef(IList<Reference> references)
