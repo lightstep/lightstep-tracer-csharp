@@ -42,6 +42,7 @@
       <HintPath>..\..\packages\PostSharp.Redist.6.0.27\lib\net45\PostSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Xml.Linq" />

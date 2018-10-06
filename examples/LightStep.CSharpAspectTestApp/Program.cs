@@ -13,31 +13,27 @@ namespace LightStep.CSharpAspectTestApp
     {
         static void Main(string[] args)
         {
+            // create your tracer options, initialize it, assign it to the GlobalTracer
             var lsKey = ConfigurationManager.AppSettings["lsKey"];
             var lsSettings = new SatelliteOptions("collector.lightstep.com");
             var lsOptions = new Options(lsKey, lsSettings);
             lsOptions.UseHttp2 = false;
-            lsOptions.ReportPeriod = new TimeSpan(0, 0, 10);
             var tracer = new Tracer(lsOptions);
             
             GlobalTracer.Register(tracer);
 
-            // The code provided will print ‘Hello World’ to the console.
-            // Press Ctrl+F5 (or go to Debug > Start Without Debugging) to run your app.
+            // do some work in parallel, this work also includes awaited calls
+            Parallel.For(1, 100, i => DoThing(i));
 
-            DoThing();
-            
-            //tracer.Flush();
+            // block until you enter a key
             Console.ReadKey();
-
-            // Go to http://aka.ms/dotnet-get-started-console to continue learning how to build a console app! 
         }
 
         [Traceable]
-        static void DoThing()
+        static void DoThing(int idx)
         {
             var client = new HttpWorker();
-            client.Get("https://jsonplaceholder.typicode.com/todos/1");
+            client.Get($"https://jsonplaceholder.typicode.com/todos/{idx}");
         }
 
     }
