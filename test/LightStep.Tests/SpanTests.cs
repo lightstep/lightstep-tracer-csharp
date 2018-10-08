@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using OpenTracing.Tag;
@@ -109,6 +111,30 @@ namespace LightStep.Tests
                 ).Value).ToArray()[0];
 
             Assert.Equal("hello world!", (string) finishedSpanLogData);
+        }
+
+        [Fact]
+        public void SpanIdsShouldBeRandom()
+        {
+            // using this like a HashSet since HashSet is not thread-safe
+            var spanIds = new ConcurrentDictionary<string, byte>();
+            var iterations = 1_000_000;
+            var collisionCount = 0;
+            var tracer = GetTracer();
+
+            // CLR black magic happens here to determine degree of parallelism
+            Parallel.For(0, iterations, i =>
+            {
+                var span = tracer.BuildSpan("junkSpan").Start();
+                span.Finish();
+                if (!spanIds.TryAdd(span.Context.SpanId, new byte()))
+                {
+                    collisionCount++;
+                }
+            });
+
+            // if there were no collisions on insert, we had uniqueness!
+            Assert.Equal(0, collisionCount);
         }
     }
 }
