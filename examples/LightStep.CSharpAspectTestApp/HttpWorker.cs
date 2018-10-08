@@ -1,4 +1,5 @@
 ﻿using LightStep.CSharpAspectTestApp.Aspects;
+using OpenTracing.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,7 @@ namespace LightStep.CSharpAspectTestApp
         [Traceable]
         public async void Get(string url)
         {
+            GlobalTracer.Instance.ActiveSpan.SetTag("args", url);
             var content = await GetString(url);
             Write(content);
         }
@@ -34,6 +36,7 @@ namespace LightStep.CSharpAspectTestApp
         public async Task<string> GetString(string url)
         {
             var content = await httpClient.GetStringAsync(url);
+            GlobalTracer.Instance.ActiveSpan.Log(content);
             return content;
         }
     }

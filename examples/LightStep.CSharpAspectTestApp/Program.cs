@@ -32,6 +32,7 @@ namespace LightStep.CSharpAspectTestApp
         [Traceable]
         static void DoThing(int idx)
         {
+            GlobalTracer.Instance.ActiveSpan.SetTag("args", idx);
             var client = new HttpWorker();
             client.Get($"https://jsonplaceholder.typicode.com/todos/{idx}");
         }
