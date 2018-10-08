@@ -1,19 +1,24 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightStepTracer", ".\src\LightStep\LightStep.csproj", "{E5F75D2A-B882-46BB-A173-0F77E46498E2}"
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2016
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightStep", "src\LightStep\LightStep.csproj", "{E5F75D2A-B882-46BB-A173-0F77E46498E2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{BE409569-9FA2-4741-8ABF-327D56E6598E}"
-ProjectSection(SolutionItems) = preProject
-	README.md = README.md
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{1359ACF9-43F2-4E09-94FD-32EB2C6239BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightStep.Tracer.Tests", "test\LightStep.Tests\LightStep.Tests.csproj", "{2DB2D4A0-64AB-4C5B-ACB5-0C2EB76D756C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightStep.Tests", "test\LightStep.Tests\LightStep.Tests.csproj", "{2DB2D4A0-64AB-4C5B-ACB5-0C2EB76D756C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightStep.TestApp", "examples\LightStep.CSharpTestApp\LightStep.CSharpTestApp.csproj", "{65A11CA6-E7E9-43B6-A36D-6B54EA9BD758}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightStep.CSharpTestApp", "examples\LightStep.CSharpTestApp\LightStep.CSharpTestApp.csproj", "{65A11CA6-E7E9-43B6-A36D-6B54EA9BD758}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{113EDBB5-081F-4581-B687-9293B4D74312}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightStep.CSharpAspectTestApp", "examples\LightStep.CSharpAspectTestApp\LightStep.CSharpAspectTestApp.csproj", "{1B83F7CF-E2AA-4A81-9C0B-2DA716D5C982}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,10 +38,21 @@ Global
 		{65A11CA6-E7E9-43B6-A36D-6B54EA9BD758}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65A11CA6-E7E9-43B6-A36D-6B54EA9BD758}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65A11CA6-E7E9-43B6-A36D-6B54EA9BD758}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B83F7CF-E2AA-4A81-9C0B-2DA716D5C982}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B83F7CF-E2AA-4A81-9C0B-2DA716D5C982}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B83F7CF-E2AA-4A81-9C0B-2DA716D5C982}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B83F7CF-E2AA-4A81-9C0B-2DA716D5C982}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E5F75D2A-B882-46BB-A173-0F77E46498E2} = {BE409569-9FA2-4741-8ABF-327D56E6598E}
 		{2DB2D4A0-64AB-4C5B-ACB5-0C2EB76D756C} = {1359ACF9-43F2-4E09-94FD-32EB2C6239BA}
 		{65A11CA6-E7E9-43B6-A36D-6B54EA9BD758} = {113EDBB5-081F-4581-B687-9293B4D74312}
+		{1B83F7CF-E2AA-4A81-9C0B-2DA716D5C982} = {113EDBB5-081F-4581-B687-9293B4D74312}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0890664C-9CE4-4960-90A4-AD6565C970E3}
 	EndGlobalSection
 EndGlobal
