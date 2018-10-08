@@ -25,7 +25,7 @@ Once you've initialized a tracer, you can begin to create and emit spans.
 
 Please refer to the [OpenTracing C# documentation](https://github.com/opentracing/opentracing-csharp) for information on how to create spans.
 
-
+You can also refer to the `examples` folder for sample code and projects. 
 
 
 
