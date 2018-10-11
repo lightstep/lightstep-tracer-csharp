@@ -1,5 +1,8 @@
 # Changelog
 
+_v0.0.5_
+- Addresses an issue where incoming headers using base16 would cause exceptions on conversion.
+
 _v0.0.4_
 - Expose a new option to force HTTP/1.1 rather than attempting to use HTTP/2 (`Options.UseHttp2`) which defaults to `true`.
 - The LightStep Assembly is now signed via Strong Naming.
