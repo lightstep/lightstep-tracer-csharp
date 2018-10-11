@@ -13,9 +13,27 @@ namespace LightStep.Propagation
         /// <inheritdoc />
         public void Inject<TCarrier>(SpanContext context, IFormat<TCarrier> format, TCarrier carrier)
         {
-            var traceId = Convert.ToUInt64(context.TraceId);
-            var spanId = Convert.ToUInt64(context.SpanId);
+            ulong traceId;
+            ulong spanId;
 
+            try
+            {
+                traceId = Convert.ToUInt64(context.TraceId);
+            }
+            catch (FormatException)
+            {
+                traceId = Convert.ToUInt64(context.TraceId, 16);
+            }
+
+            try
+            {
+                spanId = Convert.ToUInt64(context.SpanId);
+            }
+            catch (FormatException)
+            {
+                spanId = Convert.ToUInt64(context.SpanId, 16);
+            }
+            
             if (carrier is ITextMap text)
             {
                 text.Set(TraceIdName, traceId.ToString("X"));
