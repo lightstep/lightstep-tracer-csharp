@@ -15,8 +15,24 @@ namespace LightStep.Collector
         /// <returns>Proto SpanContext</returns>
         public SpanContext MakeSpanContextFromOtSpanContext(LightStep.SpanContext ctx)
         {
-            SpanId = Convert.ToUInt64(ctx.SpanId);
-            TraceId = Convert.ToUInt64(ctx.TraceId);
+            try
+            {
+                SpanId = Convert.ToUInt64(ctx.SpanId);
+            }
+            catch (FormatException)
+            {
+                SpanId = Convert.ToUInt64(ctx.SpanId, 16);
+            }
+
+            try
+            {
+                TraceId = Convert.ToUInt64(ctx.TraceId);
+            }
+            catch (FormatException)
+            {
+                TraceId = Convert.ToUInt64(ctx.TraceId, 16);
+            }
+            
             ctx.GetBaggageItems().ToList().ForEach(baggage => Baggage.Add(baggage.Key, baggage.Value));
             return this;
         }
@@ -60,7 +76,16 @@ namespace LightStep.Collector
         {
             var reference = new Reference();
             reference.Relationship = Types.Relationship.ChildOf;
-            reference.SpanContext = new SpanContext {SpanId = Convert.ToUInt64(id)};
+            ulong spanId;
+            try
+            {
+                spanId = Convert.ToUInt64(id);
+            }
+            catch (FormatException)
+            {
+                spanId = Convert.ToUInt64(id, 16);
+            }
+            reference.SpanContext = new SpanContext {SpanId = spanId};
 
             return reference;
         }
