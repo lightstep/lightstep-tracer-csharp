@@ -45,5 +45,8 @@
       <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
       <RepositoryType>git</RepositoryType>
       <RepositoryUrl>https://raw.githubusercontent.com/lightstep/lightstep-tracer-csharp</RepositoryUrl>
+      <SignAssembly>true</SignAssembly>
+      <DelaySign>false</DelaySign>
+      <AssemblyOriginatorKeyFile>tracerSign.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 </Project>
