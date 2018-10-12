@@ -3,6 +3,14 @@ The LightStep distributed tracing library for C#
 
 [![NuGet](https://img.shields.io/nuget/v/LightStep.svg)](https://www.nuget.org/packages/LightStep) [![CircleCI](https://circleci.com/gh/lightstep/lightstep-tracer-csharp.svg?style=svg)](https://circleci.com/gh/lightstep/lightstep-tracer-csharp)
 
+# Development Requirements
+- C# 7
+- .NET Core 2+
+- .NET 4.5
+
+This translates to requiring at least Visual Studio 2017 (15.0).
+You may need [PostSharp](https://www.postsharp.net/) to work on the `LightStep.CSharpAspectTestApp`.
+
 # Installation
 Install the package via NuGet into your solution, or use `Install-Package LightStep`.
 

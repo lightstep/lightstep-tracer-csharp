@@ -1,4 +1,8 @@
 # Changelog
+_v0.0.6_
+- Addresses an issue where the signing key wasn't actually being used to sign the assembly.
+- Removes unneded `net452` target framework from LightStep project.
+- Reduced C# target version to 7.0 to allow builds on unpatched VS2017.
 
 _v0.0.5_
 - Addresses an issue where incoming headers using base16 would cause exceptions on conversion.

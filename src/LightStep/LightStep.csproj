@@ -32,7 +32,7 @@
       
   <PropertyGroup>
       <Authors>Austin Parker</Authors>
-      <PackageVersion>0.0.5-alpha-$(CIRCLE_BUILD_NUM)</PackageVersion>
+      <PackageVersion>0.0.6-alpha-$(CIRCLE_BUILD_NUM)</PackageVersion>
       <Company>LightStep</Company>
       <NeutralLanguage>en-US</NeutralLanguage>
       <AssemblyTitle>LightStep</AssemblyTitle>
