@@ -1,4 +1,5 @@
 using LightStep.CSharpAspectTestApp.Aspects;
+using LightStep;
 using OpenTracing.Util;
 using System;
 using System.Configuration;
