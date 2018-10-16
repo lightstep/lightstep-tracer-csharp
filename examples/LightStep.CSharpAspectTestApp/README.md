@@ -4,18 +4,6 @@ This is a small sample application demonstrating how to use an Aspect framework 
 
 ## Installation and Setup
 
-Add an `App.config` such as follows:
-
-```xml
-<?xml version="1.0" encoding="utf-8" ?>
-<configuration>
-    <startup>
-        <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.6.2" />
-    </startup>
-    <appSettings>
-        <add key="lsKey" value="Insert Your LightStep Key Here"/>
-    </appSettings>
-</configuration>
-```
+Set the `LS_KEY` environment variable to your project's API Key.
 
 **Important**: This sample will only build on Windows platforms, as PostSharp does not support all CoreCLR targets for compilation.
