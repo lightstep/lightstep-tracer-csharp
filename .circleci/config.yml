@@ -6,14 +6,14 @@ jobs:
     steps:
       - checkout
       - run: msbuild /t:Restore
-      - run: msbuild src/LightStep/LightStep.csproj /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=./src/LightStep/tracerSign.snk /t:Build
+      - run: msbuild src/LightStep/LightStep.csproj /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=tracerSign.snk /t:Build
   test:
     docker:
       - image: aparker/circleci-dotnet-mono:latest
     steps:
       - checkout
       - run: msbuild /t:Restore
-      - run: msbuild src/LightStep/LightStep.csproj /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=./src/LightStep/tracerSign.snk /t:Build
+      - run: msbuild src/LightStep/LightStep.csproj /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=tracerSign.snk /t:Build
       - run: msbuild test/LightStep.Tests/LightStep.Tests.csproj /t:Build
       - run: msbuild test/LightStep.Tests/LightStep.Tests.csproj /t:Test
   pack:
@@ -22,7 +22,7 @@ jobs:
     steps:
       - checkout
       - run: msbuild /t:Restore
-      - run: msbuild src/LightStep/LightStep.csproj /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=./src/LightStep/tracerSign.snk /t:Build
+      - run: msbuild src/LightStep/LightStep.csproj /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=tracerSign.snk /t:Build
       - run: msbuild src/LightStep/LightStep.csproj /t:Pack /p:PackageOutputPath="/pkg"
 
       - store_artifacts:
