@@ -2,8 +2,8 @@
   <PropertyGroup>
     <AssemblyName>LightStep</AssemblyName>
     <RootNamespace>LightStep</RootNamespace>
-    <LangVersion>7.1</LangVersion>
-    <TargetFrameworks>net45;net452;netstandard2.0</TargetFrameworks>
+    <LangVersion>7.0</LangVersion>
+    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Google.Api.CommonProtos" Version="1.3.0" />
@@ -25,10 +25,14 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' or '$(TargetFramework)' == 'net452' ">
     <PackageReference Include="System.Net.Http" Version="4.3.3" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
       
   <PropertyGroup>
       <Authors>Austin Parker</Authors>
-      <PackageVersion>0.0.5-alpha-$(CIRCLE_BUILD_NUM)</PackageVersion>
+      <PackageVersion>0.0.6-alpha-$(CIRCLE_BUILD_NUM)</PackageVersion>
       <Company>LightStep</Company>
       <NeutralLanguage>en-US</NeutralLanguage>
       <AssemblyTitle>LightStep</AssemblyTitle>
@@ -45,5 +49,8 @@
       <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
       <RepositoryType>git</RepositoryType>
       <RepositoryUrl>https://raw.githubusercontent.com/lightstep/lightstep-tracer-csharp</RepositoryUrl>
+      <SignAssembly>true</SignAssembly>
+      <DelaySign>false</DelaySign>
+      <AssemblyOriginatorKeyFile>tracerSign.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 </Project>
