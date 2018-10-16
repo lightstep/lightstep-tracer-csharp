@@ -328,5 +328,3 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
-
-examples/LightStep.CSharpAspectTestApp/App.config
