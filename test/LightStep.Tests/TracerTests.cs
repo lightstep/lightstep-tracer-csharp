@@ -99,5 +99,17 @@ namespace LightStep.Tests
             Assert.False(string.IsNullOrWhiteSpace(recordedSpans.Context.TraceId));
             Assert.False(string.IsNullOrWhiteSpace(recordedSpans.Context.SpanId));
         }
+
+        [Fact]
+        public void TracerOptionsShouldLetYouOverrideTags()
+        {
+            var satelliteOptions = new SatelliteOptions("localhost", 80, true);
+            var overrideTags = new Dictionary<string, object> {{LightStepConstants.ComponentNameKey, "test_component"}};
+            var tracerOptions = new Options("TEST", overrideTags, satelliteOptions);
+            
+            Assert.Equal("test_component", tracerOptions.Tags[LightStepConstants.ComponentNameKey]);
+            Assert.Equal(LightStepConstants.TracerPlatformValue,
+                tracerOptions.Tags[LightStepConstants.TracerPlatformKey]);
+        }
     }
 }

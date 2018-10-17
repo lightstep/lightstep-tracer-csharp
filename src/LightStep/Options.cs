@@ -13,18 +13,29 @@ namespace LightStep
         ///     An identifier for the Tracer.
         /// </summary>
         public readonly ulong TracerGuid = new Random().NextUInt64();
-
+        
+        /// <summary>
+        /// Creates a new set of options for the LightStep tracer.
+        /// </summary>
+        /// <param name="token">Project API Key.</param>
+        /// <param name="satelliteOptions">Satellite endpoint configuration.</param>
+        public Options(string token, SatelliteOptions satelliteOptions) : this(token, new Dictionary<string, object>(), satelliteOptions)
+        {
+            
+        }
+        
         /// <summary>
         ///     Creates a new set of options for the LightStep tracer.
         /// </summary>
         /// <param name="token">Project API key.</param>
+        /// <param name="tags">Tags to add to every span emitted from this tracer.</param>
         /// <param name="satelliteOptions">Satellite endpoint configuration.</param>
         /// <exception cref="ArgumentNullException">An API key is required.</exception>
-        public Options(string token, SatelliteOptions satelliteOptions)
+        public Options(string token, IDictionary<string, object> tags, SatelliteOptions satelliteOptions)
         {
             if (string.IsNullOrWhiteSpace(token)) throw new ArgumentNullException(nameof(token));
 
-            Tags = InitializeDefaultTags();
+            Tags = tags.Count > 0 ? MergeTags(tags) : InitializeDefaultTags();
             ReportPeriod = TimeSpan.FromMilliseconds(5000);
             ReportTimeout = TimeSpan.FromSeconds(30);
             AccessToken = token;
@@ -62,13 +73,28 @@ namespace LightStep
         /// </summary>
         public IDictionary<string, object> Tags { get; set; }
 
+        private IDictionary<string, object> MergeTags(IDictionary<string, object> input)
+        {
+            var attributes = InitializeDefaultTags();
+            var mergedAttributes = new Dictionary<string, object>(input);
+            foreach (var item in attributes)
+            {
+                if (!mergedAttributes.ContainsKey(item.Key))
+                {
+                    mergedAttributes.Add(item.Key, item.Value);
+                }
+            }
+
+            return mergedAttributes;
+        }
+        
         private IDictionary<string, object> InitializeDefaultTags()
         {
             var attributes = new Dictionary<string, object>
             {
                 [LightStepConstants.TracerPlatformKey] = LightStepConstants.TracerPlatformValue,
                 [LightStepConstants.TracerPlatformVersionKey] = GetPlatformVersion(),
-                [LightStepConstants.TracerVersionKey] = "0.3",
+                [LightStepConstants.TracerVersionKey] = "0.0.7-alpha",
                 [LightStepConstants.ComponentNameKey] = GetComponentName(),
                 [LightStepConstants.HostnameKey] = GetHostName(),
                 [LightStepConstants.CommandLineKey] = GetCommandLine()
