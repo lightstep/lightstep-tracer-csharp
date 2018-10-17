@@ -14,7 +14,7 @@ namespace LightStep.TestApp
             var lsSettings = new SatelliteOptions("localhost", 9996, false);
             var tracer = new Tracer(new Options(lsKey, lsSettings));
             GlobalTracer.Register(tracer);
-
+            
             for (var i = 0; i < 500; i++)
                 using (var scope = tracer.BuildSpan("testParent").WithTag("testSpan", "true").StartActive(true))
                 {
