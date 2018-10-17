@@ -23,8 +23,8 @@ jobs:
       - checkout
       - run: msbuild /t:Restore
       - run: msbuild src/LightStep/LightStep.csproj /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=tracerSign.snk /t:Build
-      - run: msbuild src/LightStep/LightStep.csproj /t:Pack /p:PackageOutputPath="/pkg"
-
+      - run: sn -R src/LightStep/bin/Debug/net45/LightStep.dll src/LightStep/tracerSign.snk && sn -vf src/LightStep/bin/Debug/net45/LightStep.dll
+      - run: msbuild src/LightStep/LightStep.csproj /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=tracerSign.snk /t:Pack /p:PackageOutputPath="/pkg"
       - store_artifacts:
           path: /pkg
 
