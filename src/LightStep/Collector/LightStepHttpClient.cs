@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using Google.Protobuf;
 
 namespace LightStep.Collector
@@ -34,14 +36,14 @@ namespace LightStep.Collector
         /// </summary>
         /// <param name="report">An <see cref="ReportRequest" /></param>
         /// <returns>A <see cref="ReportResponse" />. This is usually not very interesting.</returns>
-        public ReportResponse SendReport(ReportRequest report)
+        public async Task<ReportResponse> SendReport(ReportRequest report)
         {
             // force net45 to attempt tls12 first and fallback appropriately
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
             
             _client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/octet-stream"));
-
+            Console.WriteLine($"sending {report.Spans.Count} to satellite");
             var request = new HttpRequestMessage(HttpMethod.Post, _url)
             {
                 Version = _options.UseHttp2 ? new Version(2, 0) : new Version(1, 1),
@@ -50,9 +52,21 @@ namespace LightStep.Collector
 
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
 
-            var response = _client.SendAsync(request).Result;
-            var responseData = response.Content.ReadAsStreamAsync().Result;
-            return ReportResponse.Parser.ParseFrom(responseData);
+            ReportResponse responseValue = new ReportResponse();
+            
+            try
+            {
+                var response = await _client.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+                var responseData = await response.Content.ReadAsStreamAsync();
+                responseValue = ReportResponse.Parser.ParseFrom(responseData);
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine(ex);
+            }
+
+            return responseValue;
         }
 
         /// <summary>

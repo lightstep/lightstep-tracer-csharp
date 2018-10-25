@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace LightStep
 {
@@ -10,19 +12,34 @@ namespace LightStep
         /// <inheritdoc />
         public void RecordSpan(SpanData span)
         {
-            Spans.Add(span);
+            lock (Spans)
+            {
+                Spans.Add(span);    
+            }
+            
         }
 
         /// <inheritdoc />
-        public IEnumerable<SpanData> GetSpanBuffer()
+        public List<SpanData> GetSpanBuffer()
         {
-            return Spans;
+            lock (Spans)
+            {
+                Console.WriteLine($"copying {Spans.Count} to new buffer");
+                var currentSpans = Spans.ToList();
+                Spans.Clear();
+                return currentSpans;
+            }
+            
         }
 
         /// <inheritdoc />
         public void ClearSpanBuffer()
         {
-            Spans.Clear();
+            lock (Spans)
+            {
+                Spans.Clear();    
+            }
+            
         }
     }
 }

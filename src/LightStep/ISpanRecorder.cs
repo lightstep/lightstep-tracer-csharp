@@ -17,7 +17,7 @@ namespace LightStep
         ///     Gets the current record of spans.
         /// </summary>
         /// <returns></returns>
-        IEnumerable<SpanData> GetSpanBuffer();
+        List<SpanData> GetSpanBuffer();
 
         /// <summary>
         ///     Clears the span record.
