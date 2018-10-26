@@ -24,7 +24,6 @@ namespace LightStep
         {
             lock (Spans)
             {
-                Console.WriteLine($"copying {Spans.Count} to new buffer");
                 var currentSpans = Spans.ToList();
                 Spans.Clear();
                 return currentSpans;

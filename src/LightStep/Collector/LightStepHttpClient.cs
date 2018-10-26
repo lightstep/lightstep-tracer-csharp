@@ -16,7 +16,7 @@ namespace LightStep.Collector
     public class LightStepHttpClient
     {
         private readonly Options _options;
-        private readonly HttpClient _client;
+        private HttpClient _client;
         private readonly string _url;
 
         /// <summary>
@@ -43,15 +43,16 @@ namespace LightStep.Collector
             
             _client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/octet-stream"));
-            Console.WriteLine($"sending {report.Spans.Count} to satellite");
+            var reportsByteArray = report.ToByteArray();
+
             var request = new HttpRequestMessage(HttpMethod.Post, _url)
             {
                 Version = _options.UseHttp2 ? new Version(2, 0) : new Version(1, 1),
-                Content = new ByteArrayContent(report.ToByteArray())
+                Content = new ByteArrayContent(reportsByteArray)
             };
 
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
+            
             ReportResponse responseValue = new ReportResponse();
             
             try
@@ -64,6 +65,9 @@ namespace LightStep.Collector
             catch (HttpRequestException ex)
             {
                 Console.WriteLine(ex);
+                Console.WriteLine("resetting httpclient");
+                _client.Dispose();
+                _client = new HttpClient();
             }
 
             return responseValue;

@@ -120,6 +120,11 @@ namespace LightStep.Collector
         public KeyValue MakeKeyValueFromKvp(KeyValuePair<string, object> input)
         {
             Key = input.Key;
+            if (input.Value == null)
+            {
+                StringValue = "";
+                return this;
+            }
             if (input.Value.GetType().IsNumericDataType()) DoubleValue = Convert.ToDouble(input.Value);
             if (input.Value.GetType().IsBooleanDataType())
                 BoolValue = Convert.ToBoolean(input.Value);
