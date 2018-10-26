@@ -93,16 +93,19 @@ namespace LightStep
         /// </summary>
         public async void Flush()
         {
-            // save current spans and clear the buffer
-            // TODO: add retry logic so as to not drop spans on unreachable satellite
-            List<SpanData> currentSpans = new List<SpanData>();
-            lock (_lock)
+            if (_options.Run)
             {
-                currentSpans = _spanRecorder.GetSpanBuffer();   
-            }  
-            var data = _httpClient.Translate(currentSpans);
-            var resp = await _httpClient.SendReport(data);
-            if (resp.Errors.Count > 0) Console.WriteLine($"Errors sending report to LightStep: {resp.Errors}");
+                // save current spans and clear the buffer
+                // TODO: add retry logic so as to not drop spans on unreachable satellite
+                List<SpanData> currentSpans = new List<SpanData>();
+                lock (_lock)
+                {
+                    currentSpans = _spanRecorder.GetSpanBuffer();
+                }
+                var data = _httpClient.Translate(currentSpans);
+                var resp = await _httpClient.SendReport(data);
+                if (resp.Errors.Count > 0) Console.WriteLine($"Errors sending report to LightStep: {resp.Errors}");
+            }
         }
 
         internal void AppendFinishedSpan(SpanData span)

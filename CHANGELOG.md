@@ -5,6 +5,7 @@ _v0.0.8_
 - Addresses an issue where the `LightStepHttpClient` would stop sending spans if it received a non-success status code from the LightStep Satellite.
 - *Change* The `LightStepHttpClient` will prefer HTTP/1.1 to HTTP/2. Change ths using `Options.UseHttp2`.
 - The NuGet package now includes PDB files.
+- The `Options` object now exposes a property `Run` that will determine if the Tracer should flush spans.
 
 _v0.0.7_
 - When instantiating a `Tracer`, you can now pass additional tags in `Options` to apply to all spans. You can also override existing LightStep span tags.

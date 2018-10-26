@@ -41,13 +41,19 @@ namespace LightStep
             AccessToken = token;
             Satellite = satelliteOptions;
             UseHttp2 = false;
+            Run = true;
         }
 
         /// <summary>
         ///     API key for a LightStep project.
         /// </summary>
         public string AccessToken { get; set; }
-        
+
+        /// <summary>
+        /// If true, tracer will start reporting
+        /// </summary>
+        /// 
+        public bool Run { get; set; }
         /// <summary>
         ///     True if the satellite connection should use HTTP/2, false otherwise.
         /// </summary>
