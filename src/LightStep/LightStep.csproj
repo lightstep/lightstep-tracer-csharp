@@ -32,7 +32,7 @@
       
   <PropertyGroup>
       <Authors>Austin Parker</Authors>
-      <PackageVersion>0.0.7-alpha-$(CIRCLE_BUILD_NUM)</PackageVersion>
+      <PackageVersion>0.0.8-alpha-$(CIRCLE_BUILD_NUM)</PackageVersion>
       <Company>LightStep</Company>
       <NeutralLanguage>en-US</NeutralLanguage>
       <AssemblyTitle>LightStep</AssemblyTitle>
@@ -56,5 +56,6 @@
       <DelaySign>false</DelaySign>
       <AssemblyOriginatorKeyFile>tracerSign.snk</AssemblyOriginatorKeyFile>
       <_UseRoslynPublicSignHack>false</_UseRoslynPublicSignHack>
+      <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
 </Project>

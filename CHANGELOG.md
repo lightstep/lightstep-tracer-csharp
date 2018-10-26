@@ -1,4 +1,14 @@
 # Changelog
+_v0.0.8_
+- Addresses an issue where the `Tracer` would not `Flush` regularly.
+- Addresses an issue where tags with null values would cause the tracer to not report spans.
+- Addresses an issue where the `LightStepHttpClient` would stop sending spans if it received a non-success status code from the LightStep Satellite.
+- *Change* The `LightStepHttpClient` will prefer HTTP/1.1 to HTTP/2. Change ths using `Options.UseHttp2`.
+- The NuGet package now includes PDB files.
+
+_v0.0.7_
+- When instantiating a `Tracer`, you can now pass additional tags in `Options` to apply to all spans. You can also override existing LightStep span tags.
+
 _v0.0.6_
 - Addresses an issue where the signing key wasn't actually being used to sign the assembly.
 - Removes unneded `net452` target framework from LightStep project.
