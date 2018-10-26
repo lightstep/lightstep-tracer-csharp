@@ -40,7 +40,7 @@ namespace LightStep
             ReportTimeout = TimeSpan.FromSeconds(30);
             AccessToken = token;
             Satellite = satelliteOptions;
-            UseHttp2 = true;
+            UseHttp2 = false;
         }
 
         /// <summary>
