@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.Versioning;
 
 namespace LightStep
 {
@@ -125,7 +127,13 @@ namespace LightStep
 
         private static string GetPlatformVersion()
         {
-            return Environment.Version.ToString();
+#if NET45
+            return AppDomain.CurrentDomain.SetupInformation.TargetFrameworkName;
+#elif NETSTANDARD2_0
+            return Assembly.GetEntryAssembly()?.GetCustomAttribute<TargetFrameworkAttribute>()?.FrameworkName;
+#else
+            return "Unknown Framework Version";
+#endif
         }
 
 
