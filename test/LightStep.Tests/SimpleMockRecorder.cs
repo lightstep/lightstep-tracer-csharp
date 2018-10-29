@@ -11,7 +11,7 @@ namespace LightStep.Tests
             Spans.Add(span);
         }
 
-        public IEnumerable<SpanData> GetSpanBuffer()
+        public List<SpanData> GetSpanBuffer()
         {
             return Spans;
         }

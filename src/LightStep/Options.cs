@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.Versioning;
 
 namespace LightStep
 {
@@ -40,14 +42,20 @@ namespace LightStep
             ReportTimeout = TimeSpan.FromSeconds(30);
             AccessToken = token;
             Satellite = satelliteOptions;
-            UseHttp2 = true;
+            UseHttp2 = false;
+            Run = true;
         }
 
         /// <summary>
         ///     API key for a LightStep project.
         /// </summary>
         public string AccessToken { get; set; }
-        
+
+        /// <summary>
+        /// If true, tracer will start reporting
+        /// </summary>
+        /// 
+        public bool Run { get; set; }
         /// <summary>
         ///     True if the satellite connection should use HTTP/2, false otherwise.
         /// </summary>
@@ -119,7 +127,13 @@ namespace LightStep
 
         private static string GetPlatformVersion()
         {
-            return Environment.Version.ToString();
+#if NET45
+            return AppDomain.CurrentDomain.SetupInformation.TargetFrameworkName;
+#elif NETSTANDARD2_0
+            return Assembly.GetEntryAssembly()?.GetCustomAttribute<TargetFrameworkAttribute>()?.FrameworkName;
+#else
+            return "Unknown Framework Version";
+#endif
         }
 
 

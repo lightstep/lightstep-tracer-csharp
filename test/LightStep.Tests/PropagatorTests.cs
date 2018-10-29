@@ -19,6 +19,7 @@ namespace LightStep.Tests
             var sr = new SimpleMockRecorder();
             var satOpts = new SatelliteOptions("localhost", 80, true);
             var tracerOpts = new Options("TEST", satOpts);
+            tracerOpts.Run = false;
 
             var tracer = new Tracer(tracerOpts, sr, ps);
 

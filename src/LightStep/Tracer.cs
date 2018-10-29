@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using LightStep.Collector;
 using LightStep.Propagation;
@@ -17,6 +19,7 @@ namespace LightStep
         private readonly IPropagator _propagator;
         private readonly LightStepHttpClient _httpClient;
         private readonly ISpanRecorder _spanRecorder;
+        private readonly Timer _reportLoop;
 
         /// <inheritdoc />
         public Tracer(Options options) : this(new AsyncLocalScopeManager(), Propagators.TextMap, options,
@@ -56,7 +59,8 @@ namespace LightStep
             _httpClient = new LightStepHttpClient(url, _options);
 
             // assignment to a variable here is to suppress warnings that we're not awaiting an async method
-            var reportLoop = DoReportLoop(_options.ReportPeriod);
+            _reportLoop = new Timer(e => Flush(), null, TimeSpan.Zero, _options.ReportPeriod);
+            
         }
 
         /// <inheritdoc />
@@ -87,17 +91,21 @@ namespace LightStep
         ///     Transmits the current contents of the span buffer to the LightStep Satellite.
         ///     Note that this creates a copy of the current spans and clears the span buffer!
         /// </summary>
-        public void Flush()
+        public async void Flush()
         {
-            // save current spans and clear the buffer
-            // TODO: add retry logic so as to not drop spans on unreachable satellite
-            var currentSpans = _spanRecorder.GetSpanBuffer().ToList();
-            _spanRecorder.ClearSpanBuffer();
-            
-            var data = _httpClient.Translate(currentSpans);
-            var resp = _httpClient.SendReport(data);
-            if (resp.Errors.Count > 0) Console.WriteLine($"Errors sending report to LightStep: {resp.Errors}");
-            
+            if (_options.Run)
+            {
+                // save current spans and clear the buffer
+                // TODO: add retry logic so as to not drop spans on unreachable satellite
+                List<SpanData> currentSpans = new List<SpanData>();
+                lock (_lock)
+                {
+                    currentSpans = _spanRecorder.GetSpanBuffer();
+                }
+                var data = _httpClient.Translate(currentSpans);
+                var resp = await _httpClient.SendReport(data);
+                if (resp.Errors.Count > 0) Console.WriteLine($"Errors sending report to LightStep: {resp.Errors}");
+            }
         }
 
         internal void AppendFinishedSpan(SpanData span)
@@ -105,15 +113,6 @@ namespace LightStep
             lock (_lock)
             {
                 _spanRecorder.RecordSpan(span);
-            }
-        }
-
-        private async Task DoReportLoop(TimeSpan reportingPeriod)
-        {
-            while (true)
-            {
-                Flush();
-                await Task.Delay(reportingPeriod);
             }
         }
     }
