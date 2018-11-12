@@ -11,6 +11,9 @@ The LightStep distributed tracing library for C#
 This translates to requiring at least Visual Studio 2017 (15.0).
 You may need [PostSharp](https://www.postsharp.net/) to work on the `LightStep.CSharpAspectTestApp`.
 
+## MacOS
+Due to an issue with Cake's detection of the `msbuild` path, the Mono Framework needs to be installed via its installer and **not** Homebrew.
+
 # Installation
 Install the package via NuGet into your solution, or use `Install-Package LightStep`.
 
