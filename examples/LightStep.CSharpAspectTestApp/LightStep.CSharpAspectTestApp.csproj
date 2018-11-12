@@ -79,5 +79,5 @@
     <Error Condition="!Exists('..\..\packages\PostSharp.6.0.27\build\PostSharp.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\PostSharp.6.0.27\build\PostSharp.props'))" />
     <Error Condition="!Exists('..\..\packages\PostSharp.6.0.27\build\PostSharp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\PostSharp.6.0.27\build\PostSharp.targets'))" />
   </Target>
-  <Import Project="..\..\packages\PostSharp.6.0.27\build\PostSharp.targets" Condition="Exists('..\..\packages\PostSharp.6.0.27\build\PostSharp.targets')" />
+  <Import Project="..\..\packages\PostSharp.6.0.27\build\PostSharp.targets" Condition="Exists('..\..\packages\PostSharp.6.0.27\build\PostSharp.targets') AND '$(OS)' == 'Windows_NT'" />
 </Project>
