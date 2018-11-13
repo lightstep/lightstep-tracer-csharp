@@ -123,6 +123,7 @@ namespace LightStep.Collector
             else if (input.Value.IsFloatDataType()) DoubleValue = Convert.ToDouble(input.Value);
             else if (input.Value.IsIntDataType()) IntValue = Convert.ToInt64(input.Value);
             else if (input.Value.IsBooleanDataType()) BoolValue = Convert.ToBoolean(input.Value);
+            else if (input.Value.IsJson()) JsonValue = Convert.ToString(input.Value);
             else StringValue = Convert.ToString(input.Value);
             
             return new KeyValue(this);

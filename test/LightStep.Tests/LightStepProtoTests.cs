@@ -39,6 +39,7 @@ namespace LightStep.Tests
                 .WithTag("stringTag", "test")
                 .WithTag("doubleTag", 0.1)
                 .WithTag("nullTag", null)
+                .WithTag("jsonTag", @"{""key"":""value""}")
                 .Start();
             span.Finish();
 
@@ -68,6 +69,9 @@ namespace LightStep.Tests
                         break;
                     case "nullTag":
                         Assert.Equal("null", tag.StringValue);
+                        break;
+                    case "jsonTag":
+                        Assert.Equal(@"{""key"":""value""}", tag.JsonValue);
                         break;
                     default:
                         continue;

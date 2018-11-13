@@ -1,4 +1,7 @@
-﻿namespace LightStep.Collector
+﻿using System;
+using System.Json;
+
+namespace LightStep.Collector
 {
     /// <summary>
     ///     Helper methods for the ProtoConverter
@@ -38,6 +41,20 @@
         {
             var v = value is bool;
             return v;
+        }
+
+        public static bool IsJson(this object value)
+        {
+            try
+            {
+                JsonValue.Parse(value.ToString());
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
