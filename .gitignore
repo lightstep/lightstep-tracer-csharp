@@ -331,3 +331,6 @@ ASALocalRun/
 
 # cakebuild tools
 tools/
+
+dist/
+build/
