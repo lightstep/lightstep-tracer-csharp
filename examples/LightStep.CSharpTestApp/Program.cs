@@ -11,7 +11,7 @@ namespace LightStep.TestApp
         {
             // substitute your own LS API Key here
             var lsKey = "TEST_TOKEN";
-            var lsSettings = new SatelliteOptions("localhost", 9996, false);
+            var lsSettings = new SatelliteOptions("localhost", 9996, true);
             var tracer = new Tracer(new Options(lsKey, lsSettings));
             GlobalTracer.Register(tracer);
             

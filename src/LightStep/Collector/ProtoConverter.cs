@@ -111,7 +111,6 @@ namespace LightStep.Collector
     /// <inheritdoc />
     public partial class KeyValue
     {
-        //TODO: this is incomplete, needs to be able to convert more stuff.
         /// <summary>
         ///     Converts a <see cref="KeyValuePair{TKey,TValue}" /> into a <see cref="KeyValue" />
         /// </summary>
@@ -120,17 +119,13 @@ namespace LightStep.Collector
         public KeyValue MakeKeyValueFromKvp(KeyValuePair<string, object> input)
         {
             Key = input.Key;
-            if (input.Value == null)
-            {
-                StringValue = "";
-                return this;
-            }
-            if (input.Value.GetType().IsNumericDataType()) DoubleValue = Convert.ToDouble(input.Value);
-            if (input.Value.GetType().IsBooleanDataType())
-                BoolValue = Convert.ToBoolean(input.Value);
-            else
-                StringValue = Convert.ToString(input.Value);
-            return this;
+            if (input.Value == null) StringValue = "null";
+            else if (input.Value.IsFloatDataType()) DoubleValue = Convert.ToDouble(input.Value);
+            else if (input.Value.IsIntDataType()) IntValue = Convert.ToInt64(input.Value);
+            else if (input.Value.IsBooleanDataType()) BoolValue = Convert.ToBoolean(input.Value);
+            else StringValue = Convert.ToString(input.Value);
+            
+            return new KeyValue(this);
         }
     }
 }
