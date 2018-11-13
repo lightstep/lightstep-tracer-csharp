@@ -1,7 +1,9 @@
 #tool "xunit.runner.console"
+#tool "nuget:?package=GitVersion.CommandLine"
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
+var debugConfiguration = Argument("configuration", "Debug");
 var buildDir = Directory("./build");
 var distDir = Directory("./dist");
 var solutionFile = GetFiles("./*.sln").First();
@@ -14,6 +16,11 @@ Task("Clean")
 	{
 		MSBuild(solutionFile, settings => settings
 			.SetConfiguration(configuration)
+			.WithTarget("Clean")
+			.SetVerbosity(Verbosity.Minimal));
+
+		MSBuild(solutionFile, settings => settings
+			.SetConfiguration(debugConfiguration)
 			.WithTarget("Clean")
 			.SetVerbosity(Verbosity.Minimal));
 	});
@@ -30,7 +37,7 @@ Task("Build")
     .Does(() =>
 	{
 		NuGetRestore(solutionFile);
-
+		GitVersion(new GitVersionSettings { UpdateAssemblyInfo = true });
 		MSBuild(solutionFile, settings => settings
 			.SetConfiguration(configuration)
 			.WithTarget("Rebuild")
@@ -41,13 +48,13 @@ Task("Test")
 	.IsDependentOn("Build")
     .Does(() =>
 	{
-		XUnit2(string.Format("./test/**/bin/{0}/*.Tests.dll", configuration), new XUnit2Settings {
+		XUnit2(string.Format("./test/**/bin/Release/**/*.Tests.dll", configuration), new XUnit2Settings {
 			XmlReport = true,
 			OutputDirectory = buildDir
 		});
 });
 
 Task("Default")
-	.IsDependentOn("Build");
+	.IsDependentOn("Test");
 
 RunTarget(target);

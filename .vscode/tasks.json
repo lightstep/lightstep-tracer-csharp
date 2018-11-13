@@ -10,6 +10,17 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "type": "cake",
+            "script": "Test",
+            "problemMatcher": [],
+            "group": "test"
+        },
+        {
+            "type": "cake",
+            "script": "Clean",
+            "problemMatcher": []
         }
     ]
 }
