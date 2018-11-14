@@ -1,4 +1,8 @@
 # Changelog
+
+_vNext_
+- Tags which are passed with an empty value will now set the string value "null" when reporting to LightStep.
+ 
 _v0.0.8_
 - Addresses an issue where the `Tracer` would not `Flush` regularly.
 - Addresses an issue where tags with null values would cause the tracer to not report spans.
