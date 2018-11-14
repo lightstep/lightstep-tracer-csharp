@@ -131,7 +131,8 @@ namespace LightStep
 #if NET45
             var version = "";
             version = AppDomain.CurrentDomain.SetupInformation.TargetFrameworkName;
-            if (version == null)
+            // in unit testing scenarios, GetEntryAssembly returns null so make sure we aren't blowing up if this isn't available
+            if (version == null && Assembly.GetEntryAssembly() != null)
             {
                 TargetFrameworkAttribute tfa = (TargetFrameworkAttribute) Assembly.GetEntryAssembly().GetCustomAttributes(typeof(TargetFrameworkAttribute))
                     .SingleOrDefault();
