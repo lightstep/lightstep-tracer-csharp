@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Versioning;
 
@@ -128,7 +129,19 @@ namespace LightStep
         private static string GetPlatformVersion()
         {
 #if NET45
-            return AppDomain.CurrentDomain.SetupInformation.TargetFrameworkName;
+            var version = "";
+            version = AppDomain.CurrentDomain.SetupInformation.TargetFrameworkName;
+            // in unit testing scenarios, GetEntryAssembly returns null so make sure we aren't blowing up if this isn't available
+            if (version == null && Assembly.GetEntryAssembly() != null)
+            {
+                TargetFrameworkAttribute tfa = (TargetFrameworkAttribute) Assembly.GetEntryAssembly().GetCustomAttributes(typeof(TargetFrameworkAttribute))
+                    .SingleOrDefault();
+                if (tfa != null)
+                {
+                    version = tfa.FrameworkName;    
+                }
+            }
+            return version;
 #elif NETSTANDARD2_0
             return Assembly.GetEntryAssembly()?.GetCustomAttribute<TargetFrameworkAttribute>()?.FrameworkName;
 #else
