@@ -1,7 +1,7 @@
 namespace LightStep
 {
     /// <summary>
-    ///     Contains information on a LightStep Satellite Endpoint.
+    /// Options to configure a LightStep satellite.
     /// </summary>
     public class SatelliteOptions
     {
