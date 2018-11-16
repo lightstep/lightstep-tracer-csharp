@@ -1,6 +1,9 @@
 # Changelog
 
 _vNext_
+- The `Options` class has been refactored to support a more fluent style of configuration. **Breaking Change**
+  - By default, `SatelliteOptions` are now created when `Options` is created that points to the LightStep public satellite pool.
+  - Please see the readme for more information on configuring the tracer.
 - Tags which are passed with an empty value will now set the string value "null" when reporting to LightStep.
  
 _v0.0.8_

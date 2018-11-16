@@ -13,17 +13,14 @@ namespace LightStep.Tests
         {
             var spanRecorder = recorder ?? new SimpleMockRecorder();
             var satelliteOptions = new SatelliteOptions("localhost", 80, true);
-            var tracerOptions = new Options("TEST", satelliteOptions);
-            tracerOptions.Run = false;
-
+            var tracerOptions = new Options("TEST").WithStatellite(satelliteOptions).WithAutomaticReporting(false);
             return new Tracer(tracerOptions, spanRecorder);
         }
 
         private LightStepHttpClient GetClient()
         {
             var satelliteOptions = new SatelliteOptions("localhost", 80, true);
-            var tracerOptions = new Options("TEST", satelliteOptions);
-            tracerOptions.Run = false;
+            var tracerOptions = new Options("TEST").WithStatellite(satelliteOptions).WithAutomaticReporting(false);
             return new LightStepHttpClient("http://localhost:80", tracerOptions);
         }
 
