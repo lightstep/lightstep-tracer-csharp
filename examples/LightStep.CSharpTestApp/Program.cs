@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using Google.Protobuf.WellKnownTypes;
 using OpenTracing.Util;
 using global::Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole;
 
-namespace LightStep.TestApp
+namespace LightStep.CSharpTestApp
 {
     internal class Program
     {
@@ -18,9 +19,9 @@ namespace LightStep.TestApp
                 .CreateLogger();
 
             // substitute your own LS API Key here
-            var lsKey = "TEST_TOKEN";
-            var lsSettings = new SatelliteOptions("localhost");
-            var tracer = new Tracer(new Options(lsKey, lsSettings));
+            var lightStepSatellite = new SatelliteOptions("localhost", 9996, true);
+            var lightStepOptions = new Options("TEST_TOKEN").WithStatellite(lightStepSatellite);
+            var tracer = new Tracer(lightStepOptions);
             GlobalTracer.Register(tracer);
             
             for (var i = 0; i < 500; i++)

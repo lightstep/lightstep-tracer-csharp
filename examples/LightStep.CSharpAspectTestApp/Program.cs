@@ -17,8 +17,7 @@ namespace LightStep.CSharpAspectTestApp
             // create your tracer options, initialize it, assign it to the GlobalTracer
             var lsKey = Environment.GetEnvironmentVariable("LS_KEY");
             var lsSettings = new SatelliteOptions("collector.lightstep.com");
-            var lsOptions = new Options(lsKey, lsSettings);
-            lsOptions.UseHttp2 = false;
+            var lsOptions = new Options(lsKey).WithStatellite(lsSettings);
             var tracer = new Tracer(lsOptions);
             
             GlobalTracer.Register(tracer);

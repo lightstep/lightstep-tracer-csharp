@@ -12,8 +12,7 @@ namespace LightStep.Tests
         {
             var spanRecorder = recorder ?? new SimpleMockRecorder();
             var satelliteOptions = new SatelliteOptions("localhost", 80, true);
-            var tracerOptions = new Options("TEST", satelliteOptions);
-            tracerOptions.Run = false;
+            var tracerOptions = new Options("TEST").WithStatellite(satelliteOptions).WithAutomaticReporting(false);
 
             return new Tracer(tracerOptions, spanRecorder);
         }
@@ -38,7 +37,6 @@ namespace LightStep.Tests
                 {"ot-tracer-traceid", traceId},
                 {"ot-tracer-spanid", spanId}
             };
-
             var spanContext = tracer.Extract(BuiltinFormats.TextMap, new TextMapExtractAdapter(data));
             Assert.NotNull(spanContext);
             Assert.Equal(traceId, spanContext.TraceId);
@@ -58,16 +56,11 @@ namespace LightStep.Tests
         public void TracerShouldInjectTextMap()
         {
             var tracer = GetTracer();
-
             var span = tracer.BuildSpan("test").Start();
-
             var traceId = span.TypedContext().TraceId;
             var spanId = span.TypedContext().SpanId;
-
             var data = new Dictionary<string, string>();
-
             tracer.Inject(span.Context, BuiltinFormats.TextMap, new TextMapInjectAdapter(data));
-
             Assert.Equal(traceId, data["ot-tracer-traceid"]);
             Assert.Equal(spanId, data["ot-tracer-spanid"]);
         }
@@ -106,7 +99,7 @@ namespace LightStep.Tests
         {
             var satelliteOptions = new SatelliteOptions("localhost", 80, true);
             var overrideTags = new Dictionary<string, object> {{LightStepConstants.ComponentNameKey, "test_component"}};
-            var tracerOptions = new Options("TEST", overrideTags, satelliteOptions);
+            var tracerOptions = new Options("TEST").WithStatellite(satelliteOptions).WithTags(overrideTags).WithAutomaticReporting(false);
             
             Assert.Equal("test_component", tracerOptions.Tags[LightStepConstants.ComponentNameKey]);
             Assert.Equal(LightStepConstants.TracerPlatformValue,
