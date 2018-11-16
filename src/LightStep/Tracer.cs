@@ -8,6 +8,7 @@ using LightStep.Propagation;
 using OpenTracing;
 using OpenTracing.Propagation;
 using OpenTracing.Util;
+using LightStep.Logging;
 
 namespace LightStep
 {
@@ -20,6 +21,7 @@ namespace LightStep
         private readonly LightStepHttpClient _httpClient;
         private readonly ISpanRecorder _spanRecorder;
         private readonly Timer _reportLoop;
+        private static readonly ILog _logger = LogProvider.GetCurrentClassLogger();
 
         /// <inheritdoc />
         public Tracer(Options options) : this(new AsyncLocalScopeManager(), Propagators.TextMap, options,
@@ -51,16 +53,14 @@ namespace LightStep
             _spanRecorder = spanRecorder;
             _propagator = propagator;
             _options = options;
-
+            _logger.Debug(
+                $"Creating new tracer with GUID {_options.TracerGuid}. Project Access Token: {_options.AccessToken}, Report Period: {_options.ReportPeriod}, Report Timeout: {_options.ReportTimeout}.");
             var protocol = _options.Satellite.UsePlaintext ? "http" : "https";
-            // TODO: refactor to support changing proto
             var url =
                 $"{protocol}://{_options.Satellite.SatelliteHost}:{_options.Satellite.SatellitePort}/{LightStepConstants.SatelliteReportPath}";
             _httpClient = new LightStepHttpClient(url, _options);
-
-            // assignment to a variable here is to suppress warnings that we're not awaiting an async method
-            _reportLoop = new Timer(e => Flush(), null, TimeSpan.Zero, _options.ReportPeriod);
-            
+            _logger.Debug($"Tracer is reporting to {url}.");          
+            _reportLoop = new Timer(e => Flush(), null, TimeSpan.Zero, _options.ReportPeriod);            
         }
 
         /// <inheritdoc />
@@ -97,14 +97,17 @@ namespace LightStep
             {
                 // save current spans and clear the buffer
                 // TODO: add retry logic so as to not drop spans on unreachable satellite
+                _logger.Debug($"Flushing SpanData");
                 List<SpanData> currentSpans = new List<SpanData>();
                 lock (_lock)
                 {
+                    _logger.Debug($"Lock freed, getting current buffer.");
                     currentSpans = _spanRecorder.GetSpanBuffer();
+                    _logger.Debug($"{currentSpans.Count} spans copied from buffer.");
                 }
                 var data = _httpClient.Translate(currentSpans);
                 var resp = await _httpClient.SendReport(data);
-                if (resp.Errors.Count > 0) Console.WriteLine($"Errors sending report to LightStep: {resp.Errors}");
+                if (resp.Errors.Count > 0) _logger.Warn($"Errors sending report to LightStep: {resp.Errors}");
             }
         }
 
