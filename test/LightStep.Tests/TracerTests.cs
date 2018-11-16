@@ -37,7 +37,6 @@ namespace LightStep.Tests
                 {"ot-tracer-traceid", traceId},
                 {"ot-tracer-spanid", spanId}
             };
-            
             var spanContext = tracer.Extract(BuiltinFormats.TextMap, new TextMapExtractAdapter(data));
             Assert.NotNull(spanContext);
             Assert.Equal(traceId, spanContext.TraceId);
@@ -57,16 +56,11 @@ namespace LightStep.Tests
         public void TracerShouldInjectTextMap()
         {
             var tracer = GetTracer();
-
             var span = tracer.BuildSpan("test").Start();
-
             var traceId = span.TypedContext().TraceId;
             var spanId = span.TypedContext().SpanId;
-
             var data = new Dictionary<string, string>();
-
             tracer.Inject(span.Context, BuiltinFormats.TextMap, new TextMapInjectAdapter(data));
-
             Assert.Equal(traceId, data["ot-tracer-traceid"]);
             Assert.Equal(spanId, data["ot-tracer-spanid"]);
         }
