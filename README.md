@@ -66,3 +66,7 @@ var overrideTags = new Dictionary<string, object>
 var tracerOptions = new Options("TEST_TOKEN").WithSatellite(satelliteOptions).WithTags(overrideTags);
 var tracer = new Tracer(tracerOptions);
 ```
+
+## Logging
+This tracer uses [LibLog](https://github.com/damianh/LibLog), a transparent logging abstraction that provides built-in support for NLog, Log4Net, Serilog, and Loupe.
+If you use a logging provider that isn't identified by LibLog, see [this gist](https://gist.github.com/damianh/fa529b8346a83f7f49a9) on how to implement a custom logging provider.

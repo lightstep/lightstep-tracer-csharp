@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Versioning;
+using LightStep.Logging;
 
 namespace LightStep
 {
@@ -12,6 +13,8 @@ namespace LightStep
     /// </summary>
     public class Options
     {
+        private static readonly ILog _logger = LogProvider.GetCurrentClassLogger();
+
         /// <summary>
         ///     An identifier for the Tracer.
         /// </summary>
@@ -54,42 +57,49 @@ namespace LightStep
 
         public Options WithToken(string token)
         {
+            _logger.Debug($"Setting access token to {token}");
             AccessToken = token;
             return this;
         }
 
         public Options WithHttp2()
         {
+            _logger.Debug("Enabling HTTP/2 support.");
             UseHttp2 = true;
             return this;
         }
 
-        public Options WithStatellite(SatelliteOptions options)
+        public Options WithSatellite(SatelliteOptions options)
         {
+            _logger.Debug($"Setting satellite to {options}");
             Satellite = options;
             return this;
         }
 
         public Options WithReportPeriod(TimeSpan period)
         {
+            _logger.Debug($"Setting reporting period to {period}");
             ReportPeriod = period;
             return this;
         }
 
         public Options WithReportTimeout(TimeSpan timeout)
         {
+            _logger.Debug($"Setting report timeout to {timeout}");
             ReportTimeout = timeout;
             return this;
         }
 
         public Options WithTags(IDictionary<string, object> tags)
         {
+            _logger.Debug($"Setting default tags to: {tags.Select(kvp => $"{kvp.Key}:{kvp.Value},")}");
             Tags = MergeTags(tags);
             return this;
         }
 
         public Options WithAutomaticReporting(bool shouldRun)
         {
+            _logger.Debug($"Setting automatic reporting to {shouldRun}");
             Run = shouldRun;
             return this;
         }
@@ -119,7 +129,7 @@ namespace LightStep
             foreach (var item in attributes)
             {
                 if (!mergedAttributes.ContainsKey(item.Key))
-                {
+                {                    
                     mergedAttributes.Add(item.Key, item.Value);
                 }
             }

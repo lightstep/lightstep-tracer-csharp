@@ -1,4 +1,5 @@
 using System;
+using LightStep.Logging;
 using OpenTracing.Propagation;
 
 namespace LightStep.Propagation
@@ -6,9 +7,11 @@ namespace LightStep.Propagation
     /// <inheritdoc />
     public class TextMapPropagator : IPropagator
     {
+        private static readonly ILog _logger = LogProvider.GetCurrentClassLogger();
         /// <inheritdoc />
         public void Inject<TCarrier>(SpanContext context, IFormat<TCarrier> format, TCarrier carrier)
         {
+            _logger.Debug($"Injecting {context} of {format.GetType()} to {carrier.GetType()}");
             if (carrier is ITextMap text)
             {
                 foreach (var entry in context.GetBaggageItems()) text.Set(Keys.BaggagePrefix + entry.Key, entry.Value);
@@ -19,6 +22,7 @@ namespace LightStep.Propagation
             }
             else
             {
+                _logger.Warn($"Unknown carrier during inject.");
                 throw new InvalidOperationException($"Unknown carrier {carrier.GetType()}");
             }
         }
@@ -26,6 +30,7 @@ namespace LightStep.Propagation
         /// <inheritdoc />
         public SpanContext Extract<TCarrier>(IFormat<TCarrier> format, TCarrier carrier)
         {
+            _logger.Debug($"Extracting {format.GetType()} from {carrier.GetType()}");
             string traceId = null;
             string spanId = null;
             var baggage = new Baggage();
@@ -46,7 +51,10 @@ namespace LightStep.Propagation
                     }
 
             if (!string.IsNullOrEmpty(traceId) && !string.IsNullOrEmpty(spanId))
+            {
+                _logger.Debug($"Existing trace/spanID found, returning SpanContext.");
                 return new SpanContext(traceId, spanId, baggage);
+            }
 
             return null;
         }
