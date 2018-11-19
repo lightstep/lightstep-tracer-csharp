@@ -12,7 +12,7 @@ namespace LightStep.Tests
         {
             var spanRecorder = recorder ?? new SimpleMockRecorder();
             var satelliteOptions = new SatelliteOptions("localhost", 80, true);
-            var tracerOptions = new Options("TEST").WithStatellite(satelliteOptions).WithAutomaticReporting(false);
+            var tracerOptions = new Options("TEST").WithSatellite(satelliteOptions).WithAutomaticReporting(false);
 
             return new Tracer(tracerOptions, spanRecorder);
         }
@@ -99,7 +99,7 @@ namespace LightStep.Tests
         {
             var satelliteOptions = new SatelliteOptions("localhost", 80, true);
             var overrideTags = new Dictionary<string, object> {{LightStepConstants.ComponentNameKey, "test_component"}};
-            var tracerOptions = new Options("TEST").WithStatellite(satelliteOptions).WithTags(overrideTags).WithAutomaticReporting(false);
+            var tracerOptions = new Options("TEST").WithSatellite(satelliteOptions).WithTags(overrideTags).WithAutomaticReporting(false);
             
             Assert.Equal("test_component", tracerOptions.Tags[LightStepConstants.ComponentNameKey]);
             Assert.Equal(LightStepConstants.TracerPlatformValue,
