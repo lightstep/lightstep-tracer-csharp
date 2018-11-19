@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Google.Protobuf;
+using LightStep.Logging;
 
 namespace LightStep.Collector
 {
@@ -18,6 +19,7 @@ namespace LightStep.Collector
         private readonly Options _options;
         private HttpClient _client;
         private readonly string _url;
+        private static readonly ILog _logger = LogProvider.GetCurrentClassLogger();
 
         /// <summary>
         ///     Create a new client.
@@ -61,15 +63,15 @@ namespace LightStep.Collector
                 response.EnsureSuccessStatusCode();
                 var responseData = await response.Content.ReadAsStreamAsync();
                 responseValue = ReportResponse.Parser.ParseFrom(responseData);
+                _logger.Debug($"Report HTTP Response {response.StatusCode}");
             }
             catch (HttpRequestException ex)
             {
-                Console.WriteLine(ex);
-                Console.WriteLine("resetting httpclient");
+                _logger.WarnException("Exception caught while sending report, resetting HttpClient", ex);
                 _client.Dispose();
                 _client = new HttpClient();
             }
-
+            
             return responseValue;
         }
 
@@ -80,6 +82,10 @@ namespace LightStep.Collector
         /// <returns>A <see cref="ReportRequest" /></returns>
         public ReportRequest Translate(IEnumerable<SpanData> spans)
         {
+            _logger.Debug($"Serializing spans to proto.");
+            var timer = new Stopwatch();
+            timer.Start();
+
             var request = new ReportRequest
             {
                 Reporter = new Reporter
@@ -90,6 +96,9 @@ namespace LightStep.Collector
             };
             _options.Tags.ToList().ForEach(t => request.Reporter.Tags.Add(new KeyValue().MakeKeyValueFromKvp(t)));
             spans.ToList().ForEach(span => request.Spans.Add(new Span().MakeSpanFromSpanData(span)));
+
+            timer.Stop();
+            _logger.Debug($"Serialization complete in {timer.ElapsedMilliseconds}ms. Request size: {request.CalculateSize()}b.");
             return request;
         }
     }

@@ -32,5 +32,10 @@ namespace LightStep
         ///     Currently unused
         /// </summary>
         public bool UsePlaintext { get; }
+
+        public override string ToString()
+        {
+            return $"Host: {SatelliteHost}, Port: {SatellitePort}, Use Plaintext: {UsePlaintext}";
+        }
     }
 }

@@ -12,7 +12,7 @@ namespace LightStep.CSharpDITestApp
         public static void Main(string[] args)
         {
             // replace these options with your satellite and api key
-            var tracerOptions = new Options("TEST_TOKEN").WithStatellite(new SatelliteOptions("localhost", 9996, true));
+            var tracerOptions = new Options("TEST_TOKEN").WithSatellite(new SatelliteOptions("localhost", 9996, true));
             var container = new WindsorContainer();
             // during registration, pass your options to the concrete LightStep Tracer implementation
             container.Register(Component.For<ITracer>().ImplementedBy<Tracer>().DependsOn(Dependency.OnValue("options", tracerOptions)));            

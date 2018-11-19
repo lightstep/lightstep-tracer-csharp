@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using LightStep.Logging;
 using OpenTracing.Propagation;
 
 namespace LightStep.Propagation
@@ -7,11 +8,13 @@ namespace LightStep.Propagation
     /// <inheritdoc />
     public class PropagatorStack : IPropagator
     {
+        private static readonly ILog _logger = LogProvider.GetCurrentClassLogger();
+
         /// <inheritdoc />
         public PropagatorStack(IFormat<ITextMap> format)
         {
             if (format == null) throw new ArgumentNullException(nameof(format));
-
+            _logger.Trace($"Creating new PropagatorStack with format {format}");
             Format = format;
             Propagators = new List<IPropagator>();
         }
@@ -30,7 +33,10 @@ namespace LightStep.Propagation
         public void Inject<TCarrier>(SpanContext context, IFormat<TCarrier> format, TCarrier carrier)
         {
             Propagators.ForEach(propagator =>
-                propagator.Inject(context, format, carrier)
+                {
+                    _logger.Debug($"Injecting context to {propagator.GetType()}");
+                    propagator.Inject(context, format, carrier);
+                }
             );
         }
 
@@ -39,6 +45,7 @@ namespace LightStep.Propagation
         {
             for (var i = Propagators.Count - 1; i >= 0; i--)
             {
+                _logger.Debug($"Trying to extract from {Propagators[i].GetType()}");
                 var context = Propagators[i].Extract(format, carrier);
                 if (context != null) return context;
             }
@@ -55,7 +62,7 @@ namespace LightStep.Propagation
         public PropagatorStack AddPropagator(IPropagator propagator)
         {
             if (propagator == null) throw new ArgumentNullException(nameof(propagator));
-
+            _logger.Trace($"Adding {propagator.GetType()} to PropagatorStack.");
             Propagators.Add(propagator);
             return this;
         }

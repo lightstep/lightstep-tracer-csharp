@@ -55,5 +55,10 @@ namespace LightStep
             _baggage.Set(key, value);
             return this;
         }
+
+        public override string ToString()
+        {
+            return $"[traceId: {TraceId}, spanId: {SpanId}, parentId: {ParentSpanId ?? "none"}";
+        }
     }
 }

@@ -37,5 +37,11 @@ namespace LightStep
         ///     Logs emitted as part of the span.
         /// </summary>
         public IList<LogData> LogData { get; internal set; }
+
+        public override string ToString()
+        {
+            return
+                $"[{OperationName}] ctx: {Context}, startTime: {StartTimestamp}, duration: {Duration.TotalMilliseconds}";
+        }
     }
 }

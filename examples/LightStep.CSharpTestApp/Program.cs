@@ -3,6 +3,9 @@ using System.IO;
 using System.Threading;
 using Google.Protobuf.WellKnownTypes;
 using OpenTracing.Util;
+using global::Serilog;
+using Serilog.Events;
+using Serilog.Sinks.SystemConsole;
 
 namespace LightStep.CSharpTestApp
 {
@@ -10,9 +13,14 @@ namespace LightStep.CSharpTestApp
     {
         private static void Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .CreateLogger();
+
             // substitute your own LS API Key here
             var lightStepSatellite = new SatelliteOptions("localhost", 9996, true);
-            var lightStepOptions = new Options("TEST_TOKEN").WithStatellite(lightStepSatellite);
+            var lightStepOptions = new Options("TEST_TOKEN").WithSatellite(lightStepSatellite);
             var tracer = new Tracer(lightStepOptions);
             GlobalTracer.Register(tracer);
             
@@ -21,16 +29,17 @@ namespace LightStep.CSharpTestApp
                 {
                     scope.Span.Log("test");
                     tracer.ActiveSpan.Log($"iteration {i}");
-                    Console.WriteLine("sleeping for a bit");
+                    
                     Thread.Sleep(new Random().Next(5, 10));
                     var innerSpan = tracer.BuildSpan("childSpan").Start();
                     innerSpan.SetTag("innerTestTag", "true");
-                    Console.WriteLine("sleeping more...");
+                    
                     Thread.Sleep(new Random().Next(10, 20));
                     innerSpan.Finish();
                 }
 
             tracer.Flush();
+            Console.ReadKey();
         }
         
     }
