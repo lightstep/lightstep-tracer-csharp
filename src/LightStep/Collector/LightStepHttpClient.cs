@@ -7,6 +7,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
+using OpenTracing.Tag;
 
 namespace LightStep.Collector
 {
@@ -18,6 +20,7 @@ namespace LightStep.Collector
         private readonly Options _options;
         private HttpClient _client;
         private readonly string _url;
+        private int droppedSpanCount;
 
         /// <summary>
         ///     Create a new client.
@@ -64,6 +67,7 @@ namespace LightStep.Collector
             }
             catch (HttpRequestException ex)
             {
+                droppedSpanCount += report.Spans.Count;
                 Console.WriteLine(ex);
                 Console.WriteLine("resetting httpclient");
                 _client.Dispose();
@@ -78,18 +82,26 @@ namespace LightStep.Collector
         /// </summary>
         /// <param name="spans">An enumerable of <see cref="SpanData" /></param>
         /// <returns>A <see cref="ReportRequest" /></returns>
-        public ReportRequest Translate(IEnumerable<SpanData> spans)
+        public ReportRequest Translate(ISpanRecorder spanBuffer)
         {
+            var metrics = new InternalMetrics
+            {
+                StartTimestamp = Timestamp.FromDateTime(spanBuffer.ReportStartTime.ToUniversalTime()),
+                DurationMicros = Convert.ToUInt64((spanBuffer.ReportEndTime - spanBuffer.ReportStartTime).Ticks / 10),
+                Counts = { new MetricsSample() { Name = "spans.dropped", IntValue = spanBuffer.DroppedSpanCount } }
+            };
+            
             var request = new ReportRequest
             {
                 Reporter = new Reporter
                 {
                     ReporterId = _options.TracerGuid
                 },
-                Auth = new Auth {AccessToken = _options.AccessToken}
+                Auth = new Auth {AccessToken = _options.AccessToken},
+                InternalMetrics = metrics
             };
             _options.Tags.ToList().ForEach(t => request.Reporter.Tags.Add(new KeyValue().MakeKeyValueFromKvp(t)));
-            spans.ToList().ForEach(span => request.Spans.Add(new Span().MakeSpanFromSpanData(span)));
+            spanBuffer.GetSpans().ToList().ForEach(span => request.Spans.Add(new Span().MakeSpanFromSpanData(span)));
             return request;
         }
     }

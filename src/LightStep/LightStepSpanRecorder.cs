@@ -8,7 +8,16 @@ namespace LightStep
     public sealed class LightStepSpanRecorder : ISpanRecorder
     {
         private List<SpanData> Spans { get; } = new List<SpanData>();
+        
+        /// <inheritdoc />
+        public DateTime ReportStartTime { get; } = DateTime.Now;
 
+        /// <inheritdoc />
+        public DateTime ReportEndTime { get; set; }
+
+        /// <inheritdoc />
+        public int DroppedSpanCount { get; set; }
+        
         /// <inheritdoc />
         public void RecordSpan(SpanData span)
         {
@@ -16,19 +25,16 @@ namespace LightStep
             {
                 Spans.Add(span);    
             }
-            
         }
 
         /// <inheritdoc />
-        public List<SpanData> GetSpanBuffer()
+        public ISpanRecorder GetSpanBuffer()
         {
             lock (Spans)
             {
-                var currentSpans = Spans.ToList();
-                Spans.Clear();
-                return currentSpans;
+                ReportEndTime = DateTime.Now;
+                return this;
             }
-            
         }
 
         /// <inheritdoc />
@@ -38,7 +44,21 @@ namespace LightStep
             {
                 Spans.Clear();    
             }
-            
+        }
+
+        /// <inheritdoc />
+        public void RecordDroppedSpans(int count)
+        {
+            DroppedSpanCount += count;
+        }
+
+        /// <inheritdoc />
+        public IEnumerable<SpanData> GetSpans()
+        {
+            lock (Spans)
+            {
+                return Spans.ToList();
+            }
         }
     }
 }

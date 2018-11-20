@@ -42,7 +42,7 @@ namespace LightStep.Tests
 
             span.Finish();
 
-            var finishedSpan = recorder.GetSpanBuffer().First();
+            var finishedSpan = recorder.GetSpans().First();
 
             // we expect there to be 2 logs and 3 tags
             Assert.True(finishedSpan.LogData.Count == 2);
@@ -62,7 +62,7 @@ namespace LightStep.Tests
                 .WithTag("doubleTag", 0.1)
                 .Start();
             span.Finish();
-            var finishedSpan = recorder.GetSpanBuffer().First();
+            var finishedSpan = recorder.GetSpans().First();
 
             Assert.True((bool) finishedSpan.Tags["boolTrueTag"]);
             Assert.False((bool) finishedSpan.Tags["boolFalseTag"]);
@@ -84,7 +84,7 @@ namespace LightStep.Tests
                 .WithTag(new IntOrStringTag("testIntOrStringTagAsInt"), 1)
                 .Start();
             span.Finish();
-            var finishedSpan = recorder.GetSpanBuffer().First();
+            var finishedSpan = recorder.GetSpans().First();
 
             Assert.True((bool) finishedSpan.Tags["testBoolTag"]);
             Assert.Equal(1, finishedSpan.Tags["testIntTag"]);
@@ -102,7 +102,7 @@ namespace LightStep.Tests
             span.Log("hello world!");
             span.Finish();
 
-            var finishedSpan = recorder.GetSpanBuffer().First();
+            var finishedSpan = recorder.GetSpans().First();
             // project the sequence of logdata into an array with one item, the aforementioned log message
             var finishedSpanLogData = finishedSpan.LogData.Select(
                 item => item.Fields.First(
