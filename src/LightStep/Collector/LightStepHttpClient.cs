@@ -8,6 +8,8 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Google.Protobuf;
 using LightStep.Logging;
+using Google.Protobuf.WellKnownTypes;
+using OpenTracing.Tag;
 
 namespace LightStep.Collector
 {
@@ -20,6 +22,7 @@ namespace LightStep.Collector
         private HttpClient _client;
         private readonly string _url;
         private static readonly ILog _logger = LogProvider.GetCurrentClassLogger();
+        private int droppedSpanCount;
 
         /// <summary>
         ///     Create a new client.
@@ -68,6 +71,7 @@ namespace LightStep.Collector
             catch (HttpRequestException ex)
             {
                 _logger.WarnException("Exception caught while sending report, resetting HttpClient", ex);
+                droppedSpanCount += report.Spans.Count;
                 _client.Dispose();
                 _client = new HttpClient();
             }
@@ -80,23 +84,31 @@ namespace LightStep.Collector
         /// </summary>
         /// <param name="spans">An enumerable of <see cref="SpanData" /></param>
         /// <returns>A <see cref="ReportRequest" /></returns>
-        public ReportRequest Translate(IEnumerable<SpanData> spans)
+        public ReportRequest Translate(ISpanRecorder spanBuffer)
         {
             _logger.Debug($"Serializing spans to proto.");
             var timer = new Stopwatch();
             timer.Start();
 
+            var metrics = new InternalMetrics
+            {
+                StartTimestamp = Timestamp.FromDateTime(spanBuffer.ReportStartTime.ToUniversalTime()),
+                DurationMicros = Convert.ToUInt64((spanBuffer.ReportEndTime - spanBuffer.ReportStartTime).Ticks / 10),
+                Counts = { new MetricsSample() { Name = "spans.dropped", IntValue = spanBuffer.DroppedSpanCount } }
+            };
+            
             var request = new ReportRequest
             {
                 Reporter = new Reporter
                 {
                     ReporterId = _options.TracerGuid
                 },
-                Auth = new Auth {AccessToken = _options.AccessToken}
+                Auth = new Auth {AccessToken = _options.AccessToken},
+                InternalMetrics = metrics
             };
             _options.Tags.ToList().ForEach(t => request.Reporter.Tags.Add(new KeyValue().MakeKeyValueFromKvp(t)));
             spans.ToList().ForEach(span => request.Spans.Add(new Span().MakeSpanFromSpanData(span)));
-
+            spanBuffer.GetSpans().ToList().ForEach(span => request.Spans.Add(new Span().MakeSpanFromSpanData(span)));
             timer.Stop();
             _logger.Debug($"Serialization complete in {timer.ElapsedMilliseconds}ms. Request size: {request.CalculateSize()}b.");
             return request;

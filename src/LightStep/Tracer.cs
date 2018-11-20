@@ -19,7 +19,7 @@ namespace LightStep
         private readonly Options _options;
         private readonly IPropagator _propagator;
         private readonly LightStepHttpClient _httpClient;
-        private readonly ISpanRecorder _spanRecorder;
+        private ISpanRecorder _spanRecorder;
         private readonly Timer _reportLoop;
         private static readonly ILog _logger = LogProvider.GetCurrentClassLogger();
 
@@ -96,16 +96,15 @@ namespace LightStep
             if (_options.Run)
             {
                 // save current spans and clear the buffer
-                // TODO: add retry logic so as to not drop spans on unreachable satellite
-                _logger.Debug($"Flushing SpanData");
-                List<SpanData> currentSpans = new List<SpanData>();
+                ISpanRecorder currentBuffer;
                 lock (_lock)
                 {
                     _logger.Debug($"Lock freed, getting current buffer.");
-                    currentSpans = _spanRecorder.GetSpanBuffer();
+                    currentBuffer = _spanRecorder.GetSpanBuffer();
+                    _spanRecorder = new LightStepSpanRecorder();
                     _logger.Debug($"{currentSpans.Count} spans copied from buffer.");
                 }
-                var data = _httpClient.Translate(currentSpans);
+                var data = _httpClient.Translate(currentBuffer);
                 var resp = await _httpClient.SendReport(data);
                 if (resp.Errors.Count > 0) _logger.Warn($"Errors sending report to LightStep: {resp.Errors}");
             }
