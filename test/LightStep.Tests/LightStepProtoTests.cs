@@ -34,8 +34,20 @@ namespace LightStep.Tests
 
             var client = GetClient();
 
-            var translatedSpans = client.Translate(recorder);
+            var translatedSpans = client.Translate(recorder.GetSpanBuffer());
             Assert.Equal("spans.dropped", translatedSpans.InternalMetrics.Counts[0].Name);
+        }
+
+        [Fact]
+        public void DroppedSpanCountShouldSerializeCorrectly()
+        {
+            var mockBuffer = new SimpleMockRecorder();
+            mockBuffer.RecordDroppedSpans(1);
+
+            var client = GetClient();
+            var translatedBuffer = client.Translate(mockBuffer.GetSpanBuffer());
+            
+            Assert.Equal(1, translatedBuffer.InternalMetrics.Counts[0].IntValue);
         }
 
         [Fact]
@@ -56,7 +68,7 @@ namespace LightStep.Tests
 
             var client = GetClient();
             
-            var translatedSpans = client.Translate(recorder);
+            var translatedSpans = client.Translate(recorder.GetSpanBuffer());
             var translatedSpan = translatedSpans.Spans[0];
 
             foreach (var tag in translatedSpan.Tags)

@@ -7,7 +7,7 @@ namespace LightStep.Tests
     {
         private List<SpanData> Spans { get; } = new List<SpanData>();
 
-        public DateTime ReportStartTime { get; }
+        public DateTime ReportStartTime { get; } = DateTime.Now;
         public DateTime ReportEndTime { get; set; }
         public int DroppedSpanCount { get; set; }
 
@@ -16,13 +16,9 @@ namespace LightStep.Tests
             Spans.Add(span);
         }
 
-        ISpanRecorder ISpanRecorder.GetSpanBuffer()
-        {
-            throw new System.NotImplementedException();
-        }
-
         public ISpanRecorder GetSpanBuffer()
         {
+            ReportEndTime = DateTime.Now;
             return this;
         }
 
@@ -33,7 +29,7 @@ namespace LightStep.Tests
 
         public void RecordDroppedSpans(int count)
         {
-            throw new System.NotImplementedException();
+            DroppedSpanCount += count;
         }
 
         public IEnumerable<SpanData> GetSpans()

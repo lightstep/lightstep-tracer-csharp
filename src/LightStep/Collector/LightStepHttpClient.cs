@@ -22,7 +22,6 @@ namespace LightStep.Collector
         private HttpClient _client;
         private readonly string _url;
         private static readonly ILog _logger = LogProvider.GetCurrentClassLogger();
-        private int droppedSpanCount;
 
         /// <summary>
         ///     Create a new client.
@@ -57,8 +56,8 @@ namespace LightStep.Collector
             };
 
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-            
-            ReportResponse responseValue = new ReportResponse();
+
+            ReportResponse responseValue;
             
             try
             {
@@ -71,7 +70,6 @@ namespace LightStep.Collector
             catch (HttpRequestException ex)
             {
                 _logger.WarnException("Exception caught while sending report, resetting HttpClient", ex);
-                droppedSpanCount += report.Spans.Count;
                 _client.Dispose();
                 _client = new HttpClient();
                 throw;
@@ -108,7 +106,6 @@ namespace LightStep.Collector
                 InternalMetrics = metrics
             };
             _options.Tags.ToList().ForEach(t => request.Reporter.Tags.Add(new KeyValue().MakeKeyValueFromKvp(t)));
-            spans.ToList().ForEach(span => request.Spans.Add(new Span().MakeSpanFromSpanData(span)));
             spanBuffer.GetSpans().ToList().ForEach(span => request.Spans.Add(new Span().MakeSpanFromSpanData(span)));
             timer.Stop();
             _logger.Debug($"Serialization complete in {timer.ElapsedMilliseconds}ms. Request size: {request.CalculateSize()}b.");

@@ -100,11 +100,11 @@ namespace LightStep
                 ISpanRecorder currentBuffer;
                 lock (_lock)
                 {
-                    _logger.Debug($"Lock freed, getting current buffer.");
                     currentBuffer = _spanRecorder.GetSpanBuffer();
                     _spanRecorder = new LightStepSpanRecorder();
-                    _logger.Debug($"{currentSpans.Count} spans copied from buffer.");
+                    _logger.Debug($"{currentBuffer.GetSpans().Count()} spans in buffer.");
                 }
+                
                 var data = _httpClient.Translate(currentBuffer);
 
                 try
@@ -112,7 +112,7 @@ namespace LightStep
                     var resp = await _httpClient.SendReport(data);
                     if (resp.Errors.Count > 0)
                     {
-                        Console.WriteLine($"Errors sending report to LightStep: {resp.Errors}");
+                        _logger.Warn($"Errors in report: {resp.Errors}");
                     }
 
                     lock (_lock)
