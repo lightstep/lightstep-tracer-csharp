@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using LightStep.Collector;
@@ -105,8 +106,30 @@ namespace LightStep
                     _logger.Debug($"{currentSpans.Count} spans copied from buffer.");
                 }
                 var data = _httpClient.Translate(currentBuffer);
-                var resp = await _httpClient.SendReport(data);
-                if (resp.Errors.Count > 0) _logger.Warn($"Errors sending report to LightStep: {resp.Errors}");
+
+                try
+                {
+                    var resp = await _httpClient.SendReport(data);
+                    if (resp.Errors.Count > 0)
+                    {
+                        Console.WriteLine($"Errors sending report to LightStep: {resp.Errors}");
+                    }
+
+                    lock (_lock)
+                    {
+                        _spanRecorder.DroppedSpanCount = 0;    
+                    }
+                    
+                }
+                catch (HttpRequestException)
+                {
+                    lock (_lock)
+                    {
+                        _spanRecorder.RecordDroppedSpans(currentBuffer.GetSpans().Count() + currentBuffer.DroppedSpanCount);
+                    }
+                }
+                
+                
             }
         }
 

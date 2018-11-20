@@ -74,6 +74,7 @@ namespace LightStep.Collector
                 droppedSpanCount += report.Spans.Count;
                 _client.Dispose();
                 _client = new HttpClient();
+                throw;
             }
             
             return responseValue;
