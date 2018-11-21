@@ -1,6 +1,12 @@
 # Changelog
 
 _vNext_
+- All value types are now properly handled in span serialization.
+- The platform version detection code has been improved and should be resilient to dynamic injection scenarios.
+- Logging now exists for many operations via the LibLog library. See the README for more details.
+- Error handling around dropped reports has been improved, and we now report dropped spans to LightStep.
+- The `LightStepHttpClient` now respects the `ReportTimeout` value. **Breaking Change**
+  - Previously, this value was not respected by the HTTP client and was using the default 100s timeout.
 - The `Options` class has been refactored to support a more fluent style of configuration. **Breaking Change**
   - By default, `SatelliteOptions` are now created when `Options` is created that points to the LightStep public satellite pool.
   - Please see the readme for more information on configuring the tracer.

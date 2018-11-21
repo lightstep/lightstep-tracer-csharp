@@ -23,6 +23,7 @@ namespace LightStep
         private ISpanRecorder _spanRecorder;
         private readonly Timer _reportLoop;
         private static readonly ILog _logger = LogProvider.GetCurrentClassLogger();
+        private int currentDroppedSpanCount;
 
         /// <inheritdoc />
         public Tracer(Options options) : this(new AsyncLocalScopeManager(), Propagators.TextMap, options,
@@ -105,6 +106,16 @@ namespace LightStep
                     _logger.Debug($"{currentBuffer.GetSpans().Count()} spans in buffer.");
                 }
                 
+                /**
+                 * there are two ways spans can be dropped:
+                 * 1. the buffer drops a span because it's too large, malformed, etc.
+                 * 2. the report failed to be sent to the satellite.
+                 * since flush is async and there can potentially be any number of buffers in flight to the satellite,
+                 * we need to set the current drop count on the tracer to be the amount of dropped spans from the buffer
+                 * plus the existing dropped spans, then mutate the current buffer to this new total value.
+                 */
+                currentDroppedSpanCount += currentBuffer.DroppedSpanCount;
+                currentBuffer.DroppedSpanCount = currentDroppedSpanCount;
                 var data = _httpClient.Translate(currentBuffer);
 
                 try
@@ -117,15 +128,17 @@ namespace LightStep
 
                     lock (_lock)
                     {
-                        _spanRecorder.DroppedSpanCount = 0;    
+                        _logger.Debug($"Resetting dropped span count as the last report was successful.");
+                        currentDroppedSpanCount = 0;  
                     }
                     
                 }
-                catch (HttpRequestException)
+                catch (Exception ex) when (ex is HttpRequestException || ex is TaskCanceledException || ex is OperationCanceledException)
                 {
                     lock (_lock)
                     {
-                        _spanRecorder.RecordDroppedSpans(currentBuffer.GetSpans().Count() + currentBuffer.DroppedSpanCount);
+                        _logger.Warn($"Adding {currentBuffer.GetSpans().Count()} spans to dropped span count (current total: {currentDroppedSpanCount})");
+                        currentDroppedSpanCount += currentBuffer.GetSpans().Count();
                     }
                 }
                 

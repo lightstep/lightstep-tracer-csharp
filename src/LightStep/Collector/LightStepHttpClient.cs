@@ -32,7 +32,7 @@ namespace LightStep.Collector
         {
             _url = url;
             _options = options;
-            _client = new HttpClient();
+            _client = new HttpClient {Timeout = _options.ReportTimeout};
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace LightStep.Collector
         {
             // force net45 to attempt tls12 first and fallback appropriately
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
-            
+
             _client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/octet-stream"));
             var reportsByteArray = report.ToByteArray();
@@ -58,7 +58,7 @@ namespace LightStep.Collector
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
 
             ReportResponse responseValue;
-            
+
             try
             {
                 var response = await _client.SendAsync(request);
@@ -71,7 +71,12 @@ namespace LightStep.Collector
             {
                 _logger.WarnException("Exception caught while sending report, resetting HttpClient", ex);
                 _client.Dispose();
-                _client = new HttpClient();
+                _client = new HttpClient {Timeout = _options.ReportTimeout};
+                throw;
+            }
+            catch (Exception ex) when (ex is TaskCanceledException || ex is OperationCanceledException)
+            {
+                _logger.WarnException("Timed out sending report to satellite", ex);
                 throw;
             }
             
