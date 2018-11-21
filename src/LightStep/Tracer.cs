@@ -128,7 +128,7 @@ namespace LightStep
 
                     lock (_lock)
                     {
-                        _logger.Debug($"Resetting dropped span count as the last report was successful.");
+                        _logger.Debug($"Resetting tracer dropped span count as the last report was successful.");
                         currentDroppedSpanCount = 0;  
                     }
                     
@@ -150,7 +150,15 @@ namespace LightStep
         {
             lock (_lock)
             {
-                _spanRecorder.RecordSpan(span);
+                if (_spanRecorder.GetSpans().Count() < _options.ReportMaxSpans )
+                {
+                    _spanRecorder.RecordSpan(span);
+                }
+                else
+                {
+                    _spanRecorder.RecordDroppedSpans(1);
+                    _logger.Warn($"Dropping span due to too many spans in buffer.");
+                }
             }
         }
     }
