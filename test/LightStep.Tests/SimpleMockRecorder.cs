@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace LightStep.Tests
 {
@@ -6,19 +7,34 @@ namespace LightStep.Tests
     {
         private List<SpanData> Spans { get; } = new List<SpanData>();
 
+        public DateTime ReportStartTime { get; } = DateTime.Now;
+        public DateTime ReportEndTime { get; set; }
+        public int DroppedSpanCount { get; set; }
+
         public void RecordSpan(SpanData span)
         {
             Spans.Add(span);
         }
 
-        public List<SpanData> GetSpanBuffer()
+        public ISpanRecorder GetSpanBuffer()
         {
-            return Spans;
+            ReportEndTime = DateTime.Now;
+            return this;
         }
 
         public void ClearSpanBuffer()
         {
             Spans.Clear();
+        }
+
+        public void RecordDroppedSpans(int count)
+        {
+            DroppedSpanCount += count;
+        }
+
+        public IEnumerable<SpanData> GetSpans()
+        {
+            return Spans;
         }
     }
 }

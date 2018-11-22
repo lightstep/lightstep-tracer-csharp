@@ -10,7 +10,16 @@ namespace LightStep
     {
         private List<SpanData> Spans { get; } = new List<SpanData>();
         private static readonly ILog _logger = LogProvider.GetCurrentClassLogger();
+        
+        /// <inheritdoc />
+        public DateTime ReportStartTime { get; } = DateTime.Now;
 
+        /// <inheritdoc />
+        public DateTime ReportEndTime { get; set; }
+
+        /// <inheritdoc />
+        public int DroppedSpanCount { get; set; }
+        
         /// <inheritdoc />
         public void RecordSpan(SpanData span)
         {
@@ -20,21 +29,16 @@ namespace LightStep
                 _logger.Trace($"Lock freed, adding new span: {span}");
                 Spans.Add(span);    
             }
-            
         }
 
         /// <inheritdoc />
-        public List<SpanData> GetSpanBuffer()
+        public ISpanRecorder GetSpanBuffer()
         {
-            _logger.Trace("Waiting for lock in SpanRecorder");
             lock (Spans)
             {
-                _logger.Trace("Lock freed, getting span buffer.");
-                var currentSpans = Spans.ToList();
-                Spans.Clear();
-                return currentSpans;
+                ReportEndTime = DateTime.Now;
+                return this;
             }
-            
         }
 
         /// <inheritdoc />
@@ -46,7 +50,21 @@ namespace LightStep
                 _logger.Trace("Lock freed, clearing span buffer.");
                 Spans.Clear();    
             }
-            
+        }
+
+        /// <inheritdoc />
+        public void RecordDroppedSpans(int count)
+        {
+            DroppedSpanCount += count;
+        }
+
+        /// <inheritdoc />
+        public IEnumerable<SpanData> GetSpans()
+        {
+            lock (Spans)
+            {
+                return Spans.ToList();
+            }
         }
     }
 }

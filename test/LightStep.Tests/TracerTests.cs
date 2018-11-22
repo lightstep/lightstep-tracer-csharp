@@ -81,7 +81,7 @@ namespace LightStep.Tests
                 .SetBaggageItem("baggageKey", "bagTestValue");
             span.Finish(endTimeStamp);
 
-            var recordedSpans = recorder.GetSpanBuffer().First();
+            var recordedSpans = recorder.GetSpans().First();
 
             Assert.Equal("test", recordedSpans.OperationName);
             Assert.Equal(startTimeStamp, recordedSpans.StartTimestamp);

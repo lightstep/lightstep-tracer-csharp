@@ -8,6 +8,8 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Google.Protobuf;
 using LightStep.Logging;
+using Google.Protobuf.WellKnownTypes;
+using OpenTracing.Tag;
 
 namespace LightStep.Collector
 {
@@ -30,7 +32,7 @@ namespace LightStep.Collector
         {
             _url = url;
             _options = options;
-            _client = new HttpClient();
+            _client = new HttpClient {Timeout = _options.ReportTimeout};
         }
 
         /// <summary>
@@ -42,7 +44,7 @@ namespace LightStep.Collector
         {
             // force net45 to attempt tls12 first and fallback appropriately
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
-            
+
             _client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/octet-stream"));
             var reportsByteArray = report.ToByteArray();
@@ -54,9 +56,9 @@ namespace LightStep.Collector
             };
 
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-            
-            ReportResponse responseValue = new ReportResponse();
-            
+
+            ReportResponse responseValue;
+
             try
             {
                 var response = await _client.SendAsync(request);
@@ -69,7 +71,13 @@ namespace LightStep.Collector
             {
                 _logger.WarnException("Exception caught while sending report, resetting HttpClient", ex);
                 _client.Dispose();
-                _client = new HttpClient();
+                _client = new HttpClient {Timeout = _options.ReportTimeout};
+                throw;
+            }
+            catch (Exception ex) when (ex is TaskCanceledException || ex is OperationCanceledException)
+            {
+                _logger.WarnException("Timed out sending report to satellite", ex);
+                throw;
             }
             
             return responseValue;
@@ -80,23 +88,30 @@ namespace LightStep.Collector
         /// </summary>
         /// <param name="spans">An enumerable of <see cref="SpanData" /></param>
         /// <returns>A <see cref="ReportRequest" /></returns>
-        public ReportRequest Translate(IEnumerable<SpanData> spans)
+        public ReportRequest Translate(ISpanRecorder spanBuffer)
         {
             _logger.Debug($"Serializing spans to proto.");
             var timer = new Stopwatch();
             timer.Start();
 
+            var metrics = new InternalMetrics
+            {
+                StartTimestamp = Timestamp.FromDateTime(spanBuffer.ReportStartTime.ToUniversalTime()),
+                DurationMicros = Convert.ToUInt64((spanBuffer.ReportEndTime - spanBuffer.ReportStartTime).Ticks / 10),
+                Counts = { new MetricsSample() { Name = "spans.dropped", IntValue = spanBuffer.DroppedSpanCount } }
+            };
+            
             var request = new ReportRequest
             {
                 Reporter = new Reporter
                 {
                     ReporterId = _options.TracerGuid
                 },
-                Auth = new Auth {AccessToken = _options.AccessToken}
+                Auth = new Auth {AccessToken = _options.AccessToken},
+                InternalMetrics = metrics
             };
             _options.Tags.ToList().ForEach(t => request.Reporter.Tags.Add(new KeyValue().MakeKeyValueFromKvp(t)));
-            spans.ToList().ForEach(span => request.Spans.Add(new Span().MakeSpanFromSpanData(span)));
-
+            spanBuffer.GetSpans().ToList().ForEach(span => request.Spans.Add(new Span().MakeSpanFromSpanData(span)));
             timer.Stop();
             _logger.Debug($"Serialization complete in {timer.ElapsedMilliseconds}ms. Request size: {request.CalculateSize()}b.");
             return request;

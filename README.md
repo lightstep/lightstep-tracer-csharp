@@ -42,6 +42,7 @@ There's several options that can be adjusted when instantiating a `LightStepTrac
 | WithSatellite(SatelliteOptions) | A SatelliteOptions object that specifies the host, port, and if we should use HTTPS |
 | WithHttp2(bool) | If this is true, we use HTTP/2 to communicate with the Satellite |
 | WithAutomaticReporting(bool) | If false, disables the automatic flushing of buffered spans. |
+| WithMaxBufferedSpans(int) | The maximum amount of spans to record in a single buffer. |
 
 ## `SatelliteOptions`
 | Property | Description |

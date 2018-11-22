@@ -25,6 +25,32 @@ namespace LightStep.Tests
         }
 
         [Fact]
+        public void InternalMetricsShouldExist()
+        {
+            var recorder = new SimpleMockRecorder();
+            var tracer = GetTracer(recorder);
+            var span = tracer.BuildSpan("test").Start();
+            span.Finish();
+
+            var client = GetClient();
+
+            var translatedSpans = client.Translate(recorder.GetSpanBuffer());
+            Assert.Equal("spans.dropped", translatedSpans.InternalMetrics.Counts[0].Name);
+        }
+
+        [Fact]
+        public void DroppedSpanCountShouldSerializeCorrectly()
+        {
+            var mockBuffer = new SimpleMockRecorder();
+            mockBuffer.RecordDroppedSpans(1);
+
+            var client = GetClient();
+            var translatedBuffer = client.Translate(mockBuffer.GetSpanBuffer());
+            
+            Assert.Equal(1, translatedBuffer.InternalMetrics.Counts[0].IntValue);
+        }
+
+        [Fact]
         public void ConverterShouldConvertValues()
         {
             var recorder = new SimpleMockRecorder();
@@ -41,8 +67,8 @@ namespace LightStep.Tests
             span.Finish();
 
             var client = GetClient();
-            var spans = new List<SpanData> { recorder.GetSpanBuffer().First() };
-            var translatedSpans = client.Translate(spans);
+            
+            var translatedSpans = client.Translate(recorder.GetSpanBuffer());
             var translatedSpan = translatedSpans.Spans[0];
 
             foreach (var tag in translatedSpan.Tags)
