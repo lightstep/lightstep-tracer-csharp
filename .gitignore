@@ -334,3 +334,6 @@ tools/
 
 dist/
 build/
+
+# this is generated at build, ignoring it here
+src/LightStep/Properties/AssemblyInfo.cs

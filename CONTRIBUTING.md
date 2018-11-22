@@ -19,4 +19,4 @@ In addition, ensure that:
 - If you are making a breaking change, indicate it in the CHANGELOG.
 
 ## Releases
-To make a release, commit a tag to master of the format `major.minor.patch` or `major.minor.patch-alpha/beta`. CircleCI should automatically build and publish the resulting artifact.
+To make a release, commit a tag to master of the format `vmajor.minor.patch` or `vmajor.minor.patch-alpha/beta`. CircleCI should automatically build and publish the resulting artifact.

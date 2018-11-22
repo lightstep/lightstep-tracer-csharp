@@ -8,9 +8,11 @@ var distDir = Directory("./dist");
 var solutionFile = GetFiles("./*.sln").First();
 var solution = new Lazy<SolutionParserResult>(() => ParseSolution(solutionFile));
 var lightStepAssemblyInfoFile = "./src/LightStep/Properties/AssemblyInfo.cs";		
-var version = EnvironmentVariable("CIRCLE_TAG") ?? "0.0.0";
+var version = EnvironmentVariable("CIRCLE_TAG") ?? "v0.0.0";
+version = version.TrimStart('v');
 var buildNo = EnvironmentVariable("CIRCLE_BUILD_NUM") ?? "local";
 var semVersion = string.Concat(version + "-" + buildNo);
+var nuGetApiKey = EnvironmentVariable("NUGET_KEY");
 
 Task("Clean")
 	.IsDependentOn("Clean-Outputs")
@@ -53,6 +55,7 @@ Task("Build")
 		MSBuild(solutionFile, settings => settings
 			.SetConfiguration(configuration)
 			.WithTarget("Rebuild")
+			.WithProperty("Version", assemblyInfo.AssemblyInformationalVersion)
 			.SetVerbosity(Verbosity.Minimal));
     });
 
@@ -65,6 +68,17 @@ Task("Test")
 			OutputDirectory = buildDir
 		});
 });
+
+Task("Publish")
+    .IsDependentOn("Test")
+	.WithCriteria(() => EnvironmentVariable("CI"))
+    .Does(() =>
+    {
+		var nupkg = GetFiles("./src/LightStep/bin/Release/*.nupkg").First()
+		NuGetPush(nupkg, new NuGetPushSettings {
+			ApiKey = nuGetApiKey
+		});
+    });
 
 Task("Default")
 	.IsDependentOn("Test");
