@@ -8,6 +8,11 @@ jobs:
       - run: dotnet tool install -g dotnet-xunit-to-junit
       - run: dotnet tool install -g Cake.Tool
       - run: export PATH="$PATH:/root/.dotnet/tools"
+      - run:
+        name: Update PATH and Define Environment Variable at Runtime
+        command: |
+            echo 'export PATH="$PATH:/root/.dotnet/tools"' >> $BASH_ENV
+            source $BASH_ENV
       - run: dotnet cake build.cake -t=Test
       - run: dotnet xunit-to-junit ./build/LightStep.Tests.dll.xml ./build/LightStep.Tests.dll.junit.xml
       - store_test_results:
@@ -20,7 +25,11 @@ jobs:
       - checkout
       - run: dotnet tool install -g dotnet-xunit-to-junit
       - run: dotnet tool install -g Cake.Tool 
-      - run: export PATH="$PATH:/root/.dotnet/tools"
+      - run:
+        name: Update PATH and Define Environment Variable at Runtime
+        command: |
+            echo 'export PATH="$PATH:/root/.dotnet/tools"' >> $BASH_ENV
+            source $BASH_ENV
       - run: dotnet cake build.cake -t=Publish
       - run: dotnet xunit-to-junit ./build/LightStep.Tests.dll.xml ./build/LightStep.Tests.dll.junit.xml
       - store_test_results:

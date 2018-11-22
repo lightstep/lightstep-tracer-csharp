@@ -71,10 +71,10 @@ Task("Test")
 
 Task("Publish")
     .IsDependentOn("Test")
-	.WithCriteria(() => EnvironmentVariable("CI"))
+	.WithCriteria(() => EnvironmentVariable("CI") == "true")
     .Does(() =>
     {
-		var nupkg = GetFiles("./src/LightStep/bin/Release/*.nupkg").First()
+		var nupkg = GetFiles("./src/LightStep/bin/Release/*.nupkg").First();
 		NuGetPush(nupkg, new NuGetPushSettings {
 			ApiKey = nuGetApiKey
 		});
