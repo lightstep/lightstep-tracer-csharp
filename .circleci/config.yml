@@ -1,5 +1,16 @@
 version: 2
 jobs:
+  build-and-test:
+    docker:
+      - image: aparker/circleci-dotnet-mono:latest
+    steps:
+      - checkout
+      - run: dotnet tool install -g dotnet-xunit-to-junit
+      - run: dotnet tool install -g Cake.Tool
+      - run: dotnet cake build.cake 
+      - run: dotnet xunit-to-junit ./build/LightStep.Tests.dll.xml ./build/LightStep.Tests.dll.junit.xml
+      - store_test_results:
+          path: build/LightStep.Tests.dll.junit.xml
   build:
     docker:
       - image: aparker/circleci-dotnet-mono:latest

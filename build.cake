@@ -1,5 +1,4 @@
 #tool "xunit.runner.console"
-#tool "nuget:?package=GitVersion.CommandLine"
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
@@ -8,7 +7,10 @@ var buildDir = Directory("./build");
 var distDir = Directory("./dist");
 var solutionFile = GetFiles("./*.sln").First();
 var solution = new Lazy<SolutionParserResult>(() => ParseSolution(solutionFile));
-
+var lightStepAssemblyInfoFile = "./src/LightStep/Properties/AssemblyInfo.cs";		
+var version = EnvironmentVariable("CIRCLE_TAG") ?? "0.0.0";
+var buildNo = EnvironmentVariable("CIRCLE_BUILD_NUM") ?? "local";
+var semVersion = string.Concat(version + "-" + buildNo);
 
 Task("Clean")
 	.IsDependentOn("Clean-Outputs")
@@ -37,7 +39,17 @@ Task("Build")
     .Does(() =>
 	{
 		NuGetRestore(solutionFile);
-		GitVersion(new GitVersionSettings { UpdateAssemblyInfo = true });
+		CreateAssemblyInfo(lightStepAssemblyInfoFile, new AssemblyInfoSettings {
+			Product = "LightStep",
+			Version = version,
+			FileVersion = version,
+			InformationalVersion = semVersion,
+			Copyright = string.Format("Copyright (c) LightStep 2018 - {0}", DateTime.Now.Year)
+		});
+		var assemblyInfo = ParseAssemblyInfo(lightStepAssemblyInfoFile);
+		Information("Version: {0}", assemblyInfo.AssemblyVersion);
+		Information("File version: {0}", assemblyInfo.AssemblyFileVersion);
+		Information("Informational version: {0}", assemblyInfo.AssemblyInformationalVersion);
 		MSBuild(solutionFile, settings => settings
 			.SetConfiguration(configuration)
 			.WithTarget("Rebuild")
