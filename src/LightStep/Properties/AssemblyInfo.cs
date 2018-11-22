@@ -6,8 +6,8 @@
 using System.Reflection;
 
 [assembly: AssemblyProduct("LightStep")]
-[assembly: AssemblyVersion("0.1.0")]
-[assembly: AssemblyFileVersion("0.1.0")]
-[assembly: AssemblyInformationalVersion("0.1.0-local")]
+[assembly: AssemblyVersion("0.0.0")]
+[assembly: AssemblyFileVersion("0.0.0")]
+[assembly: AssemblyInformationalVersion("0.0.0-local")]
 [assembly: AssemblyCopyright("Copyright (c) LightStep 2018 - 2018")]
 
