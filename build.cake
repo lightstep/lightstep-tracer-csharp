@@ -6,6 +6,7 @@ var debugConfiguration = Argument("configuration", "Debug");
 var buildDir = Directory("./build");
 var distDir = Directory("./dist");
 var solution = "./LightStep.sln";
+var library = "./src/LightStep/LightStep.csproj";
 var lightStepAssemblyInfoFile = "./src/LightStep/Properties/AssemblyInfo.cs";		
 var version = EnvironmentVariable("CIRCLE_TAG") ?? "v0.0.0";
 version = version.TrimStart('v');
@@ -45,7 +46,7 @@ Task("Build")
 		Information("Version: {0}", assemblyInfo.AssemblyVersion);
 		Information("File version: {0}", assemblyInfo.AssemblyFileVersion);
 		Information("Informational version: {0}", assemblyInfo.AssemblyInformationalVersion);
-		MSBuild(solution, settings => settings
+		MSBuild(library, settings => settings
 			.SetConfiguration(configuration)
 			.WithTarget("Rebuild")
 			.WithProperty("Version", assemblyInfo.AssemblyInformationalVersion)
