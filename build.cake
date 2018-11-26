@@ -5,42 +5,35 @@ var configuration = Argument("configuration", "Release");
 var debugConfiguration = Argument("configuration", "Debug");
 var buildDir = Directory("./build");
 var distDir = Directory("./dist");
-var solutionFile = GetFiles("./*.sln").First();
-var solution = new Lazy<SolutionParserResult>(() => ParseSolution(solutionFile));
+var solution = "./LightStep.sln";
 var lightStepAssemblyInfoFile = "./src/LightStep/Properties/AssemblyInfo.cs";		
 var version = EnvironmentVariable("CIRCLE_TAG") ?? "v0.0.0";
 version = version.TrimStart('v');
-var buildNo = EnvironmentVariable("CIRCLE_BUILD_NUM") ?? "local";
+var buildNo = String.IsNullOrWhiteSpace(EnvironmentVariable("CIRCLE_BUILD_NUM")) ? "local" : EnvironmentVariable("CIRCLE_BUILD_NUM");
 var semVersion = string.Concat(version + "-" + buildNo);
-var nuGetApiKey = EnvironmentVariable("NUGET_KEY");
+var nuGetApiKey = EnvironmentVariable("NuGet");
 
 Task("Clean")
-	.IsDependentOn("Clean-Outputs")
-	.Does(() => 
-	{
-		MSBuild(solutionFile, settings => settings
-			.SetConfiguration(configuration)
-			.WithTarget("Clean")
-			.SetVerbosity(Verbosity.Minimal));
+    .Does( ()=> 
+{
+    CleanDirectory(buildDir);
+	CleanDirectory(distDir);
+    CleanDirectories("./**/obj/*.*");
+    CleanDirectories($"./**/bin/{configuration}/*.*");
+	CleanDirectories($"./**/bin/{debugConfiguration}/*.*");
+});
 
-		MSBuild(solutionFile, settings => settings
-			.SetConfiguration(debugConfiguration)
-			.WithTarget("Clean")
-			.SetVerbosity(Verbosity.Minimal));
-	});
-
-Task("Clean-Outputs")
-	.Does(() => 
-	{
-		CleanDirectory(buildDir);
-		CleanDirectory(distDir);
-	});
+Task("Restore")
+    .IsDependentOn("Clean")
+    .Does( ()=> 
+{
+    DotNetCoreRestore(solution);
+});
 
 Task("Build")
-	.IsDependentOn("Clean-Outputs")
+	.IsDependentOn("Restore")
     .Does(() =>
 	{
-		NuGetRestore(solutionFile);
 		CreateAssemblyInfo(lightStepAssemblyInfoFile, new AssemblyInfoSettings {
 			Product = "LightStep",
 			Version = version,
@@ -52,7 +45,7 @@ Task("Build")
 		Information("Version: {0}", assemblyInfo.AssemblyVersion);
 		Information("File version: {0}", assemblyInfo.AssemblyFileVersion);
 		Information("Informational version: {0}", assemblyInfo.AssemblyInformationalVersion);
-		MSBuild(solutionFile, settings => settings
+		MSBuild(solution, settings => settings
 			.SetConfiguration(configuration)
 			.WithTarget("Rebuild")
 			.WithProperty("Version", assemblyInfo.AssemblyInformationalVersion)
@@ -63,10 +56,15 @@ Task("Test")
 	.IsDependentOn("Build")
     .Does(() =>
 	{
-		XUnit2(string.Format("./test/**/bin/Release/**/*.Tests.dll", configuration), new XUnit2Settings {
-			XmlReport = true,
-			OutputDirectory = buildDir
-		});
+		var projects = GetFiles("./test/**/*.csproj");
+		
+        foreach(var project in projects)
+        {
+			DotNetCoreTest(project.FullPath, new DotNetCoreTestSettings {
+				Logger = "xunit;LogFilePath=../../build/test_results.xml"
+			});
+        }
+ 
 });
 
 Task("Publish")
@@ -75,7 +73,7 @@ Task("Publish")
     .Does(() =>
     {
 		var nupkg = GetFiles("./src/LightStep/bin/Release/*.nupkg").First();
-		NuGetPush(nupkg, new NuGetPushSettings {
+		DotNetCoreNuGetPush(nupkg.FullPath, new DotNetCoreNuGetPushSettings {
 			ApiKey = nuGetApiKey
 		});
     });

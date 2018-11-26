@@ -1,6 +1,7 @@
 # Changelog
 
 _vNext_
+- We now build using [Cake](https://cakebuild.net).
 - All value types are now properly handled in span serialization.
 - The platform version detection code has been improved and should be resilient to dynamic injection scenarios.
 - Logging now exists for many operations via the LibLog library. See the README for more details.
