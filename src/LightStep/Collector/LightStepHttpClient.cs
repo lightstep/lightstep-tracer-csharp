@@ -32,7 +32,32 @@ namespace LightStep.Collector
         {
             _url = url;
             _options = options;
-            _client = new HttpClient {Timeout = _options.ReportTimeout};
+            _client = new HttpClient() {Timeout = _options.ReportTimeout};
+        }
+        
+        internal HttpRequestMessage CreateStringRequest(ReportRequest report)
+        {
+            var jsonFormatter = new JsonFormatter(new JsonFormatter.Settings(true));
+            var jsonReport = jsonFormatter.Format(report);
+            var request = new HttpRequestMessage(HttpMethod.Post, _url)
+            {
+                Version = _options.UseHttp2 ? new Version(2, 0) : new Version(1, 1),
+                Content = new StringContent(jsonReport)
+            };
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            return request;
+        }
+
+        internal HttpRequestMessage CreateBinaryRequest(ReportRequest report)
+        {
+            var binaryReport = report.ToByteArray();
+            var request = new HttpRequestMessage(HttpMethod.Post, _url)
+            {
+                Version = _options.UseHttp2 ? new Version(2, 0) : new Version(1, 1),
+                Content = new ByteArrayContent(binaryReport)
+            };
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            return request;
         }
 
         /// <summary>
@@ -47,21 +72,22 @@ namespace LightStep.Collector
 
             _client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/octet-stream"));
-            var reportsByteArray = report.ToByteArray();
+            
+            HttpRequestMessage requestMessage;
 
-            var request = new HttpRequestMessage(HttpMethod.Post, _url)
+            if (_options.UseJson) {
+                requestMessage = CreateStringRequest(report);
+            } 
+            else 
             {
-                Version = _options.UseHttp2 ? new Version(2, 0) : new Version(1, 1),
-                Content = new ByteArrayContent(reportsByteArray)
-            };
-
-            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
+                requestMessage = CreateBinaryRequest(report);
+            }
+            
             ReportResponse responseValue;
 
             try
             {
-                var response = await _client.SendAsync(request);
+                var response = await _client.SendAsync(requestMessage);
                 response.EnsureSuccessStatusCode();
                 var responseData = await response.Content.ReadAsStreamAsync();
                 responseValue = ReportResponse.Parser.ParseFrom(responseData);
@@ -114,6 +140,7 @@ namespace LightStep.Collector
             spanBuffer.GetSpans().ToList().ForEach(span => request.Spans.Add(new Span().MakeSpanFromSpanData(span)));
             timer.Stop();
             _logger.Debug($"Serialization complete in {timer.ElapsedMilliseconds}ms. Request size: {request.CalculateSize()}b.");
+            
             return request;
         }
     }

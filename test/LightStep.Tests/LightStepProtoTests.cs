@@ -25,6 +25,20 @@ namespace LightStep.Tests
         }
 
         [Fact]
+        public void ReportShouldBeJson()
+        {
+            var recorder = new SimpleMockRecorder();
+            var tracer = GetTracer(recorder);
+            var span = tracer.BuildSpan("test").Start();
+            span.Finish();
+
+            var client = GetClient();
+            var translatedSpans = client.Translate(recorder.GetSpanBuffer());
+            var report = client.CreateStringRequest(translatedSpans);
+            Assert.Equal("application/json", report.Content.Headers.ContentType.MediaType);
+        }
+
+        [Fact]
         public void InternalMetricsShouldExist()
         {
             var recorder = new SimpleMockRecorder();

@@ -60,6 +60,11 @@ namespace LightStep
         /// </summary>
         public IDictionary<string, object> Tags { get; private set; }
 
+        /// <summary>
+        ///     If the tracer should send JSON rather than binary protobufs to the satellite.
+        /// </summary>
+        public bool UseJson { get; internal set; }
+
         public Options WithToken(string token)
         {
             _logger.Debug($"Setting access token to {token}");
@@ -113,6 +118,13 @@ namespace LightStep
         {
             _logger.Debug($"Setting max spans per buffer to {count}");
             ReportMaxSpans = count;
+            return this;
+        }
+
+        public Options WithJsonReports(bool shouldUseJson)
+        {
+            _logger.Debug($"Setting JSON reports to {shouldUseJson}");
+            UseJson = shouldUseJson;
             return this;
         }
         
