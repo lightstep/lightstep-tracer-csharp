@@ -9,7 +9,7 @@ Please note the following general guidelines and advice -
 ## Issues
 When submitting an issue, please include the following in addition to an explanation of the issue:
 - Version of the library you're using.
-- The runtime and platform version you're using (i.e., .NET 4.6.1 or .NET Core 2.1).
+- The runtime and platform version you're using (e.g., .NET 4.6.1 or .NET Core 2.1).
 - Any stack trace or diagnostic logs you may have that demonstrate the issue.
 
 ## Pull Requests
