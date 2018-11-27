@@ -156,12 +156,17 @@ namespace LightStep
             {
                 [LightStepConstants.TracerPlatformKey] = LightStepConstants.TracerPlatformValue,
                 [LightStepConstants.TracerPlatformVersionKey] = GetPlatformVersion(),
-                [LightStepConstants.TracerVersionKey] = "0.0.7-alpha",
+                [LightStepConstants.TracerVersionKey] = GetTracerVersion(),
                 [LightStepConstants.ComponentNameKey] = GetComponentName(),
                 [LightStepConstants.HostnameKey] = GetHostName(),
                 [LightStepConstants.CommandLineKey] = GetCommandLine()
             };
             return attributes;
+        }
+
+        private static string GetTracerVersion()
+        {
+            return typeof(LightStep.Tracer).Assembly.GetName().Version.ToString();
         }
 
         private static string GetComponentName()

@@ -1,54 +1,50 @@
 version: 2
 jobs:
-  build:
+  build-and-test:
     docker:
       - image: aparker/circleci-dotnet-mono:latest
     steps:
       - checkout
-      - run: msbuild /t:Restore
-      - run: msbuild src/LightStep/LightStep.csproj /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=tracerSign.snk /t:Build
-  test:
-    docker:
-      - image: aparker/circleci-dotnet-mono:latest
-    steps:
-      - checkout
-      - run: msbuild /t:Restore
-      - run: msbuild src/LightStep/LightStep.csproj /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=tracerSign.snk /t:Build
-      - run: msbuild test/LightStep.Tests/LightStep.Tests.csproj /t:Build
-      - run: msbuild test/LightStep.Tests/LightStep.Tests.csproj /t:Test
-  pack:
-    docker:
-      - image: aparker/circleci-dotnet-mono:latest
-    steps:
-      - checkout
-      - run: msbuild /t:Restore
-      - run: msbuild src/LightStep/LightStep.csproj /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=tracerSign.snk /t:Build
-      - run: sn -R src/LightStep/bin/Debug/net45/LightStep.dll src/LightStep/tracerSign.snk && sn -vf src/LightStep/bin/Debug/net45/LightStep.dll
-      - run: msbuild src/LightStep/LightStep.csproj /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=tracerSign.snk /t:Pack /p:PackageOutputPath="/pkg"
-      - store_artifacts:
-          path: /pkg
+      - run: dotnet tool install -g dotnet-xunit-to-junit
+      - run: dotnet tool install -g Cake.Tool
+      - run: export PATH="$PATH:/root/.dotnet/tools"
+      - run:
+          name: Update PATH and Define Environment Variable at Runtime
+          command: |
+            echo 'export PATH="$PATH:/root/.dotnet/tools"' >> $BASH_ENV
+            source $BASH_ENV
+      - run: dotnet cake build.cake -t=Test
+      - run: dotnet xunit-to-junit ./build/test_results.xml ./build/LightStep.Tests.dll.junit.xml
+      - store_test_results:
+          path: build/LightStep.Tests.dll.junit.xml
 
   publish:
     docker:
       - image: aparker/circleci-dotnet-mono:latest
     steps:
       - checkout
-      - run: msbuild /t:Restore
-      - run: msbuild /t:Build
-      - run: msbuild src/LightStep/LightStep.csproj /t:Pack
-      - run: dotnet nuget push src/LightStep/bin/Debug/*.nupkg -k $NuGet
+      - run: dotnet tool install -g dotnet-xunit-to-junit
+      - run: dotnet tool install -g Cake.Tool 
+      - run:
+          name: Update PATH and Define Environment Variable at Runtime
+          command: |
+            echo 'export PATH="$PATH:/root/.dotnet/tools"' >> $BASH_ENV
+            source $BASH_ENV
+      - run: dotnet cake build.cake -t=Publish
+      - run: dotnet xunit-to-junit ./build/test_results.xml ./build/LightStep.Tests.dll.junit.xml
+      - store_test_results:
+          path: build/LightStep.Tests.dll.junit.xml
 
 workflows:
   version: 2
-  build-test-and-pack:
+  untagged-build:
     jobs:
-      - build
-      - test:
-          requires:
-            - build
-      - pack:
-          requires:
-            - test
+      - build-and-test
+  tagged-build:
+    jobs:
+      - publish:
           filters:
             branches:
-              only: master
+              ignore: /.*/
+            tags:
+              only: /^v.*/

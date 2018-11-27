@@ -38,15 +38,11 @@
       
   <PropertyGroup>
       <Authors>Austin Parker</Authors>
-      <PackageVersion>0.0.8-alpha-$(CIRCLE_BUILD_NUM)</PackageVersion>
       <Company>LightStep</Company>
       <NeutralLanguage>en-US</NeutralLanguage>
       <AssemblyTitle>LightStep</AssemblyTitle>
       <Description>OpenTracing compliant tracer for LightStep.</Description>
       <Copyright>LightStep 2018</Copyright>
-  </PropertyGroup>
-
-  <PropertyGroup>
       <PackageTags>tracing</PackageTags>
       <PackageReleaseNotes>https://github.com/lightstep/lightstep-tracer-csharp/blob/master/CHANGELOG.md</PackageReleaseNotes>
       <PackageIconUrl>https://raw.githubusercontent.com/lightstep/lightstep-tracer-csharp/master/ls128x128.png</PackageIconUrl>
@@ -63,5 +59,7 @@
       <AssemblyOriginatorKeyFile>tracerSign.snk</AssemblyOriginatorKeyFile>
       <_UseRoslynPublicSignHack>false</_UseRoslynPublicSignHack>
       <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+      <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+      <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 </Project>
