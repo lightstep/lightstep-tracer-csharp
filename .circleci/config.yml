@@ -16,8 +16,7 @@ jobs:
       - run: dotnet cake build.cake -t=Test
       - run: dotnet xunit-to-junit ./build/test_results.xml ./build/LightStep.Tests.dll.junit.xml
       - store_test_results:
-          path: build/LightStep.Tests.dll.junit.xml
-
+          path: build
   publish:
     docker:
       - image: aparker/circleci-dotnet-mono:latest
@@ -33,7 +32,7 @@ jobs:
       - run: dotnet cake build.cake -t=Publish
       - run: dotnet xunit-to-junit ./build/test_results.xml ./build/LightStep.Tests.dll.junit.xml
       - store_test_results:
-          path: build/LightStep.Tests.dll.junit.xml
+          path: build
 
 workflows:
   version: 2
