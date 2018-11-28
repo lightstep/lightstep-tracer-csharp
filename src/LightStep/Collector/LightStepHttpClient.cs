@@ -34,7 +34,7 @@ namespace LightStep.Collector
             _options = options;
             _client = new HttpClient() {Timeout = _options.ReportTimeout};
         }
-        
+
         internal HttpRequestMessage CreateStringRequest(ReportRequest report)
         {
             var jsonFormatter = new JsonFormatter(new JsonFormatter.Settings(true));
@@ -60,6 +60,11 @@ namespace LightStep.Collector
             return request;
         }
 
+        internal HttpRequestMessage BuildRequest(ReportRequest report)
+        {
+            return _options.UseJson ? CreateStringRequest(report) : CreateBinaryRequest(report);
+        }
+
         /// <summary>
         ///     Send a report of spans to the LightStep Satellite.
         /// </summary>
@@ -73,16 +78,8 @@ namespace LightStep.Collector
             _client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/octet-stream"));
             
-            HttpRequestMessage requestMessage;
+            var requestMessage = BuildRequest(report);
 
-            if (_options.UseJson) {
-                requestMessage = CreateStringRequest(report);
-            } 
-            else 
-            {
-                requestMessage = CreateBinaryRequest(report);
-            }
-            
             ReportResponse responseValue;
 
             try

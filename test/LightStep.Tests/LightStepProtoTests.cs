@@ -17,15 +17,31 @@ namespace LightStep.Tests
             return new Tracer(tracerOptions, spanRecorder);
         }
 
-        private LightStepHttpClient GetClient()
+        private LightStepHttpClient GetClient(bool useJson = false)
         {
             var satelliteOptions = new SatelliteOptions("localhost", 80, true);
-            var tracerOptions = new Options("TEST").WithSatellite(satelliteOptions).WithAutomaticReporting(false);
+            var tracerOptions = new Options("TEST").WithSatellite(satelliteOptions).WithAutomaticReporting(false).WithJsonReports(useJson);
             return new LightStepHttpClient("http://localhost:80", tracerOptions);
         }
 
         [Fact]
-        public void ReportShouldBeJson()
+        public void ReportShouldBeJsonWithJsonOption()
+        {
+            var recorder = new SimpleMockRecorder();
+            var tracer = GetTracer(recorder);
+            var span = tracer.BuildSpan("test").Start();
+            span.Finish();
+
+            var client = GetClient(useJson: true);
+            var translatedSpans = client.Translate(recorder.GetSpanBuffer());
+            var report = client.BuildRequest(translatedSpans);
+            Assert.Equal("application/json", report.Content.Headers.ContentType.MediaType);
+            var contentString = report.Content.ReadAsStringAsync().Result;
+            Assert.Contains("test", contentString);
+        }
+
+        [Fact]
+        public void ReportShouldBeBinaryWithoutJsonOption()
         {
             var recorder = new SimpleMockRecorder();
             var tracer = GetTracer(recorder);
@@ -34,8 +50,8 @@ namespace LightStep.Tests
 
             var client = GetClient();
             var translatedSpans = client.Translate(recorder.GetSpanBuffer());
-            var report = client.CreateStringRequest(translatedSpans);
-            Assert.Equal("application/json", report.Content.Headers.ContentType.MediaType);
+            var report = client.BuildRequest(translatedSpans);
+            Assert.Equal("application/octet-stream", report.Content.Headers.ContentType.MediaType);
         }
 
         [Fact]
