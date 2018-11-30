@@ -1,6 +1,6 @@
 # Changelog
 
-_vNext_
+_v0.1.0_
 - `TransportOptions` are now available. You can select JSON or Binary Protobufs.
 - We now build using [Cake](https://cakebuild.net).
 - All value types are now properly handled in span serialization.
