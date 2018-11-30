@@ -63,7 +63,7 @@ namespace LightStep
         /// <summary>
         ///     If the tracer should send JSON rather than binary protobufs to the satellite.
         /// </summary>
-        public bool UseJson { get; internal set; }
+        public TransportOptions Transport { get; private set; }
 
         public Options WithToken(string token)
         {
@@ -121,10 +121,10 @@ namespace LightStep
             return this;
         }
 
-        public Options WithJsonReports(bool shouldUseJson)
+        public Options WithTransport(TransportOptions transport)
         {
-            _logger.Debug($"Setting JSON reports to {shouldUseJson}");
-            UseJson = shouldUseJson;
+            _logger.Debug($"Setting JSON reports to {transport}");
+            Transport = transport;
             return this;
         }
         
@@ -145,6 +145,7 @@ namespace LightStep
             UseHttp2 = false;
             Run = true;
             ReportMaxSpans = int.MaxValue;
+            Transport = TransportOptions.BinaryProto;
         }
         
         private IDictionary<string, object> MergeTags(IDictionary<string, object> input)

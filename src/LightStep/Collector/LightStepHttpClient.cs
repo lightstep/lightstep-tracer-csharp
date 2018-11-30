@@ -62,7 +62,7 @@ namespace LightStep.Collector
 
         internal HttpRequestMessage BuildRequest(ReportRequest report)
         {
-            return _options.UseJson ? CreateStringRequest(report) : CreateBinaryRequest(report);
+            return (_options.Transport & TransportOptions.JsonProto) != 0 ? CreateStringRequest(report) : CreateBinaryRequest(report);
         }
 
         /// <summary>

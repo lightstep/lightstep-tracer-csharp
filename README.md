@@ -32,9 +32,10 @@ There's several options that can be adjusted when instantiating a `LightStepTrac
 | WithReportTimeout(TimeSpan)  | Timeout for sending spans to the Satellite  |
 | WithToken(string) | The LightStep Project Access Token |
 | WithSatellite(SatelliteOptions) | A SatelliteOptions object that specifies the host, port, and if we should use HTTPS |
-| WithHttp2(bool) | If this is true, we use HTTP/2 to communicate with the Satellite |
+| WithHttp2(bool) | If this is true, we use HTTP/2 to communicate with the Satellite. We reccomend you enable this option if you're on a modern version of .NET (4.6.1+ or .NET Core) |
 | WithAutomaticReporting(bool) | If false, disables the automatic flushing of buffered spans. |
 | WithMaxBufferedSpans(int) | The maximum amount of spans to record in a single buffer. |
+| WithTransport(enum) | Which transport to use when sending spans to the Satellite. |
 
 ## `SatelliteOptions`
 | Property | Description |
@@ -42,8 +43,6 @@ There's several options that can be adjusted when instantiating a `LightStepTrac
 | SatelliteHost | The hostname of a Satelite (i.e., `collector.lightstep.com`)
 | SatellitePort | The port number where the Satellite is listening for HTTP traffic (defaults to 443)
 | UsePlaintext | Should we use HTTP or HTTPS traffic? (Defaults to HTTP)
-
-The C# Tracer _only_ supports Protobuf over HTTP/S, so no options to modify the transport are available.
 
 The C# Tracer will prefer TLS 1.2 when available on all .NET Runtime versions, but should fall back to TLS 1.1 or 1.0 in that order.
 

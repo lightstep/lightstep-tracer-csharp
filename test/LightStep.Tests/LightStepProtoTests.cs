@@ -17,10 +17,10 @@ namespace LightStep.Tests
             return new Tracer(tracerOptions, spanRecorder);
         }
 
-        private LightStepHttpClient GetClient(bool useJson = false)
+        private LightStepHttpClient GetClient(TransportOptions t = TransportOptions.BinaryProto)
         {
             var satelliteOptions = new SatelliteOptions("localhost", 80, true);
-            var tracerOptions = new Options("TEST").WithSatellite(satelliteOptions).WithAutomaticReporting(false).WithJsonReports(useJson);
+            var tracerOptions = new Options("TEST").WithSatellite(satelliteOptions).WithAutomaticReporting(false).WithTransport(t);
             return new LightStepHttpClient("http://localhost:80", tracerOptions);
         }
 
@@ -32,7 +32,7 @@ namespace LightStep.Tests
             var span = tracer.BuildSpan("test").Start();
             span.Finish();
 
-            var client = GetClient(useJson: true);
+            var client = GetClient(TransportOptions.JsonProto);
             var translatedSpans = client.Translate(recorder.GetSpanBuffer());
             var report = client.BuildRequest(translatedSpans);
             Assert.Equal("application/json", report.Content.Headers.ContentType.MediaType);
