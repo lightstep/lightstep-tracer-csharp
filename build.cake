@@ -13,6 +13,7 @@ version = version.TrimStart('v');
 var buildNo = String.IsNullOrWhiteSpace(EnvironmentVariable("CIRCLE_BUILD_NUM")) ? "local" : EnvironmentVariable("CIRCLE_BUILD_NUM");
 var semVersion = string.Concat(version + "-" + buildNo);
 var nuGetApiKey = EnvironmentVariable("NuGet");
+var testAssemblyFriendlyName = "LightStep.Tests,PublicKey=002400000480000094000000060200000024000052534131000400000100010099deeadb052e9763d2dc7827700d80e349e5d16585c92416171e6689a4bd38a3acea971d5899d5e2cd4239c3dc799558138e961f8d0f5095fef969672172833868f2cc2d908970370af834beef9dad328182fee2aaf0d0bb568ffd1f829362b88718734541d334c6a2cdf0049f5a0ee5e4962d0db3f49f86bf742f9531bd9c8c";
 
 Task("Clean")
     .Does( ()=> 
@@ -40,7 +41,8 @@ Task("Build")
 			Version = version,
 			FileVersion = version,
 			InformationalVersion = semVersion,
-			Copyright = string.Format("Copyright (c) LightStep 2018 - {0}", DateTime.Now.Year)
+			Copyright = string.Format("Copyright (c) LightStep 2018 - {0}", DateTime.Now.Year),
+			InternalsVisibleTo = new List<string>() { testAssemblyFriendlyName }
 		});
 		var assemblyInfo = ParseAssemblyInfo(lightStepAssemblyInfoFile);
 		Information("Version: {0}", assemblyInfo.AssemblyVersion);

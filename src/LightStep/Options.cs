@@ -60,6 +60,11 @@ namespace LightStep
         /// </summary>
         public IDictionary<string, object> Tags { get; private set; }
 
+        /// <summary>
+        ///     If the tracer should send JSON rather than binary protobufs to the satellite.
+        /// </summary>
+        public TransportOptions Transport { get; private set; }
+
         public Options WithToken(string token)
         {
             _logger.Debug($"Setting access token to {token}");
@@ -115,6 +120,13 @@ namespace LightStep
             ReportMaxSpans = count;
             return this;
         }
+
+        public Options WithTransport(TransportOptions transport)
+        {
+            _logger.Debug($"Setting JSON reports to {transport}");
+            Transport = transport;
+            return this;
+        }
         
         /// <summary>
         ///     Creates a new set of options for the LightStep tracer.
@@ -133,6 +145,7 @@ namespace LightStep
             UseHttp2 = false;
             Run = true;
             ReportMaxSpans = int.MaxValue;
+            Transport = TransportOptions.BinaryProto;
         }
         
         private IDictionary<string, object> MergeTags(IDictionary<string, object> input)

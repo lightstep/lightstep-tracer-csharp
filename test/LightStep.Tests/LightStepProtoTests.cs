@@ -17,11 +17,41 @@ namespace LightStep.Tests
             return new Tracer(tracerOptions, spanRecorder);
         }
 
-        private LightStepHttpClient GetClient()
+        private LightStepHttpClient GetClient(TransportOptions t = TransportOptions.BinaryProto)
         {
             var satelliteOptions = new SatelliteOptions("localhost", 80, true);
-            var tracerOptions = new Options("TEST").WithSatellite(satelliteOptions).WithAutomaticReporting(false);
+            var tracerOptions = new Options("TEST").WithSatellite(satelliteOptions).WithAutomaticReporting(false).WithTransport(t);
             return new LightStepHttpClient("http://localhost:80", tracerOptions);
+        }
+
+        [Fact]
+        public void ReportShouldBeJsonWithJsonOption()
+        {
+            var recorder = new SimpleMockRecorder();
+            var tracer = GetTracer(recorder);
+            var span = tracer.BuildSpan("test").Start();
+            span.Finish();
+
+            var client = GetClient(TransportOptions.JsonProto);
+            var translatedSpans = client.Translate(recorder.GetSpanBuffer());
+            var report = client.BuildRequest(translatedSpans);
+            Assert.Equal("application/json", report.Content.Headers.ContentType.MediaType);
+            var contentString = report.Content.ReadAsStringAsync().Result;
+            Assert.Contains("test", contentString);
+        }
+
+        [Fact]
+        public void ReportShouldBeBinaryWithoutJsonOption()
+        {
+            var recorder = new SimpleMockRecorder();
+            var tracer = GetTracer(recorder);
+            var span = tracer.BuildSpan("test").Start();
+            span.Finish();
+
+            var client = GetClient();
+            var translatedSpans = client.Translate(recorder.GetSpanBuffer());
+            var report = client.BuildRequest(translatedSpans);
+            Assert.Equal("application/octet-stream", report.Content.Headers.ContentType.MediaType);
         }
 
         [Fact]
