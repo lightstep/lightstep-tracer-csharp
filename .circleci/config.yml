@@ -13,7 +13,7 @@ jobs:
           command: |
             echo 'export PATH="$PATH:/root/.dotnet/tools"' >> $BASH_ENV
             source $BASH_ENV
-      - run: dotnet cake build.cake -t=Test
+      - run: dotnet cake build.cake --target=Test
       - run: dotnet xunit-to-junit ./build/test_results.xml ./build/xunit/LightStep.Tests.dll.junit.xml
       - store_test_results:
           path: build
@@ -29,7 +29,7 @@ jobs:
           command: |
             echo 'export PATH="$PATH:/root/.dotnet/tools"' >> $BASH_ENV
             source $BASH_ENV
-      - run: dotnet cake build.cake -t=Publish
+      - run: dotnet cake build.cake --target=Publish
       - run: dotnet xunit-to-junit ./build/test_results.xml ./build/xunit/LightStep.Tests.dll.junit.xml
       - store_test_results:
           path: build
