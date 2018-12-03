@@ -82,6 +82,7 @@ Task("Publish")
     {
 		var nupkg = GetFiles("./src/LightStep/bin/Release/*.nupkg").First();
 		DotNetCoreNuGetPush(nupkg.FullPath, new DotNetCoreNuGetPushSettings {
+			Source = "https://www.nuget.org/api/v2/package",
 			ApiKey = nuGetApiKey
 		});
     });
