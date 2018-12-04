@@ -1,4 +1,5 @@
 #tool "xunit.runner.console"
+#addin nuget:?package=Cake.Coverlet
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
@@ -65,14 +66,19 @@ Task("Test")
     .Does(() =>
 	{
 		var projects = GetFiles("./test/**/*.csproj");
-		
+		var coverletSettings = new CoverletSettings {
+			CollectCoverage = true,
+			CoverletOutputFormat = CoverletOutputFormat.opencover,
+			CoverletOutputDirectory = Directory("./build"),
+			CoverletOutputName = $"coverage.xml",
+			ExcludeByFile = { "../../src/LightStep/Collector/Collector.cs", "../../src/LightStep/LightStep.cs" }
+		};
         foreach(var project in projects)
         {
 			DotNetCoreTest(project.FullPath, new DotNetCoreTestSettings {
 				Logger = "xunit;LogFilePath=../../build/test_results.xml"
-			});
+			}, coverletSettings);
         }
- 
 });
 
 Task("Publish")
