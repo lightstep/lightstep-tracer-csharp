@@ -79,11 +79,6 @@ Task("Test")
 				Logger = "xunit;LogFilePath=../../build/test_results.xml"
 			}, coverletSettings);
         }
-		
-		if (EnvironmentVariable("CI") == "true")
-		{
-			StartProcess("bash", "<(curl -s https://codecov.io/bash)");
-		}
 });
 
 Task("Publish")

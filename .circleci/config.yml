@@ -15,6 +15,7 @@ jobs:
             source $BASH_ENV
       - run: dotnet cake build.cake --target=Test
       - run: dotnet xunit-to-junit ./build/test_results.xml ./build/xunit/LightStep.Tests.dll.junit.xml
+      - run: bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
       - store_test_results:
           path: build
   publish:
@@ -31,6 +32,7 @@ jobs:
             source $BASH_ENV
       - run: dotnet cake build.cake --target=Publish
       - run: dotnet xunit-to-junit ./build/test_results.xml ./build/xunit/LightStep.Tests.dll.junit.xml
+      - run: bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
       - store_test_results:
           path: build
 
