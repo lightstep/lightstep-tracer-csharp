@@ -82,7 +82,7 @@ Task("Test")
 		
 		if (EnvironmentVariable("CI") == "true")
 		{
-			StartProcess("bash <(curl -s https://codecov.io/bash");
+			StartProcess("bash <(curl -s https://codecov.io/bash)");
 		}
 });
 
