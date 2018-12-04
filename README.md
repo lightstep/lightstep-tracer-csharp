@@ -1,7 +1,7 @@
 # lightstep-tracer-csharp
 The LightStep distributed tracing library for C#
 
-[![NuGet](https://img.shields.io/nuget/v/LightStep.svg)](https://www.nuget.org/packages/LightStep) [![CircleCI](https://circleci.com/gh/lightstep/lightstep-tracer-csharp.svg?style=svg)](https://circleci.com/gh/lightstep/lightstep-tracer-csharp)
+[![NuGet](https://img.shields.io/nuget/v/LightStep.svg)](https://www.nuget.org/packages/LightStep) [![CircleCI](https://circleci.com/gh/lightstep/lightstep-tracer-csharp.svg?style=svg)](https://circleci.com/gh/lightstep/lightstep-tracer-csharp) [![codecov](https://codecov.io/gh/lightstep/lightstep-tracer-csharp/branch/master/graph/badge.svg)](https://codecov.io/gh/lightstep/lightstep-tracer-csharp)
 
 # Installation
 Install the package via NuGet into your solution, or use `Install-Package LightStep` / `dotnet add package LightStep`.
