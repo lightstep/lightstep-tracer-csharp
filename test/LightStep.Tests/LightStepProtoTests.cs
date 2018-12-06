@@ -81,6 +81,20 @@ namespace LightStep.Tests
         }
 
         [Fact]
+        public void DroppedSpanCountShouldIncrementOnBadSpan()
+        {
+            var recorder = new SimpleMockRecorder();
+            var badSpan = new SpanData {
+                Duration = new TimeSpan(-1),
+                OperationName = "badSpan"
+            };
+            recorder.RecordSpan(badSpan);
+            var client = GetClient();
+            var translatedBuffer = client.Translate(recorder.GetSpanBuffer());
+            Assert.Equal(1, translatedBuffer.InternalMetrics.Counts[0].IntValue);
+        }
+
+        [Fact]
         public void ConverterShouldConvertValues()
         {
             var recorder = new SimpleMockRecorder();
