@@ -1,5 +1,5 @@
 # Changelog
-_vNext_
+_v0.1.1_
 - Guard against conversion of malformed `SpanData` by dropping bad spans.
 
 _v0.1.0_
