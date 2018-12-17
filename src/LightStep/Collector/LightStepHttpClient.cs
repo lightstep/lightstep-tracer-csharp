@@ -70,7 +70,7 @@ namespace LightStep.Collector
         /// </summary>
         /// <param name="report">An <see cref="ReportRequest" /></param>
         /// <returns>A <see cref="ReportResponse" />. This is usually not very interesting.</returns>
-        [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+        [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public async Task<ReportResponse> SendReport(ReportRequest report)
         {
             // force net45 to attempt tls12 first and fallback appropriately
