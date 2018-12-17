@@ -1,4 +1,6 @@
 # Changelog
+_v0.1.1_
+- Guard against conversion of malformed `SpanData` by dropping bad spans.
 
 _v0.1.0_
 - `TransportOptions` are now available. You can select JSON or Binary Protobufs.

@@ -123,24 +123,35 @@ namespace LightStep.Collector
             var timer = new Stopwatch();
             timer.Start();
 
-            var metrics = new InternalMetrics
-            {
-                StartTimestamp = Timestamp.FromDateTime(spanBuffer.ReportStartTime.ToUniversalTime()),
-                DurationMicros = Convert.ToUInt64((spanBuffer.ReportEndTime - spanBuffer.ReportStartTime).Ticks / 10),
-                Counts = { new MetricsSample() { Name = "spans.dropped", IntValue = spanBuffer.DroppedSpanCount } }
-            };
-            
             var request = new ReportRequest
             {
                 Reporter = new Reporter
                 {
                     ReporterId = _options.TracerGuid
                 },
-                Auth = new Auth {AccessToken = _options.AccessToken},
-                InternalMetrics = metrics
+                Auth = new Auth {AccessToken = _options.AccessToken}
             };
             _options.Tags.ToList().ForEach(t => request.Reporter.Tags.Add(new KeyValue().MakeKeyValueFromKvp(t)));
-            spanBuffer.GetSpans().ToList().ForEach(span => request.Spans.Add(new Span().MakeSpanFromSpanData(span)));
+            spanBuffer.GetSpans().ToList().ForEach(span => {
+                try 
+                {
+                    request.Spans.Add(new Span().MakeSpanFromSpanData(span));
+                }
+                catch (Exception ex)
+                {
+                    _logger.WarnException("Caught exception converting spans.", ex);
+                    spanBuffer.DroppedSpanCount++;
+                }
+            });
+
+            var metrics = new InternalMetrics
+            {
+                StartTimestamp = Timestamp.FromDateTime(spanBuffer.ReportStartTime.ToUniversalTime()),
+                DurationMicros = Convert.ToUInt64((spanBuffer.ReportEndTime - spanBuffer.ReportStartTime).Ticks / 10),
+                Counts = { new MetricsSample() { Name = "spans.dropped", IntValue = spanBuffer.DroppedSpanCount } }
+            };
+            request.InternalMetrics = metrics;
+
             timer.Stop();
             _logger.Debug($"Serialization complete in {timer.ElapsedMilliseconds}ms. Request size: {request.CalculateSize()}b.");
             
