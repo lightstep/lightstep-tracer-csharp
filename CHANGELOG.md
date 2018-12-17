@@ -1,4 +1,13 @@
 # Changelog
+
+_v0.1.2_
+- Increase the verbosity level for certain frequent operations:
+  - Inject/Extract logging from DEBUG to TRACE
+  - Span buffer count and reset span message from DEBUG to TRACE
+- Certain `LightStepHttpClient` methods were `public` rather than `internal`, this has been corrected -
+  - `Translate`
+  - `SendReport`
+
 _v0.1.1_
 - Guard against conversion of malformed `SpanData` by dropping bad spans.
 
