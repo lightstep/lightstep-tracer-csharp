@@ -11,7 +11,7 @@ namespace LightStep.Propagation
         /// <inheritdoc />
         public void Inject<TCarrier>(SpanContext context, IFormat<TCarrier> format, TCarrier carrier)
         {
-            _logger.Debug($"Injecting {context} of {format.GetType()} to {carrier.GetType()}");
+            _logger.Trace($"Injecting {context} of {format.GetType()} to {carrier.GetType()}");
             if (carrier is ITextMap text)
             {
                 foreach (var entry in context.GetBaggageItems()) text.Set(Keys.BaggagePrefix + entry.Key, entry.Value);
@@ -30,7 +30,7 @@ namespace LightStep.Propagation
         /// <inheritdoc />
         public SpanContext Extract<TCarrier>(IFormat<TCarrier> format, TCarrier carrier)
         {
-            _logger.Debug($"Extracting {format.GetType()} from {carrier.GetType()}");
+            _logger.Trace($"Extracting {format.GetType()} from {carrier.GetType()}");
             string traceId = null;
             string spanId = null;
             var baggage = new Baggage();
@@ -52,7 +52,7 @@ namespace LightStep.Propagation
 
             if (!string.IsNullOrEmpty(traceId) && !string.IsNullOrEmpty(spanId))
             {
-                _logger.Debug($"Existing trace/spanID found, returning SpanContext.");
+                _logger.Trace($"Existing trace/spanID found, returning SpanContext.");
                 return new SpanContext(traceId, spanId, baggage);
             }
 

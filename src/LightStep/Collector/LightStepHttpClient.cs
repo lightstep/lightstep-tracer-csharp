@@ -102,6 +102,11 @@ namespace LightStep.Collector
                 _logger.WarnException("Timed out sending report to satellite", ex);
                 throw;
             }
+            catch (Exception ex)
+            {
+                _logger.WarnException("Unknown error sending report.", ex);
+                throw;
+            }
             
             return responseValue;
         }
@@ -113,7 +118,7 @@ namespace LightStep.Collector
         /// <returns>A <see cref="ReportRequest" /></returns>
         public ReportRequest Translate(ISpanRecorder spanBuffer)
         {
-            _logger.Debug($"Serializing spans to proto.");
+            _logger.Debug($"Serializing {spanBuffer.GetSpans().Count()} spans to proto.");
             var timer = new Stopwatch();
             timer.Start();
 
