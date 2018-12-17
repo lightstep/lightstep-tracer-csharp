@@ -71,7 +71,7 @@ namespace LightStep.Collector
         /// <param name="report">An <see cref="ReportRequest" /></param>
         /// <returns>A <see cref="ReportResponse" />. This is usually not very interesting.</returns>
         [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-        public async Task<ReportResponse> SendReport(ReportRequest report)
+        internal async Task<ReportResponse> SendReport(ReportRequest report)
         {
             // force net45 to attempt tls12 first and fallback appropriately
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
@@ -117,7 +117,7 @@ namespace LightStep.Collector
         /// </summary>
         /// <param name="spans">An enumerable of <see cref="SpanData" /></param>
         /// <returns>A <see cref="ReportRequest" /></returns>
-        public ReportRequest Translate(ISpanRecorder spanBuffer)
+        internal ReportRequest Translate(ISpanRecorder spanBuffer)
         {
             _logger.Debug($"Serializing {spanBuffer.GetSpans().Count()} spans to proto.");
             var timer = new Stopwatch();
