@@ -34,7 +34,7 @@ namespace LightStep.Propagation
         {
             Propagators.ForEach(propagator =>
                 {
-                    _logger.Debug($"Injecting context to {propagator.GetType()}");
+                    _logger.Trace($"Injecting context to {propagator.GetType()}");
                     propagator.Inject(context, format, carrier);
                 }
             );
@@ -45,7 +45,7 @@ namespace LightStep.Propagation
         {
             for (var i = Propagators.Count - 1; i >= 0; i--)
             {
-                _logger.Debug($"Trying to extract from {Propagators[i].GetType()}");
+                _logger.Trace($"Trying to extract from {Propagators[i].GetType()}");
                 var context = Propagators[i].Extract(format, carrier);
                 if (context != null) return context;
             }

@@ -103,7 +103,7 @@ namespace LightStep
                 {
                     currentBuffer = _spanRecorder.GetSpanBuffer();
                     _spanRecorder = new LightStepSpanRecorder();
-                    _logger.Debug($"{currentBuffer.GetSpans().Count()} spans in buffer.");
+                    _logger.Trace($"{currentBuffer.GetSpans().Count()} spans in buffer.");
                 }
                 
                 /**
@@ -128,12 +128,12 @@ namespace LightStep
 
                     lock (_lock)
                     {
-                        _logger.Debug($"Resetting tracer dropped span count as the last report was successful.");
+                        _logger.Trace($"Resetting tracer dropped span count as the last report was successful.");
                         currentDroppedSpanCount = 0;  
                     }
                     
                 }
-                catch (Exception ex) when (ex is HttpRequestException || ex is TaskCanceledException || ex is OperationCanceledException)
+                catch (Exception ex) when (ex is HttpRequestException || ex is TaskCanceledException || ex is OperationCanceledException || ex is Exception)
                 {
                     lock (_lock)
                     {
