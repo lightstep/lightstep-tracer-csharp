@@ -29,18 +29,18 @@ namespace LightStep.Tests
         public void TracerShouldExtractFromValidSpan()
         {
             var tracer = GetTracer();
-
-            var traceId = new Random().NextUInt64().ToString();
-            var spanId = new Random().NextUInt64().ToString();
+            // by convention, we expect the upstream RPC to send ids as hex strings but to become uint64 internally
+            var traceId = new Random().NextUInt64();
+            var spanId = new Random().NextUInt64();
             var data = new Dictionary<string, string>
             {
-                {"ot-tracer-traceid", traceId},
-                {"ot-tracer-spanid", spanId}
+                {"ot-tracer-traceid", traceId.ToString("X")},
+                {"ot-tracer-spanid", spanId.ToString("X")}
             };
             var spanContext = tracer.Extract(BuiltinFormats.TextMap, new TextMapExtractAdapter(data));
             Assert.NotNull(spanContext);
-            Assert.Equal(traceId, spanContext.TraceId);
-            Assert.Equal(spanId, spanContext.SpanId);
+            Assert.Equal(traceId.ToString(), spanContext.TraceId);
+            Assert.Equal(spanId.ToString(), spanContext.SpanId);
         }
 
         [Fact]
@@ -57,12 +57,12 @@ namespace LightStep.Tests
         {
             var tracer = GetTracer();
             var span = tracer.BuildSpan("test").Start();
-            var traceId = span.TypedContext().TraceId;
-            var spanId = span.TypedContext().SpanId;
+            var hexTraceId = Convert.ToUInt64(span.TypedContext().TraceId).ToString("X");
+            var hexSpanId = Convert.ToUInt64(span.TypedContext().SpanId).ToString("X");
             var data = new Dictionary<string, string>();
             tracer.Inject(span.Context, BuiltinFormats.TextMap, new TextMapInjectAdapter(data));
-            Assert.Equal(traceId, data["ot-tracer-traceid"]);
-            Assert.Equal(spanId, data["ot-tracer-spanid"]);
+            Assert.Equal(hexTraceId, data["ot-tracer-traceid"]);
+            Assert.Equal(hexSpanId, data["ot-tracer-spanid"]);
         }
 
         [Fact]
