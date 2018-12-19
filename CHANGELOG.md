@@ -1,5 +1,10 @@
 # Changelog
 
+_v0.2.0_
+- In order to align with other LightStep tracer implementations, `Inject` and `Extract` methods in `TextMapPropagator` have changed:
+  - `Inject` will now convert `TraceId` and `SpanId` to a hexadecimal string in the carrier.
+  - `Extract` will now convert the incoming `TraceId` and `SpanId` from a hexadecimal string into a `uint64`. 
+
 _v0.1.2_
 - Increase the verbosity level for certain frequent operations:
   - Inject/Extract logging from DEBUG to TRACE
