@@ -67,7 +67,7 @@ namespace LightStep
                     parentContext.SpanId);
                 ParentId = parentContext.SpanId;
             }
-            if (_tracer._options.EnableMetaEventLogging) {
+            if (_tracer._options.EnableMetaEventLogging && Utilities.IsNotMetaSpan(this)) {
                 this._tracer.BuildSpan("lightstep.span_created")
                     .Start()
                     .SetTag("lightstep.meta_event", true)
@@ -258,7 +258,7 @@ namespace LightStep
             };
 
             _tracer.AppendFinishedSpan(spanData);
-            if(_tracer._options.EnableMetaEventLogging) {
+            if(_tracer._options.EnableMetaEventLogging && Utilities.IsNotMetaSpan(this)) {
                 _tracer.BuildSpan("lightstep.span_completed")
                     .Start()
                     .SetTag("lightstep.meta_event", true)

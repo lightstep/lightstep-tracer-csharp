@@ -63,14 +63,6 @@ namespace LightStep
             _httpClient = new LightStepHttpClient(url, _options);
             _logger.Debug($"Tracer is reporting to {url}.");          
             _reportLoop = new Timer(e => Flush(), null, TimeSpan.Zero, _options.ReportPeriod);
-            
-            if (_options.EnableMetaEventLogging) {
-                this.BuildSpan("lightstep.tracer_created")
-                    .Start()
-                    .SetTag("lightstep.meta_event", true)
-                    .SetTag("lightstep.tracer_guid", _options.TracerGuid)
-                    .Finish();     
-            }
         }
 
         /// <inheritdoc />
