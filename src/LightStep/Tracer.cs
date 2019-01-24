@@ -62,7 +62,9 @@ namespace LightStep
                 $"{protocol}://{_options.Satellite.SatelliteHost}:{_options.Satellite.SatellitePort}/{LightStepConstants.SatelliteReportPath}";
             _httpClient = new LightStepHttpClient(url, _options);
             _logger.Debug($"Tracer is reporting to {url}.");          
-            _reportLoop = new Timer(e => Flush(), null, TimeSpan.Zero, _options.ReportPeriod);            
+            _reportLoop = new Timer(e => Flush(), null, TimeSpan.Zero, _options.ReportPeriod);
+
+            this.BuildSpan("lightstep.tracer_created").Start().SetTag("lightstep.tracer_guid", _options.TracerGuid).Finish();     
         }
 
         /// <inheritdoc />
@@ -81,12 +83,27 @@ namespace LightStep
         public void Inject<TCarrier>(ISpanContext spanContext, IFormat<TCarrier> format, TCarrier carrier)
         {
             _propagator.Inject((SpanContext) spanContext, format, carrier);
+            this.BuildSpan("lightstep.inject_span")
+                .Start()
+                .SetTag("lightstep.meta_event", true)
+                .SetTag("lightstep.span_id", spanContext.SpanId)
+                .SetTag("lightstep.trace_id", spanContext.TraceId)
+                .SetTag("lightstep.propagation_format", format.GetType().ToString())
+                .Finish();
         }
 
         /// <inheritdoc />
         public ISpanContext Extract<TCarrier>(IFormat<TCarrier> format, TCarrier carrier)
         {
-            return _propagator.Extract(format, carrier);
+            var ctx = _propagator.Extract(format, carrier);
+            this.BuildSpan("lightstep.extract_span")
+                .Start()
+                .SetTag("lightstep.meta_event", true)
+                .SetTag("lightstep.span_id", ctx.SpanId)
+                .SetTag("lightstep.trace_id", ctx.TraceId)
+                .SetTag("lightstep.propagation_format", format.GetType().ToString())
+                .Finish();
+            return ctx;
         }
 
         /// <summary>

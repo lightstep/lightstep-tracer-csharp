@@ -67,6 +67,11 @@ namespace LightStep
                     parentContext.SpanId);
                 ParentId = parentContext.SpanId;
             }
+            this._tracer.BuildSpan("lightstep.span_created")
+                .Start()
+                .SetTag("lightstep.span_id", _context.SpanId)
+                .SetTag("lightstep.trace_id", _context.TraceId)
+                .Finish();
         }
 
         /// <summary>
@@ -249,6 +254,11 @@ namespace LightStep
             };
 
             _tracer.AppendFinishedSpan(spanData);
+            this._tracer.BuildSpan("lightstep.span_completed")
+                .Start()
+                .SetTag("lightstep.span_id", this.TypedContext().SpanId)
+                .SetTag("lightstep.trace_id", this.TypedContext().TraceId)
+                .Finish();
         }
 
         #region Setters
