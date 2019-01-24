@@ -69,6 +69,7 @@ namespace LightStep
             }
             this._tracer.BuildSpan("lightstep.span_created")
                 .Start()
+                .SetTag("lightstep.meta_event", true)
                 .SetTag("lightstep.span_id", _context.SpanId)
                 .SetTag("lightstep.trace_id", _context.TraceId)
                 .Finish();
@@ -256,6 +257,7 @@ namespace LightStep
             _tracer.AppendFinishedSpan(spanData);
             this._tracer.BuildSpan("lightstep.span_completed")
                 .Start()
+                .SetTag("lightstep.meta_event", true)
                 .SetTag("lightstep.span_id", this.TypedContext().SpanId)
                 .SetTag("lightstep.trace_id", this.TypedContext().TraceId)
                 .Finish();
