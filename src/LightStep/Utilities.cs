@@ -21,7 +21,7 @@ namespace LightStep
 
         public static bool IsNotMetaSpan(Span span) 
         {
-            return span.Tags.ContainsKey("lightstep.meta_event");
+            return !span.Tags.ContainsKey("lightstep.meta_event");
         }
     }
 }

@@ -83,11 +83,11 @@ namespace LightStep
             _propagator.Inject((SpanContext) spanContext, format, carrier);
             if (_options.EnableMetaEventLogging) {
                 this.BuildSpan("lightstep.inject_span")
+                    .WithTag("lightstep.meta_event", true)
+                    .WithTag("lightstep.span_id", spanContext.SpanId)
+                    .WithTag("lightstep.trace_id", spanContext.TraceId)
+                    .WithTag("lightstep.propagation_format", format.GetType().ToString())
                     .Start()
-                    .SetTag("lightstep.meta_event", true)
-                    .SetTag("lightstep.span_id", spanContext.SpanId)
-                    .SetTag("lightstep.trace_id", spanContext.TraceId)
-                    .SetTag("lightstep.propagation_format", format.GetType().ToString())
                     .Finish();
             }
         }
@@ -98,11 +98,11 @@ namespace LightStep
             var ctx = _propagator.Extract(format, carrier);
             if (_options.EnableMetaEventLogging) {
                 this.BuildSpan("lightstep.extract_span")
+                    .WithTag("lightstep.meta_event", true)
+                    .WithTag("lightstep.span_id", ctx.SpanId)
+                    .WithTag("lightstep.trace_id", ctx.TraceId)
+                    .WithTag("lightstep.propagation_format", format.GetType().ToString())
                     .Start()
-                    .SetTag("lightstep.meta_event", true)
-                    .SetTag("lightstep.span_id", ctx.SpanId)
-                    .SetTag("lightstep.trace_id", ctx.TraceId)
-                    .SetTag("lightstep.propagation_format", format.GetType().ToString())
                     .Finish();
             }
             return ctx;
