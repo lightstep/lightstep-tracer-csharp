@@ -70,6 +70,7 @@ namespace LightStep
             if (_tracer._options.EnableMetaEventLogging && Utilities.IsNotMetaSpan(this))
             {
                 _tracer.BuildSpan("lightstep.span_created")
+                    .IgnoreActiveSpan()
                     .WithTag("lightstep.meta_event", true)
                     .WithTag("lightstep.span_id", _context.SpanId)
                     .WithTag("lightstep.trace_id", _context.TraceId)
@@ -262,6 +263,7 @@ namespace LightStep
             if(_tracer._options.EnableMetaEventLogging && Utilities.IsNotMetaSpan(this))
             {
                 _tracer.BuildSpan("lightstep.span_completed")
+                    .IgnoreActiveSpan()
                     .WithTag("lightstep.meta_event", true)
                     .WithTag("lightstep.span_id", this.TypedContext().SpanId)
                     .WithTag("lightstep.trace_id", this.TypedContext().TraceId)

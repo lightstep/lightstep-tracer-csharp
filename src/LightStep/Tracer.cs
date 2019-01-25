@@ -83,6 +83,7 @@ namespace LightStep
             _propagator.Inject((SpanContext) spanContext, format, carrier);
             if (_options.EnableMetaEventLogging) {
                 this.BuildSpan("lightstep.inject_span")
+                    .IgnoreActiveSpan()
                     .WithTag("lightstep.meta_event", true)
                     .WithTag("lightstep.span_id", spanContext.SpanId)
                     .WithTag("lightstep.trace_id", spanContext.TraceId)
@@ -98,6 +99,7 @@ namespace LightStep
             var ctx = _propagator.Extract(format, carrier);
             if (_options.EnableMetaEventLogging) {
                 this.BuildSpan("lightstep.extract_span")
+                    .IgnoreActiveSpan()
                     .WithTag("lightstep.meta_event", true)
                     .WithTag("lightstep.span_id", ctx.SpanId)
                     .WithTag("lightstep.trace_id", ctx.TraceId)
