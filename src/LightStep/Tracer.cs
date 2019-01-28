@@ -24,6 +24,7 @@ namespace LightStep
         private readonly Timer _reportLoop;
         private static readonly ILog _logger = LogProvider.GetCurrentClassLogger();
         private int currentDroppedSpanCount;
+        private bool _firstReportHasRun;
 
         /// <inheritdoc />
         public Tracer(Options options) : this(new AsyncLocalScopeManager(), Propagators.TextMap, options,
@@ -63,6 +64,7 @@ namespace LightStep
             _httpClient = new LightStepHttpClient(url, _options);
             _logger.Debug($"Tracer is reporting to {url}.");          
             _reportLoop = new Timer(e => Flush(), null, TimeSpan.Zero, _options.ReportPeriod);
+            _firstReportHasRun = false;
         }
 
         /// <inheritdoc />
@@ -118,6 +120,16 @@ namespace LightStep
         {
             if (_options.Run)
             {
+                if (_firstReportHasRun == false)
+                {
+                    BuildSpan("lightstep.tracer_create")
+                        .IgnoreActiveSpan()
+                        .WithTag("lightstep.meta_event", true)
+                        .WithTag("lightstep.tracer_guid", _options.TracerGuid)
+                        .Start()
+                        .Finish();
+                    _firstReportHasRun = true;
+                }
                 // save current spans and clear the buffer
                 ISpanRecorder currentBuffer;
                 lock (_lock)
