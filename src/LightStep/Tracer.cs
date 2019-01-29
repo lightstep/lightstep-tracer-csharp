@@ -120,7 +120,7 @@ namespace LightStep
         {
             if (_options.Run)
             {
-                if (_firstReportHasRun == false)
+                if (_options.EnableMetaEventLogging && _firstReportHasRun == false)
                 {
                     BuildSpan("lightstep.tracer_create")
                         .IgnoreActiveSpan()
@@ -154,9 +154,18 @@ namespace LightStep
                 try
                 {
                     var resp = await _httpClient.SendReport(data);
+                    
                     if (resp.Errors.Count > 0)
                     {
                         _logger.Warn($"Errors in report: {resp.Errors}");
+                    }
+                    // if the satellite is in developer mode, set the tracer to development mode as well
+                    // don't re-enable if it's already enabled though
+                    // TODO: iterate through all commands to find devmode flag
+                    if (resp.Commands.Count > 0 && resp.Commands[0].DevMode && _options.EnableMetaEventLogging == false)
+                    {
+                        _logger.Info("Enabling meta event logging");
+                        _options.EnableMetaEventLogging = true;
                     }
 
                     lock (_lock)

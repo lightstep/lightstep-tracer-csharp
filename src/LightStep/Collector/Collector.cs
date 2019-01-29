@@ -61,17 +61,18 @@ namespace LightStep.Collector {
             "LkNvbGxlY3Rvci5BdXRoEigKBXNwYW5zGAMgAygLMhkuTGlnaHRTdGVwLkNv",
             "bGxlY3Rvci5TcGFuEh8KF3RpbWVzdGFtcF9vZmZzZXRfbWljcm9zGAUgASgD",
             "Ej4KEGludGVybmFsX21ldHJpY3MYBiABKAsyJC5MaWdodFN0ZXAuQ29sbGVj",
-            "dG9yLkludGVybmFsTWV0cmljcyIaCgdDb21tYW5kEg8KB2Rpc2FibGUYASAB",
-            "KAgi4AEKDlJlcG9ydFJlc3BvbnNlEi4KCGNvbW1hbmRzGAEgAygLMhwuTGln",
-            "aHRTdGVwLkNvbGxlY3Rvci5Db21tYW5kEjUKEXJlY2VpdmVfdGltZXN0YW1w",
-            "GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI2ChJ0cmFuc21p",
-            "dF90aW1lc3RhbXAYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1w",
-            "Eg4KBmVycm9ycxgEIAMoCRIQCgh3YXJuaW5ncxgFIAMoCRINCgVpbmZvcxgG",
-            "IAMoCTKVAQoQQ29sbGVjdG9yU2VydmljZRKAAQoGUmVwb3J0EiIuTGlnaHRT",
-            "dGVwLkNvbGxlY3Rvci5SZXBvcnRSZXF1ZXN0GiMuTGlnaHRTdGVwLkNvbGxl",
-            "Y3Rvci5SZXBvcnRSZXNwb25zZSItgtPkkwInIg8vYXBpL3YyL3JlcG9ydHM6",
-            "ASpaERIPL2FwaS92Mi9yZXBvcnRzQjEKGWNvbS5saWdodHN0ZXAudHJhY2Vy",
-            "LmdycGNQAVoLY29sbGVjdG9ycGKiAgRMU1BCYgZwcm90bzM="));
+            "dG9yLkludGVybmFsTWV0cmljcyIsCgdDb21tYW5kEg8KB2Rpc2FibGUYASAB",
+            "KAgSEAoIZGV2X21vZGUYAiABKAgi4AEKDlJlcG9ydFJlc3BvbnNlEi4KCGNv",
+            "bW1hbmRzGAEgAygLMhwuTGlnaHRTdGVwLkNvbGxlY3Rvci5Db21tYW5kEjUK",
+            "EXJlY2VpdmVfdGltZXN0YW1wGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRp",
+            "bWVzdGFtcBI2ChJ0cmFuc21pdF90aW1lc3RhbXAYAyABKAsyGi5nb29nbGUu",
+            "cHJvdG9idWYuVGltZXN0YW1wEg4KBmVycm9ycxgEIAMoCRIQCgh3YXJuaW5n",
+            "cxgFIAMoCRINCgVpbmZvcxgGIAMoCTKVAQoQQ29sbGVjdG9yU2VydmljZRKA",
+            "AQoGUmVwb3J0EiIuTGlnaHRTdGVwLkNvbGxlY3Rvci5SZXBvcnRSZXF1ZXN0",
+            "GiMuTGlnaHRTdGVwLkNvbGxlY3Rvci5SZXBvcnRSZXNwb25zZSItgtPkkwIn",
+            "Ig8vYXBpL3YyL3JlcG9ydHM6ASpaERIPL2FwaS92Mi9yZXBvcnRzQjEKGWNv",
+            "bS5saWdodHN0ZXAudHJhY2VyLmdycGNQAVoLY29sbGVjdG9ycGKiAgRMU1BC",
+            "YgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, global::Google.Api.AnnotationsReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
@@ -85,7 +86,7 @@ namespace LightStep.Collector {
             new pbr::GeneratedClrTypeInfo(typeof(global::LightStep.Collector.InternalMetrics), global::LightStep.Collector.InternalMetrics.Parser, new[]{ "StartTimestamp", "DurationMicros", "Logs", "Counts", "Gauges" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::LightStep.Collector.Auth), global::LightStep.Collector.Auth.Parser, new[]{ "AccessToken" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::LightStep.Collector.ReportRequest), global::LightStep.Collector.ReportRequest.Parser, new[]{ "Reporter", "Auth", "Spans", "TimestampOffsetMicros", "InternalMetrics" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::LightStep.Collector.Command), global::LightStep.Collector.Command.Parser, new[]{ "Disable" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::LightStep.Collector.Command), global::LightStep.Collector.Command.Parser, new[]{ "Disable", "DevMode" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::LightStep.Collector.ReportResponse), global::LightStep.Collector.ReportResponse.Parser, new[]{ "Commands", "ReceiveTimestamp", "TransmitTimestamp", "Errors", "Warnings", "Infos" }, null, null, null)
           }));
     }
@@ -2199,6 +2200,7 @@ namespace LightStep.Collector {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Command(Command other) : this() {
       disable_ = other.disable_;
+      devMode_ = other.devMode_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -2218,6 +2220,17 @@ namespace LightStep.Collector {
       }
     }
 
+    /// <summary>Field number for the "dev_mode" field.</summary>
+    public const int DevModeFieldNumber = 2;
+    private bool devMode_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool DevMode {
+      get { return devMode_; }
+      set {
+        devMode_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Command);
@@ -2232,6 +2245,7 @@ namespace LightStep.Collector {
         return true;
       }
       if (Disable != other.Disable) return false;
+      if (DevMode != other.DevMode) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -2239,6 +2253,7 @@ namespace LightStep.Collector {
     public override int GetHashCode() {
       int hash = 1;
       if (Disable != false) hash ^= Disable.GetHashCode();
+      if (DevMode != false) hash ^= DevMode.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -2256,6 +2271,10 @@ namespace LightStep.Collector {
         output.WriteRawTag(8);
         output.WriteBool(Disable);
       }
+      if (DevMode != false) {
+        output.WriteRawTag(16);
+        output.WriteBool(DevMode);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -2265,6 +2284,9 @@ namespace LightStep.Collector {
     public int CalculateSize() {
       int size = 0;
       if (Disable != false) {
+        size += 1 + 1;
+      }
+      if (DevMode != false) {
         size += 1 + 1;
       }
       if (_unknownFields != null) {
@@ -2281,6 +2303,9 @@ namespace LightStep.Collector {
       if (other.Disable != false) {
         Disable = other.Disable;
       }
+      if (other.DevMode != false) {
+        DevMode = other.DevMode;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -2294,6 +2319,10 @@ namespace LightStep.Collector {
             break;
           case 8: {
             Disable = input.ReadBool();
+            break;
+          }
+          case 16: {
+            DevMode = input.ReadBool();
             break;
           }
         }

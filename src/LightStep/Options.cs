@@ -68,7 +68,7 @@ namespace LightStep
         /// <summary>
         ///     Determines if tracer should report meta events to LightStep
         /// </summary>
-        public Boolean EnableMetaEventLogging { get; private set; }
+        public Boolean EnableMetaEventLogging { get; internal set; }
 
         public Options WithMetaEventLogging()
         {

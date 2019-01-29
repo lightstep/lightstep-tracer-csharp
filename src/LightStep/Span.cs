@@ -69,7 +69,7 @@ namespace LightStep
             }
             if (_tracer._options.EnableMetaEventLogging && Utilities.IsNotMetaSpan(this))
             {
-                _tracer.BuildSpan("lightstep.span_created")
+                _tracer.BuildSpan("lightstep.span_start")
                     .IgnoreActiveSpan()
                     .WithTag("lightstep.meta_event", true)
                     .WithTag("lightstep.span_id", _context.SpanId)
@@ -262,7 +262,7 @@ namespace LightStep
             _tracer.AppendFinishedSpan(spanData);
             if(_tracer._options.EnableMetaEventLogging && Utilities.IsNotMetaSpan(this))
             {
-                _tracer.BuildSpan("lightstep.span_completed")
+                _tracer.BuildSpan("lightstep.span_finish")
                     .IgnoreActiveSpan()
                     .WithTag("lightstep.meta_event", true)
                     .WithTag("lightstep.span_id", this.TypedContext().SpanId)
