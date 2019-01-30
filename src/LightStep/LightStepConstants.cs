@@ -17,5 +17,19 @@
         public static readonly string TracerVersionKey = "lightstep.tracer_version";
 
         public static readonly string SatelliteReportPath = "api/v2/reports";
+
+        public static class MetaEvent {
+            public static readonly string MetaEventKey = "lightstep.meta_event";
+            public static readonly string PropagationFormatKey = "lightstep.propagation_format";
+            public static readonly string TraceIdKey = "lightstep.trace_id";
+            public static readonly string SpanIdKey = "lightstep.span_id";
+            public static readonly string TracerGuidKey = "lightstep.tracer_guid";
+            public static readonly string ExtractOperation = "lightstep.extract_span";
+            public static readonly string InjectOperation = "lightstep.inject_span";
+            public static readonly string SpanStartOperation = "lightstep.span_start";
+            public static readonly string SpanFinishOperation = "lightstep.span_finish";
+            public static readonly string TracerCreateOperation = "lightstep.tracer_create";
+        }
+        
     }
 }

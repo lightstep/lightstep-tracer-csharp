@@ -84,12 +84,12 @@ namespace LightStep
         {
             _propagator.Inject((SpanContext) spanContext, format, carrier);
             if (_options.EnableMetaEventLogging) {
-                this.BuildSpan("lightstep.inject_span")
+                this.BuildSpan(LightStepConstants.MetaEvent.InjectOperation)
                     .IgnoreActiveSpan()
-                    .WithTag("lightstep.meta_event", true)
-                    .WithTag("lightstep.span_id", spanContext.SpanId)
-                    .WithTag("lightstep.trace_id", spanContext.TraceId)
-                    .WithTag("lightstep.propagation_format", format.GetType().ToString())
+                    .WithTag(LightStepConstants.MetaEvent.MetaEventKey, true)
+                    .WithTag(LightStepConstants.MetaEvent.SpanIdKey, spanContext.SpanId)
+                    .WithTag(LightStepConstants.MetaEvent.TraceIdKey, spanContext.TraceId)
+                    .WithTag(LightStepConstants.MetaEvent.PropagationFormatKey, format.GetType().ToString())
                     .Start()
                     .Finish();
             }
@@ -100,12 +100,12 @@ namespace LightStep
         {
             var ctx = _propagator.Extract(format, carrier);
             if (_options.EnableMetaEventLogging) {
-                this.BuildSpan("lightstep.extract_span")
+                this.BuildSpan(LightStepConstants.MetaEvent.ExtractOperation)
                     .IgnoreActiveSpan()
-                    .WithTag("lightstep.meta_event", true)
-                    .WithTag("lightstep.span_id", ctx.SpanId)
-                    .WithTag("lightstep.trace_id", ctx.TraceId)
-                    .WithTag("lightstep.propagation_format", format.GetType().ToString())
+                    .WithTag(LightStepConstants.MetaEvent.MetaEventKey, true)
+                    .WithTag(LightStepConstants.MetaEvent.SpanIdKey, ctx.SpanId)
+                    .WithTag(LightStepConstants.MetaEvent.TraceIdKey, ctx.TraceId)
+                    .WithTag(LightStepConstants.MetaEvent.PropagationFormatKey, format.GetType().ToString())
                     .Start()
                     .Finish();
             }
@@ -122,10 +122,10 @@ namespace LightStep
             {
                 if (_options.EnableMetaEventLogging && _firstReportHasRun == false)
                 {
-                    BuildSpan("lightstep.tracer_create")
+                    BuildSpan(LightStepConstants.MetaEvent.TracerCreateOperation)
                         .IgnoreActiveSpan()
-                        .WithTag("lightstep.meta_event", true)
-                        .WithTag("lightstep.tracer_guid", _options.TracerGuid)
+                        .WithTag(LightStepConstants.MetaEvent.MetaEventKey, true)
+                        .WithTag(LightStepConstants.MetaEvent.TracerGuidKey, _options.TracerGuid)
                         .Start()
                         .Finish();
                     _firstReportHasRun = true;

@@ -69,11 +69,11 @@ namespace LightStep
             }
             if (_tracer._options.EnableMetaEventLogging && Utilities.IsNotMetaSpan(this))
             {
-                _tracer.BuildSpan("lightstep.span_start")
+                _tracer.BuildSpan(LightStepConstants.MetaEvent.TracerCreateOperation)
                     .IgnoreActiveSpan()
-                    .WithTag("lightstep.meta_event", true)
-                    .WithTag("lightstep.span_id", _context.SpanId)
-                    .WithTag("lightstep.trace_id", _context.TraceId)
+                    .WithTag(LightStepConstants.MetaEvent.MetaEventKey, true)
+                    .WithTag(LightStepConstants.MetaEvent.SpanIdKey, _context.SpanId)
+                    .WithTag(LightStepConstants.MetaEvent.TraceIdKey, _context.TraceId)
                     .Start()
                     .Finish();
             }
@@ -262,11 +262,11 @@ namespace LightStep
             _tracer.AppendFinishedSpan(spanData);
             if(_tracer._options.EnableMetaEventLogging && Utilities.IsNotMetaSpan(this))
             {
-                _tracer.BuildSpan("lightstep.span_finish")
+                _tracer.BuildSpan(LightStepConstants.MetaEvent.SpanFinishOperation)
                     .IgnoreActiveSpan()
-                    .WithTag("lightstep.meta_event", true)
-                    .WithTag("lightstep.span_id", this.TypedContext().SpanId)
-                    .WithTag("lightstep.trace_id", this.TypedContext().TraceId)
+                    .WithTag(LightStepConstants.MetaEvent.MetaEventKey, true)
+                    .WithTag(LightStepConstants.MetaEvent.SpanIdKey, this.TypedContext().SpanId)
+                    .WithTag(LightStepConstants.MetaEvent.TraceIdKey, this.TypedContext().TraceId)
                     .Start()
                     .Finish();
             } 
