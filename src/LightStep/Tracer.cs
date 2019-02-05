@@ -17,7 +17,7 @@ namespace LightStep
     public sealed class Tracer : ITracer
     {
         private readonly object _lock = new object();
-        public readonly Options _options;
+        internal readonly Options _options;
         private readonly IPropagator _propagator;
         private readonly LightStepHttpClient _httpClient;
         private ISpanRecorder _spanRecorder;
