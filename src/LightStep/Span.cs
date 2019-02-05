@@ -67,6 +67,17 @@ namespace LightStep
                     parentContext.SpanId);
                 ParentId = parentContext.SpanId;
             }
+            if (_tracer._options.EnableMetaEventLogging && Utilities.IsNotMetaSpan(this))
+            {
+                _tracer.BuildSpan(LightStepConstants.MetaEvent.TracerCreateOperation)
+                    .IgnoreActiveSpan()
+                    .WithTag(LightStepConstants.MetaEvent.MetaEventKey, true)
+                    .WithTag(LightStepConstants.MetaEvent.SpanIdKey, _context.SpanId)
+                    .WithTag(LightStepConstants.MetaEvent.TraceIdKey, _context.TraceId)
+                    .Start()
+                    .Finish();
+            }
+            
         }
 
         /// <summary>
@@ -249,6 +260,16 @@ namespace LightStep
             };
 
             _tracer.AppendFinishedSpan(spanData);
+            if(_tracer._options.EnableMetaEventLogging && Utilities.IsNotMetaSpan(this))
+            {
+                _tracer.BuildSpan(LightStepConstants.MetaEvent.SpanFinishOperation)
+                    .IgnoreActiveSpan()
+                    .WithTag(LightStepConstants.MetaEvent.MetaEventKey, true)
+                    .WithTag(LightStepConstants.MetaEvent.SpanIdKey, this.TypedContext().SpanId)
+                    .WithTag(LightStepConstants.MetaEvent.TraceIdKey, this.TypedContext().TraceId)
+                    .Start()
+                    .Finish();
+            } 
         }
 
         #region Setters

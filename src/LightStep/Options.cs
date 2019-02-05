@@ -65,6 +65,18 @@ namespace LightStep
         /// </summary>
         public TransportOptions Transport { get; private set; }
 
+        /// <summary>
+        ///     Determines if tracer should report meta events to LightStep
+        /// </summary>
+        public Boolean EnableMetaEventLogging { get; internal set; }
+
+        public Options WithMetaEventLogging()
+        {
+            _logger.Debug("Enabling Meta Events");
+            EnableMetaEventLogging = true;
+            return this;
+        }
+
         public Options WithToken(string token)
         {
             _logger.Debug($"Setting access token to {token}");
@@ -146,6 +158,7 @@ namespace LightStep
             Run = true;
             ReportMaxSpans = int.MaxValue;
             Transport = TransportOptions.BinaryProto;
+            EnableMetaEventLogging = false;
         }
         
         private IDictionary<string, object> MergeTags(IDictionary<string, object> input)

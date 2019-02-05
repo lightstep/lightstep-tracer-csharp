@@ -17,13 +17,14 @@ namespace LightStep
     public sealed class Tracer : ITracer
     {
         private readonly object _lock = new object();
-        private readonly Options _options;
+        internal readonly Options _options;
         private readonly IPropagator _propagator;
         private readonly LightStepHttpClient _httpClient;
         private ISpanRecorder _spanRecorder;
         private readonly Timer _reportLoop;
         private static readonly ILog _logger = LogProvider.GetCurrentClassLogger();
         private int currentDroppedSpanCount;
+        private bool _firstReportHasRun;
 
         /// <inheritdoc />
         public Tracer(Options options) : this(new AsyncLocalScopeManager(), Propagators.TextMap, options,
@@ -62,7 +63,8 @@ namespace LightStep
                 $"{protocol}://{_options.Satellite.SatelliteHost}:{_options.Satellite.SatellitePort}/{LightStepConstants.SatelliteReportPath}";
             _httpClient = new LightStepHttpClient(url, _options);
             _logger.Debug($"Tracer is reporting to {url}.");          
-            _reportLoop = new Timer(e => Flush(), null, TimeSpan.Zero, _options.ReportPeriod);            
+            _reportLoop = new Timer(e => Flush(), null, TimeSpan.Zero, _options.ReportPeriod);
+            _firstReportHasRun = false;
         }
 
         /// <inheritdoc />
@@ -81,12 +83,33 @@ namespace LightStep
         public void Inject<TCarrier>(ISpanContext spanContext, IFormat<TCarrier> format, TCarrier carrier)
         {
             _propagator.Inject((SpanContext) spanContext, format, carrier);
+            if (_options.EnableMetaEventLogging) {
+                this.BuildSpan(LightStepConstants.MetaEvent.InjectOperation)
+                    .IgnoreActiveSpan()
+                    .WithTag(LightStepConstants.MetaEvent.MetaEventKey, true)
+                    .WithTag(LightStepConstants.MetaEvent.SpanIdKey, spanContext.SpanId)
+                    .WithTag(LightStepConstants.MetaEvent.TraceIdKey, spanContext.TraceId)
+                    .WithTag(LightStepConstants.MetaEvent.PropagationFormatKey, format.GetType().ToString())
+                    .Start()
+                    .Finish();
+            }
         }
 
         /// <inheritdoc />
         public ISpanContext Extract<TCarrier>(IFormat<TCarrier> format, TCarrier carrier)
         {
-            return _propagator.Extract(format, carrier);
+            var ctx = _propagator.Extract(format, carrier);
+            if (_options.EnableMetaEventLogging) {
+                this.BuildSpan(LightStepConstants.MetaEvent.ExtractOperation)
+                    .IgnoreActiveSpan()
+                    .WithTag(LightStepConstants.MetaEvent.MetaEventKey, true)
+                    .WithTag(LightStepConstants.MetaEvent.SpanIdKey, ctx.SpanId)
+                    .WithTag(LightStepConstants.MetaEvent.TraceIdKey, ctx.TraceId)
+                    .WithTag(LightStepConstants.MetaEvent.PropagationFormatKey, format.GetType().ToString())
+                    .Start()
+                    .Finish();
+            }
+            return ctx;
         }
 
         /// <summary>
@@ -97,6 +120,16 @@ namespace LightStep
         {
             if (_options.Run)
             {
+                if (_options.EnableMetaEventLogging && _firstReportHasRun == false)
+                {
+                    BuildSpan(LightStepConstants.MetaEvent.TracerCreateOperation)
+                        .IgnoreActiveSpan()
+                        .WithTag(LightStepConstants.MetaEvent.MetaEventKey, true)
+                        .WithTag(LightStepConstants.MetaEvent.TracerGuidKey, _options.TracerGuid)
+                        .Start()
+                        .Finish();
+                    _firstReportHasRun = true;
+                }
                 // save current spans and clear the buffer
                 ISpanRecorder currentBuffer;
                 lock (_lock)
@@ -121,9 +154,18 @@ namespace LightStep
                 try
                 {
                     var resp = await _httpClient.SendReport(data);
+                    
                     if (resp.Errors.Count > 0)
                     {
                         _logger.Warn($"Errors in report: {resp.Errors}");
+                    }
+                    // if the satellite is in developer mode, set the tracer to development mode as well
+                    // don't re-enable if it's already enabled though
+                    // TODO: iterate through all commands to find devmode flag
+                    if (resp.Commands.Count > 0 && resp.Commands[0].DevMode && _options.EnableMetaEventLogging == false)
+                    {
+                        _logger.Info("Enabling meta event logging");
+                        _options.EnableMetaEventLogging = true;
                     }
 
                     lock (_lock)

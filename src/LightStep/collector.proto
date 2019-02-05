@@ -91,6 +91,7 @@ message ReportRequest {
 
 message Command {
     bool disable = 1;
+    bool dev_mode = 2;
 }
 
 message ReportResponse {

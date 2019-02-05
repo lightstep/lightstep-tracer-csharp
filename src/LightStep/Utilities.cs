@@ -18,5 +18,10 @@ namespace LightStep
             rand.NextBytes(buffer);
             return BitConverter.ToUInt64(buffer, 0);
         }
+
+        public static bool IsNotMetaSpan(Span span) 
+        {
+            return !span.Tags.ContainsKey(LightStepConstants.MetaEvent.MetaEventKey);
+        }
     }
 }
