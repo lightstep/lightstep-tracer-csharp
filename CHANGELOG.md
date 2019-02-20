@@ -1,5 +1,8 @@
 # Changelog
 
+_v0.3.0_
+- Add support for meta event reporting to the LightStep SaaS.
+
 _v0.2.0_
 - In order to align with other LightStep tracer implementations, `Inject` and `Extract` methods in `TextMapPropagator` have changed:
   - `Inject` will now convert `TraceId` and `SpanId` to a hexadecimal string in the carrier.
