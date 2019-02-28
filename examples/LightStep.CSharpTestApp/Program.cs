@@ -18,10 +18,7 @@ namespace LightStep.CSharpTestApp
                 .WriteTo.Console()
                 .CreateLogger();
 
-            // substitute your own LS API Key here
-            var lightStepSatellite = new SatelliteOptions("localhost", 9996, true);
-            var lightStepOptions = new Options("TEST_TOKEN").WithSatellite(lightStepSatellite);
-            var tracer = new Tracer(lightStepOptions);
+            var tracer = new Tracer(new Options());
             GlobalTracer.Register(tracer);
             
             for (var i = 0; i < 500; i++)
