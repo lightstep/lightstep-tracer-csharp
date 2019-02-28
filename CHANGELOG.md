@@ -1,6 +1,6 @@
 # Changelog
 
-_v0.3.1_
+_v0.4.0_
 - Addresses an issue where duplicate request headers were sent to the LightStep Satellite.
 - Updated the default host and port of the Tracer.
 - Removed the requirement for an access token when creating an Options object.
