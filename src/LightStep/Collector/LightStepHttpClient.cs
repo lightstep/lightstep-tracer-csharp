@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -9,7 +8,6 @@ using System.Threading.Tasks;
 using Google.Protobuf;
 using LightStep.Logging;
 using Google.Protobuf.WellKnownTypes;
-using OpenTracing.Tag;
 
 namespace LightStep.Collector
 {
@@ -75,7 +73,8 @@ namespace LightStep.Collector
         {
             // force net45 to attempt tls12 first and fallback appropriately
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
-
+            
+            _client.DefaultRequestHeaders.Accept.Clear();
             _client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/octet-stream"));
             
