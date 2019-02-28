@@ -143,17 +143,14 @@ namespace LightStep
         /// <summary>
         ///     Creates a new set of options for the LightStep tracer.
         /// </summary>
-        /// <param name="token">Project API key.</param>
-        /// <exception cref="ArgumentNullException">An API key is required.</exception>
-        public Options(string token)
+        /// <param name="token">Project access token, if required.</param>
+        public Options(string token = "")
         {
-            if (string.IsNullOrWhiteSpace(token)) throw new ArgumentNullException(nameof(token));
-
             Tags = InitializeDefaultTags();
             ReportPeriod = TimeSpan.FromMilliseconds(5000);
             ReportTimeout = TimeSpan.FromSeconds(30);
             AccessToken = token;
-            Satellite = new SatelliteOptions("collector.lightstep.com");
+            Satellite = new SatelliteOptions("localhost", 8360, true);
             UseHttp2 = false;
             Run = true;
             ReportMaxSpans = int.MaxValue;

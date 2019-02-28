@@ -9,7 +9,7 @@ Install the package via NuGet into your solution, or use `Install-Package LightS
 # Basic Usage
 It's recommended to initialize the tracer once at the beginning of your application and assign it as the global tracer, as follows:
 ```c#
-var tracerOptions = new Options("PROJECT_ACCESS_TOKEN");
+var tracerOptions = new Options();
 var tracer = new Tracer(tracerOptions);
 GlobalTracer.Register(tracer);
 ```
