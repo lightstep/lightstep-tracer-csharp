@@ -45,16 +45,12 @@ namespace LightStep.Collector
 
         public static bool IsJson(this object value)
         {
-            try
-            {
-                JsonValue.Parse(value.ToString());
+            if (value is String) {
+                var st = (String)value;
+                st = st.Trim(' ').Trim('"');
+                return (st[0] == '{' || st[0] == '[') && (st[st.Length -1] == '}' || st[st.Length - 1] == ']');
             }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            return true;
+            return false;
         }
     }
 }
