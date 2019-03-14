@@ -48,7 +48,9 @@ namespace LightStep.Collector
             if (value is String) {
                 var st = (String)value;
                 st = st.Trim(' ').Trim('"');
-                return (st[0] == '{' || st[0] == '[') && (st[st.Length -1] == '}' || st[st.Length - 1] == ']');
+                if (st.Length > 0) {
+                    return (st[0] == '{' || st[0] == '[') && (st[st.Length -1] == '}' || st[st.Length - 1] == ']');
+                }
             }
             return false;
         }
