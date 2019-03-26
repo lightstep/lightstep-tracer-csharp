@@ -1,5 +1,8 @@
 # Changelog
 
+_v0.4.2_
+- Addresses an issue where an unhandled exception could occur if a span duration was negative.
+
 _v0.4.1_
 - Addresses an issue where we would attempt to parse all strings as JSON objects when serializing spans to the wire. We now use a more performant method to determine if an input string is JSON.
 
