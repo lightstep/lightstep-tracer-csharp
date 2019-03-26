@@ -20,7 +20,11 @@ namespace LightStep.CSharpTestApp
 
             var tracer = new Tracer(new Options());
             GlobalTracer.Register(tracer);
-            
+            var ft = DateTimeOffset.Now;
+            var st = DateTimeOffset.Now;
+            var span = tracer.BuildSpan("test").WithStartTimestamp(st).Start();
+            span.Finish(ft);
+            /*
             for (var i = 0; i < 500; i++)
                 using (var scope = tracer.BuildSpan("testParent").WithTag("testSpan", "true").StartActive(true))
                 {
@@ -34,7 +38,7 @@ namespace LightStep.CSharpTestApp
                     Thread.Sleep(new Random().Next(10, 20));
                     innerSpan.Finish();
                 }
-
+             */
             tracer.Flush();
             Console.ReadKey();
         }
