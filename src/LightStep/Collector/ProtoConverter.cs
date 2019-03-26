@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Google.Protobuf.WellKnownTypes;
+using LightStep.Logging;
 
 namespace LightStep.Collector
 {
@@ -42,6 +43,7 @@ namespace LightStep.Collector
     public partial class Span
     {
         const long TicksPerMicrosecond = 10;
+        private static readonly ILog _logger = LogProvider.GetCurrentClassLogger();
         /// <summary>
         ///     Converts a <see cref="SpanData" /> to a <see cref="Span" />
         /// </summary>
@@ -50,7 +52,13 @@ namespace LightStep.Collector
         public Span MakeSpanFromSpanData(SpanData span)
         {
             // ticks are not equal to microseconds, so convert
-            DurationMicros = Convert.ToUInt64(span.Duration.Ticks / TicksPerMicrosecond);
+            try {
+                DurationMicros = Convert.ToUInt64(span.Duration.Ticks / TicksPerMicrosecond);
+            } catch (System.OverflowException e) {
+                // if we fail here, set the duration to 1us.
+                _logger.WarnException("Caught an exception while serializing span duration. This can occur if your span finished before it started.", e);
+                DurationMicros = 1;
+            }
             OperationName = span.OperationName;
             SpanContext = new SpanContext().MakeSpanContextFromOtSpanContext(span.Context);
             StartTimestamp = Timestamp.FromDateTime(span.StartTimestamp.UtcDateTime);
