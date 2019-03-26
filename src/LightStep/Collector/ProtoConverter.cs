@@ -50,7 +50,7 @@ namespace LightStep.Collector
         public Span MakeSpanFromSpanData(SpanData span)
         {
             // ticks are not equal to microseconds, so convert
-            DurationMicros = Convert.ToUInt64(span.Duration.Ticks / TicksPerMicrosecond);
+            DurationMicros = Convert.ToUInt64(Math.Abs(span.Duration.Ticks) / TicksPerMicrosecond);
             OperationName = span.OperationName;
             SpanContext = new SpanContext().MakeSpanContextFromOtSpanContext(span.Context);
             StartTimestamp = Timestamp.FromDateTime(span.StartTimestamp.UtcDateTime);
