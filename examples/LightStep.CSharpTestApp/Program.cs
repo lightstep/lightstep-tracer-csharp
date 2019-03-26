@@ -34,7 +34,6 @@ namespace LightStep.CSharpTestApp
                     Thread.Sleep(new Random().Next(10, 20));
                     innerSpan.Finish();
                 }
-             
             tracer.Flush();
             Console.ReadKey();
         }

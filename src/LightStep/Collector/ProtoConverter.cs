@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Google.Protobuf.WellKnownTypes;
-using LightStep.Logging;
 
 namespace LightStep.Collector
 {
