@@ -42,7 +42,7 @@ There's several options that can be adjusted when instantiating a `LightStepTrac
 | -------- | ----------- |
 | SatelliteHost | The hostname of a Satelite (i.e., `collector.lightstep.com`)
 | SatellitePort | The port number where the Satellite is listening for HTTP traffic (defaults to 443)
-| UsePlaintext | Should we use HTTP or HTTPS traffic? (Defaults to HTTP)
+| UsePlaintext | Should we use HTTP or HTTPS traffic? (Defaults to HTTPS)
 
 The C# Tracer will prefer TLS 1.2 when available on all .NET Runtime versions, but should fall back to TLS 1.1 or 1.0 in that order.
 
