@@ -150,7 +150,7 @@ namespace LightStep
             ReportPeriod = TimeSpan.FromMilliseconds(5000);
             ReportTimeout = TimeSpan.FromSeconds(30);
             AccessToken = token;
-            Satellite = new SatelliteOptions("localhost", 8360, true);
+            Satellite = new SatelliteOptions("collector.lightstep.com", 443, false);
             UseHttp2 = false;
             Run = true;
             ReportMaxSpans = int.MaxValue;
