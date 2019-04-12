@@ -28,8 +28,8 @@ There's several options that can be adjusted when instantiating a `LightStepTrac
 | Method | Description |
 | -------- | ----------- |
 | WithTags(IDictionary<string, object>)   | Default tags to apply to all spans created by the tracer.  |
-| WithReportPeriod(TimeSpan)  | How frequently the Tracer should batch and send Spans to LightStep (30s default) |
-| WithReportTimeout(TimeSpan)  | Timeout for sending spans to the Satellite  |
+| WithReportPeriod(TimeSpan)  | How frequently the Tracer should batch and send Spans to LightStep (5s default) |
+| WithReportTimeout(TimeSpan)  | Timeout for sending spans to the Satellite (30s default)  |
 | WithToken(string) | The LightStep Project Access Token |
 | WithSatellite(SatelliteOptions) | A SatelliteOptions object that specifies the host, port, and if we should use HTTPS |
 | WithHttp2(bool) | If this is true, we use HTTP/2 to communicate with the Satellite. We reccomend you enable this option if you're on a modern version of .NET (4.6.1+ or .NET Core) |
