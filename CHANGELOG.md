@@ -1,4 +1,6 @@
 # Changelog
+_v0.4.3_
+- Improves safety of serializing reports by moving translate method to a try/catch block.
 
 _v0.4.2_
 - Addresses an issue where an unhandled exception could occur if a span duration was negative.

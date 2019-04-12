@@ -149,10 +149,11 @@ namespace LightStep
                  */
                 currentDroppedSpanCount += currentBuffer.DroppedSpanCount;
                 currentBuffer.DroppedSpanCount = currentDroppedSpanCount;
-                var data = _httpClient.Translate(currentBuffer);
-
+                
                 try
                 {
+                    // since translate can throw exceptions, place it in the try and drop spans as appropriate
+                    var data = _httpClient.Translate(currentBuffer);
                     var resp = await _httpClient.SendReport(data);
                     
                     if (resp.Errors.Count > 0)
