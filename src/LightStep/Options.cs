@@ -70,6 +70,9 @@ namespace LightStep
         /// </summary>
         public Boolean EnableMetaEventLogging { get; internal set; }
 
+        public Action<Exception> ExceptionHandler { get; internal set; }
+        public Boolean ExceptionHandlerRegistered { get; internal set; }
+
         public Options WithMetaEventLogging()
         {
             _logger.Debug("Enabling Meta Events");
@@ -139,6 +142,14 @@ namespace LightStep
             Transport = transport;
             return this;
         }
+
+        public Options WithExceptionHandler(Action<Exception> handler)
+        {
+            _logger.Debug($"Registering exception handler {handler}");
+            ExceptionHandler = handler;
+            ExceptionHandlerRegistered = true;
+            return this;
+        }
         
         /// <summary>
         ///     Creates a new set of options for the LightStep tracer.
@@ -156,6 +167,7 @@ namespace LightStep
             ReportMaxSpans = int.MaxValue;
             Transport = TransportOptions.BinaryProto;
             EnableMetaEventLogging = false;
+            ExceptionHandlerRegistered = false;
         }
         
         private IDictionary<string, object> MergeTags(IDictionary<string, object> input)
