@@ -19,7 +19,7 @@ namespace LightStep
         private readonly object _lock = new object();
         internal readonly Options _options;
         private readonly IPropagator _propagator;
-        private readonly LightStepHttpClient _httpClient;
+        private readonly ILightStepHttpClient _httpClient;
         private ISpanRecorder _spanRecorder;
         private readonly Timer _reportLoop;
         private static readonly ILog _logger = LogProvider.GetCurrentClassLogger();
@@ -28,29 +28,34 @@ namespace LightStep
 
         /// <inheritdoc />
         public Tracer(Options options) : this(new AsyncLocalScopeManager(), Propagators.TextMap, options,
-            new LightStepSpanRecorder())
+            new LightStepSpanRecorder(), null)
         {
         }
 
         /// <inheritdoc />
         public Tracer(Options options, ISpanRecorder spanRecorder) : this(new AsyncLocalScopeManager(),
-            Propagators.TextMap, options, spanRecorder)
+            Propagators.TextMap, options, spanRecorder, null)
         {
         }
 
         /// <inheritdoc />
         public Tracer(Options options, IScopeManager scopeManager) : this(scopeManager, Propagators.TextMap, options,
-            new LightStepSpanRecorder())
+            new LightStepSpanRecorder(), null)
         {
         }
 
         /// <inheritdoc />
         public Tracer(Options options, ISpanRecorder spanRecorder, IPropagator propagator) : this(
-            new AsyncLocalScopeManager(), propagator, options, spanRecorder)
+            new AsyncLocalScopeManager(), propagator, options, spanRecorder, null)
         {
         }
 
-        private Tracer(IScopeManager scopeManager, IPropagator propagator, Options options, ISpanRecorder spanRecorder)
+        public Tracer(Options options, ISpanRecorder spanRecorder, ILightStepHttpClient client) : this(
+            new AsyncLocalScopeManager(), Propagators.TextMap, options, spanRecorder, client)
+        {
+        }
+
+        private Tracer(IScopeManager scopeManager, IPropagator propagator, Options options, ISpanRecorder spanRecorder, ILightStepHttpClient client)
         {
             ScopeManager = scopeManager;
             _spanRecorder = spanRecorder;
@@ -61,7 +66,7 @@ namespace LightStep
             var protocol = _options.Satellite.UsePlaintext ? "http" : "https";
             var url =
                 $"{protocol}://{_options.Satellite.SatelliteHost}:{_options.Satellite.SatellitePort}/{LightStepConstants.SatelliteReportPath}";
-            _httpClient = new LightStepHttpClient(url, _options);
+            _httpClient = client ?? new LightStepHttpClient(url, _options);
             _logger.Debug($"Tracer is reporting to {url}.");          
             _reportLoop = new Timer(e => Flush(), null, TimeSpan.Zero, _options.ReportPeriod);
             _firstReportHasRun = false;
@@ -182,6 +187,10 @@ namespace LightStep
                     {
                         _logger.Warn($"Adding {currentBuffer.GetSpans().Count()} spans to dropped span count (current total: {currentDroppedSpanCount})");
                         currentDroppedSpanCount += currentBuffer.GetSpans().Count();
+                        if (this._options.ExceptionHandlerRegistered)
+                        {
+                            this._options.ExceptionHandler.Invoke(ex);
+                        }
                     }
                 }
                 

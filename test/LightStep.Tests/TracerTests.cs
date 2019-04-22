@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LightStep.Collector;
+using Moq;
 using OpenTracing.Propagation;
 using Xunit;
 
@@ -104,6 +106,27 @@ namespace LightStep.Tests
             Assert.Equal("test_component", tracerOptions.Tags[LightStepConstants.ComponentNameKey]);
             Assert.Equal(LightStepConstants.TracerPlatformValue,
                 tracerOptions.Tags[LightStepConstants.TracerPlatformKey]);
+        }
+
+        [Fact]
+        public void TracerShouldTrapExceptions()
+        {
+            var x = false;
+            Action<Exception> eh = delegate { x = true; };
+            var satelliteOptions = new SatelliteOptions("localhost", 80, true);
+            var tracerOptions = new Options().WithSatellite(satelliteOptions).WithExceptionHandler(eh.Invoke);
+            var recorder = new SimpleMockRecorder();
+            var mockClient = new Mock<ILightStepHttpClient>();
+            mockClient.Setup(client => client.Translate(recorder)).Throws<OverflowException>();
+            
+            var tracer = new Tracer(tracerOptions, recorder, mockClient.Object);
+
+            var span = tracer.BuildSpan("test").Start();
+            span.Finish();
+            
+            Assert.False(x);
+            tracer.Flush();
+            Assert.True(x);
         }
     }
 }
