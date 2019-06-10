@@ -60,7 +60,13 @@ namespace LightStep.Collector
 
         internal HttpRequestMessage BuildRequest(ReportRequest report)
         {
-            return (_options.Transport & TransportOptions.JsonProto) != 0 ? CreateStringRequest(report) : CreateBinaryRequest(report);
+            HttpRequestMessage requestMessage = (_options.Transport & TransportOptions.JsonProto) != 0 ? CreateStringRequest(report) : CreateBinaryRequest(report);
+
+            // add LightStep access token to request header
+            requestMessage.Content.Headers.Add("Lightstep-Access-Token", report.Auth.AccessToken);
+
+            return requestMessage;
+
         }
 
         /// <summary>
