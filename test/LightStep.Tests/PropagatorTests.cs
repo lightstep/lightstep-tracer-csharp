@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using LightStep.Propagation;
 using OpenTracing.Propagation;
 using Xunit;
@@ -104,6 +106,17 @@ namespace LightStep.Tests
                 Assert.Equal(context.TraceId, extractedContext.TraceId);
                 Assert.Equal(context.SpanId, extractedContext.SpanId);
             }
+        }
+
+        [Fact]
+        public void EnvoyPropagatorShouldDecodeABinaryContext()
+        {
+            var envoyPropagator = new EnvoyPropagator();
+            var bs = Convert.FromBase64String("EhQJQwUbbwmQEc4RPaEuilTou0QYAQ==");
+            var streamCarrier = new MemoryStream(bs);
+
+            var extractedContext = envoyPropagator.Extract(BuiltinFormats.Binary, streamCarrier);
+            Assert.NotNull(extractedContext);
         }
 
         [Fact]
