@@ -115,8 +115,27 @@ namespace LightStep.Tests
             var bs = Convert.FromBase64String("EhQJQwUbbwmQEc4RPaEuilTou0QYAQ==");
             var streamCarrier = new MemoryStream(bs);
 
-            var extractedContext = envoyPropagator.Extract(BuiltinFormats.Binary, streamCarrier);
+            var extractedContext = envoyPropagator.Extract(BuiltinFormats.Binary, new BinaryExtractAdapter(streamCarrier));
             Assert.NotNull(extractedContext);
+        }
+
+        [Fact]
+        public void EnvoyPropagatorShouldEncodeASpanContext()
+        {
+            var ctx = new SpanContext("1", "1");
+            var envoyPropagator = new EnvoyPropagator();
+            var carrierStream = new MemoryStream();
+
+            envoyPropagator.Inject(ctx, BuiltinFormats.Binary, new BinaryInjectAdapter(carrierStream));
+            
+            Assert.NotNull(carrierStream);
+            Assert.True(carrierStream.Length > 0);
+
+            var extractedContext =
+                envoyPropagator.Extract(BuiltinFormats.Binary, new BinaryExtractAdapter(carrierStream));
+            Assert.NotNull(extractedContext);
+            Assert.Equal("1", extractedContext.SpanId);
+            Assert.Equal("1", extractedContext.TraceId);
         }
 
         [Fact]
