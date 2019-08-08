@@ -20,7 +20,7 @@ namespace LightStep.Propagation
                 {
                     BasicCtx = new BasicTracerCarrier
                     {
-                        SpanId = Convert.ToUInt64(context.SpanId), TraceId = Convert.ToUInt64(context.TraceId)
+                        SpanId = Convert.ToUInt64(context.SpanId), TraceId = Convert.ToUInt64(context.TraceId), Sampled = true
                     }
                 };
                 foreach (var item in context.GetBaggageItems()) ctx.BasicCtx.BaggageItems.Add(item.Key, item.Value);

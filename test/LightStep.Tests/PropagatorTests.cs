@@ -109,14 +109,24 @@ namespace LightStep.Tests
         }
 
         [Fact]
-        public void EnvoyPropagatorShouldDecodeABinaryContext()
+        public void EnvoyPropagatorShouldDecodeABinaryContextFromString()
         {
+            var base64Context = "EhQJQwUbbwmQEc4RPaEuilTou0QYAQ==";
+            var bs = Convert.FromBase64String(base64Context);
+            
             var envoyPropagator = new EnvoyPropagator();
-            var bs = Convert.FromBase64String("EhQJQwUbbwmQEc4RPaEuilTou0QYAQ==");
             var streamCarrier = new MemoryStream(bs);
 
             var extractedContext = envoyPropagator.Extract(BuiltinFormats.Binary, new BinaryExtractAdapter(streamCarrier));
             Assert.NotNull(extractedContext);
+            Assert.Equal("4952807665017200957", extractedContext.SpanId);
+            Assert.Equal("14848807816610383171", extractedContext.TraceId);
+            
+            var reStreamCarrier = new MemoryStream();
+            envoyPropagator.Inject(extractedContext, BuiltinFormats.Binary, new BinaryInjectAdapter(reStreamCarrier));
+            var reBase64String = Convert.ToBase64String(reStreamCarrier.ToArray());
+            Assert.NotNull(reStreamCarrier);
+            Assert.Equal(base64Context, reBase64String);
         }
 
         [Fact]
