@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using LightStep.Propagation;
 using OpenTracing.Propagation;
 using Xunit;
@@ -104,6 +106,46 @@ namespace LightStep.Tests
                 Assert.Equal(context.TraceId, extractedContext.TraceId);
                 Assert.Equal(context.SpanId, extractedContext.SpanId);
             }
+        }
+
+        [Fact]
+        public void EnvoyPropagatorShouldDecodeABinaryContextFromString()
+        {
+            var base64Context = "EhQJQwUbbwmQEc4RPaEuilTou0QYAQ==";
+            var bs = Convert.FromBase64String(base64Context);
+            
+            var envoyPropagator = new EnvoyPropagator();
+            var streamCarrier = new MemoryStream(bs);
+
+            var extractedContext = envoyPropagator.Extract(BuiltinFormats.Binary, new BinaryExtractAdapter(streamCarrier));
+            Assert.NotNull(extractedContext);
+            Assert.Equal("4952807665017200957", extractedContext.SpanId);
+            Assert.Equal("14848807816610383171", extractedContext.TraceId);
+            
+            var reStreamCarrier = new MemoryStream();
+            envoyPropagator.Inject(extractedContext, BuiltinFormats.Binary, new BinaryInjectAdapter(reStreamCarrier));
+            var reBase64String = Convert.ToBase64String(reStreamCarrier.ToArray());
+            Assert.NotNull(reStreamCarrier);
+            Assert.Equal(base64Context, reBase64String);
+        }
+
+        [Fact]
+        public void EnvoyPropagatorShouldEncodeASpanContext()
+        {
+            var ctx = new SpanContext("1", "1");
+            var envoyPropagator = new EnvoyPropagator();
+            var carrierStream = new MemoryStream();
+
+            envoyPropagator.Inject(ctx, BuiltinFormats.Binary, new BinaryInjectAdapter(carrierStream));
+            
+            Assert.NotNull(carrierStream);
+            Assert.True(carrierStream.Length > 0);
+
+            var extractedContext =
+                envoyPropagator.Extract(BuiltinFormats.Binary, new BinaryExtractAdapter(carrierStream));
+            Assert.NotNull(extractedContext);
+            Assert.Equal("1", extractedContext.SpanId);
+            Assert.Equal("1", extractedContext.TraceId);
         }
 
         [Fact]

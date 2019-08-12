@@ -41,8 +41,8 @@
       <HintPath>..\..\packages\Castle.Windsor.4.1.1\lib\net45\Castle.Windsor.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="OpenTracing, Version=0.12.0.0, Culture=neutral, PublicKeyToken=61503406977abdaf">
-      <HintPath>..\..\packages\OpenTracing.0.12.0\lib\net45\OpenTracing.dll</HintPath>
+    <Reference Include="OpenTracing, Version=0.12.1.0, Culture=neutral, PublicKeyToken=61503406977abdaf">
+      <HintPath>..\..\packages\OpenTracing.0.12.1-rc4\lib\net45\OpenTracing.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

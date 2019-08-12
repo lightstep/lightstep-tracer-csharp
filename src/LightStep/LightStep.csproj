@@ -13,7 +13,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
-    <PackageReference Include="OpenTracing" Version="0.12.0" />
+    <PackageReference Include="OpenTracing" Version="0.12.1-rc4" />
     <PackageReference Include="System.Json" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
