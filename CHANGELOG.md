@@ -1,4 +1,7 @@
 # Changelog
+_v0.4.4-beta_
+- Initial support for inject/extract of binary headers (`x-ot-span-context`). See usage examples in `test/Lightstep.Tests/PropagatorTests.cs`.
+
 _v0.4.3_
 - Improves safety of serializing reports by moving translate method to a try/catch block.
 
