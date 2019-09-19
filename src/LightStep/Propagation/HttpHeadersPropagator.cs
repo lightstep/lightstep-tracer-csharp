@@ -1,3 +1,4 @@
+using System;
 using OpenTracing.Propagation;
 
 namespace LightStep.Propagation
@@ -19,7 +20,7 @@ namespace LightStep.Propagation
         public SpanContext Extract<TCarrier>(IFormat<TCarrier> format, TCarrier carrier)
         {
             var textMapPropagator = new TextMapPropagator();
-            return textMapPropagator.Extract(format, carrier);
+            return textMapPropagator.Extract(format, carrier, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

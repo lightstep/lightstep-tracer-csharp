@@ -30,21 +30,26 @@ namespace LightStep.Propagation
         /// <inheritdoc />
         public SpanContext Extract<TCarrier>(IFormat<TCarrier> format, TCarrier carrier)
         {
+            return Extract(format, carrier, StringComparison.Ordinal);
+        }
+
+        public SpanContext Extract<TCarrier>(IFormat<TCarrier> format, TCarrier carrier, StringComparison comparison)
+        {
             _logger.Trace($"Extracting {format.GetType()} from {carrier.GetType()}");
             string traceId = null;
             string spanId = null;
             var baggage = new Baggage();
             if (carrier is ITextMap text)
                 foreach (var entry in text)
-                    if (Keys.TraceId.Equals(entry.Key))
+                    if (Keys.TraceId.Equals(entry.Key, comparison))
                     {
                         traceId = Convert.ToUInt64(entry.Value, 16).ToString();
                     }
-                    else if (Keys.SpanId.Equals(entry.Key))
+                    else if (Keys.SpanId.Equals(entry.Key, comparison))
                     {
                         spanId = Convert.ToUInt64(entry.Value, 16).ToString();
                     }
-                    else if (entry.Key.StartsWith(Keys.BaggagePrefix))
+                    else if (entry.Key.StartsWith(Keys.BaggagePrefix, comparison))
                     {
                         var key = entry.Key.Substring(Keys.BaggagePrefix.Length);
                         baggage.Set(key, entry.Value);

@@ -160,6 +160,82 @@ namespace LightStep.Tests
             var ps = new PropagatorStack(BuiltinFormats.TextMap);
             Assert.Throws<ArgumentNullException>(() => ps.AddPropagator(null));
         }
+
+        public enum CasingType
+        {
+            LowerCase,
+            UpperCase,
+            MixedCase,
+        }
+
+        private string ToCase(string input, CasingType casingType)
+        {
+            switch (casingType)
+            {
+                case CasingType.LowerCase:
+                    return input.ToLower();
+                case CasingType.UpperCase:
+                    return input.ToUpper();
+            }
+
+            return input;
+        }
+
+        [Theory]
+        [InlineData(CasingType.LowerCase)]
+        [InlineData(CasingType.UpperCase)]
+        [InlineData(CasingType.MixedCase)]
+        public void HttpHeaderPropagatorIsCaseInsensitive(CasingType casingType)
+        {
+            UInt64 spanId = 4952807665017200957;
+            UInt64 traceId = 14848807816610383171;
+
+            var headers = new Dictionary<string, string>
+            {
+                {ToCase("Ot-Tracer-Spanid", casingType), spanId.ToString("X")},
+                {ToCase("Ot-Tracer-Traceid", casingType), traceId.ToString("X")},
+            };
+
+            var httpPropagator = new HttpHeadersPropagator();
+            var extractedContext =
+                httpPropagator.Extract(BuiltinFormats.HttpHeaders, 
+                    new TextMapExtractAdapter(headers));
+
+            Assert.NotNull(extractedContext);
+            Assert.Equal(spanId.ToString(), extractedContext.SpanId);
+            Assert.Equal(traceId.ToString(), extractedContext.TraceId);
+        }
+
+        [Theory]
+        [InlineData(CasingType.LowerCase)]
+        [InlineData(CasingType.UpperCase)]
+        [InlineData(CasingType.MixedCase)]
+        public void TextHeaderPropagatorIsCaseSensitive(CasingType casingType)
+        {
+            UInt64 spanId = 4952807665017200957;
+            UInt64 traceId = 14848807816610383171;
+
+            var headers = new Dictionary<string, string>
+            {
+                {ToCase("Ot-Tracer-Spanid", casingType), spanId.ToString("X")},
+                {ToCase("Ot-Tracer-Traceid", casingType), traceId.ToString("X")},
+            };
+
+            var textPropagator = new TextMapPropagator();
+            var extractedContext =
+                textPropagator.Extract(BuiltinFormats.TextMap, 
+                    new TextMapExtractAdapter(headers));
+
+            if (casingType != CasingType.LowerCase)
+            {
+                Assert.Null(extractedContext);
+                return;
+            }
+
+            Assert.NotNull(extractedContext);
+            Assert.Equal(spanId.ToString(), extractedContext.SpanId);
+            Assert.Equal(traceId.ToString(), extractedContext.TraceId);
+        }
     }
 
     internal class CustomFormatter : IFormat<ITextMap>
