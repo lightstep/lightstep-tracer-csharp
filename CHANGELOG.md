@@ -1,4 +1,7 @@
 # Changelog
+_v0.4.5-beta_
+- Headers for Http/TextMap Propagator are now case-insensitive
+
 _v0.4.4-beta_
 - Initial support for inject/extract of binary headers (`x-ot-span-context`). See usage examples in `test/Lightstep.Tests/PropagatorTests.cs`.
 
