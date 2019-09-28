@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LightStep.Logging;
 using OpenTracing.Tag;
 using Xunit;
 
@@ -134,6 +135,46 @@ namespace LightStep.Tests
 
             // if there were no collisions on insert, we had uniqueness!
             Assert.Equal(0, collisionCount);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void SpansShouldLogErrorForAfterFinishActions(bool afterFinish)
+        {
+            var tracer = GetTracer();
+            var span = tracer.BuildSpan("randomSpan").Start();
+
+            using (new MockLogProvider.UseMockLogProviderScope())
+            {
+                if (afterFinish) span.Finish();
+
+                // These actions shouldn't cause exceptions either
+                // before or after the span is finished
+                span.SetOperationName("somethingElseRandom");
+                span.SetTag("key", "value");
+                span.Log("event");
+                span.SetBaggageItem("baggageKey", "baggageValue");
+
+                if (!afterFinish) span.Finish();
+
+                // Just testing action taken after span is finished
+                var logs =
+                    MockLogProvider.PurgeAndFetchLogs()
+                        .Where(l => l.Item1 == LogLevel.Error)
+                        .ToArray();
+                if (!afterFinish)
+                {
+                    Assert.Empty(logs);
+                    return;
+                }
+
+                Assert.Equal(4, logs.Length);
+                Assert.Contains("finished span", logs[0].Item2);
+                Assert.Contains("finished span", logs[1].Item2);
+                Assert.Contains("finished span", logs[2].Item2);
+                Assert.Contains("finished span", logs[3].Item2);
+            }
         }
     }
 }

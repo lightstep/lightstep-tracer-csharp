@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using LightStep.Logging;
 using OpenTracing;
 using OpenTracing.Tag;
 
@@ -20,6 +21,8 @@ namespace LightStep
         private readonly Tracer _tracer;
         private bool _finished;
         private DateTimeOffset _finishTimestamp;
+
+        private static readonly ILog _logger = LogProvider.GetCurrentClassLogger();
 
         /// <summary>
         ///     Create a new Span.
@@ -233,7 +236,7 @@ namespace LightStep
             {
                 var ex = new InvalidOperationException(string.Format(format, args));
                 _errors.Add(ex);
-                throw ex;
+                _logger.Error(ex.Message);
             }
         }
 
