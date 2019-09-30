@@ -1,4 +1,7 @@
 # Changelog
+_v0.5.0_
+- Certain span operations (`Log`, `SetBaggageItem`, `Finish`, `SetTag`, `SetOperationName`) will no longer throw `InvalidOperationException` if called on a finished span. Instead, they will log a message at the error level.
+
 _v0.4.5_
 - Support v0.12.1 of OpenTracing C#
 - Initial support for inject/extract of binary headers (`x-ot-span-context`). See usage examples in `test/Lightstep.Tests/PropagatorTests.cs`.
