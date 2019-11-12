@@ -18,7 +18,7 @@ namespace LightStep.Propagation
 
                 text.Set(Keys.SpanId, Convert.ToUInt64(context.SpanId).ToString("X"));
                 text.Set(Keys.TraceId, Convert.ToUInt64(context.TraceId).ToString("X"));
-                text.Set(Keys.SampledId, "true");
+                text.Set(Keys.Sampled, "true");
             }
             else
             {
