@@ -38,7 +38,7 @@ namespace LightStep.Propagation
             {
                 text.Set(TraceIdName, traceId.ToString("x"));
                 text.Set(SpanIdName, spanId.ToString("x"));
-                text.Set(SampledName, "true");
+                text.Set(SampledName, "1");
             }
         }
 

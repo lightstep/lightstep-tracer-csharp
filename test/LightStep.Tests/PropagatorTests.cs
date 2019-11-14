@@ -41,7 +41,7 @@ namespace LightStep.Tests
             Assert.Equal(hexSpanId, data["ot-tracer-spanid"]);
             Assert.Equal(hexSpanId.ToLowerInvariant(), data["X-B3-SpanId"]);
             Assert.Equal("true", data["ot-tracer-sampled"]);
-            Assert.Equal("true", data["X-B3-Sampled"]);
+            Assert.Equal("1", data["X-B3-Sampled"]);
 
             span.Finish();
 
