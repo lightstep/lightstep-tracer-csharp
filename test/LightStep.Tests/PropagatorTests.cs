@@ -37,9 +37,9 @@ namespace LightStep.Tests
             tracer.Inject(span.Context, BuiltinFormats.HttpHeaders, new TextMapInjectAdapter(data));
 
             Assert.Equal(hexTraceId, data["ot-tracer-traceid"]);
-            Assert.Equal(hexTraceId, data["X-B3-TraceId"]);
+            Assert.Equal(hexTraceId.ToLowerInvariant(), data["X-B3-TraceId"]);
             Assert.Equal(hexSpanId, data["ot-tracer-spanid"]);
-            Assert.Equal(hexSpanId, data["X-B3-SpanId"]);
+            Assert.Equal(hexSpanId.ToLowerInvariant(), data["X-B3-SpanId"]);
             Assert.Equal("true", data["ot-tracer-sampled"]);
             Assert.Equal("true", data["X-B3-Sampled"]);
 

@@ -36,8 +36,8 @@ namespace LightStep.Propagation
             
             if (carrier is ITextMap text)
             {
-                text.Set(TraceIdName, traceId.ToString("X"));
-                text.Set(SpanIdName, spanId.ToString("X"));
+                text.Set(TraceIdName, traceId.ToString("x"));
+                text.Set(SpanIdName, spanId.ToString("x"));
                 text.Set(SampledName, "true");
             }
         }
