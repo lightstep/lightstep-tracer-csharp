@@ -6,12 +6,13 @@ namespace LightStep
     /// <inheritdoc />
     public class SpanContext : ISpanContext
     {
+        private readonly TraceId _traceId;
         private readonly Baggage _baggage = new Baggage();
 
         /// <inheritdoc />
         public SpanContext(string traceId, string spanId, Baggage baggage = null, string parentId = null)
         {
-            TraceId = traceId;
+            _traceId = LightStep.TraceId.Parse(traceId);
             SpanId = spanId;
             ParentSpanId = parentId;
             _baggage.Merge(baggage);
@@ -23,7 +24,12 @@ namespace LightStep
         public string ParentSpanId { get; }
 
         /// <inheritdoc />
-        public string TraceId { get; }
+        public string TraceId => _traceId.ToString();
+
+        /// <summary>
+        ///     Format the Trace ID with the specified format.
+        /// </summary>
+        public string TraceIdWithFormat(string format) => _traceId.ToString(format);
 
         /// <inheritdoc />
         public string SpanId { get; }
