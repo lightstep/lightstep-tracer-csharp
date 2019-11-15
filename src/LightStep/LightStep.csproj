@@ -47,7 +47,7 @@
       <PackageReleaseNotes>https://github.com/lightstep/lightstep-tracer-csharp/blob/master/CHANGELOG.md</PackageReleaseNotes>
       <PackageIconUrl>https://raw.githubusercontent.com/lightstep/lightstep-tracer-csharp/master/ls128x128.png</PackageIconUrl>
       <PackageProjectUrl>http://www.lightstep.com</PackageProjectUrl>
-      <PackageLicenseUrl>https://raw.githubusercontent.com/lightstep/lightstep-tracer-csharp/blob/master/LICENSE</PackageLicenseUrl>
+      <PackageLicenseExpression>MIT</PackageLicenseExpression>
       <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
       <RepositoryType>git</RepositoryType>
       <RepositoryUrl>https://raw.githubusercontent.com/lightstep/lightstep-tracer-csharp</RepositoryUrl>
