@@ -121,7 +121,7 @@ namespace LightStep
         ///     Transmits the current contents of the span buffer to the LightStep Satellite.
         ///     Note that this creates a copy of the current spans and clears the span buffer!
         /// </summary>
-        public async void Flush()
+        public async Task Flush()
         {
             if (_options.Run)
             {
