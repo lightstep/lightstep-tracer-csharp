@@ -29,17 +29,14 @@ namespace LightStep.Tests
             var traceId = span.TypedContext().TraceId;
             var spanId = span.TypedContext().SpanId;
 
-            var hexTraceId = Convert.ToUInt64(traceId).ToString("X");
-            var hexSpanId = Convert.ToUInt64(spanId).ToString("X");
-
             var data = new Dictionary<string, string>();
 
             tracer.Inject(span.Context, BuiltinFormats.HttpHeaders, new TextMapInjectAdapter(data));
 
-            Assert.Equal(hexTraceId, data["ot-tracer-traceid"]);
-            Assert.Equal(hexTraceId.ToLowerInvariant(), data["X-B3-TraceId"]);
-            Assert.Equal(hexSpanId, data["ot-tracer-spanid"]);
-            Assert.Equal(hexSpanId.ToLowerInvariant(), data["X-B3-SpanId"]);
+            Assert.Equal(traceId, data["ot-tracer-traceid"]);
+            Assert.Equal(traceId, data["X-B3-TraceId"]);
+            Assert.Equal(spanId, data["ot-tracer-spanid"]);
+            Assert.Equal(spanId, data["X-B3-SpanId"]);
             Assert.Equal("true", data["ot-tracer-sampled"]);
             Assert.Equal("1", data["X-B3-Sampled"]);
 
@@ -94,7 +91,7 @@ namespace LightStep.Tests
             ps.AddPropagator(textPropagator);
 
             var carrier = new Dictionary<string, string>();
-            var context = new SpanContext("0", "0");
+            var context = new SpanContext(0, 0);
 
             ps.Inject(context, BuiltinFormats.TextMap, new TextMapInjectAdapter(carrier));
 
@@ -113,17 +110,20 @@ namespace LightStep.Tests
         [Fact]
         public void EnvoyPropagatorShouldDecodeABinaryContextFromString()
         {
+            UInt64 traceId = 4952807665017200957;
+            UInt64 spanId = 14848807816610383171;
+
             var base64Context = "EhQJQwUbbwmQEc4RPaEuilTou0QYAQ==";
             var bs = Convert.FromBase64String(base64Context);
-            
+
             var envoyPropagator = new EnvoyPropagator();
             var streamCarrier = new MemoryStream(bs);
 
             var extractedContext = envoyPropagator.Extract(BuiltinFormats.Binary, new BinaryExtractAdapter(streamCarrier));
             Assert.NotNull(extractedContext);
-            Assert.Equal("4952807665017200957", extractedContext.SpanId);
-            Assert.Equal("14848807816610383171", extractedContext.TraceId);
-            
+            Assert.Equal(traceId, extractedContext.SpanIdValue);
+            Assert.Equal(spanId, extractedContext.TraceIdValue);
+
             var reStreamCarrier = new MemoryStream();
             envoyPropagator.Inject(extractedContext, BuiltinFormats.Binary, new BinaryInjectAdapter(reStreamCarrier));
             var reBase64String = Convert.ToBase64String(reStreamCarrier.ToArray());
@@ -134,12 +134,12 @@ namespace LightStep.Tests
         [Fact]
         public void EnvoyPropagatorShouldEncodeASpanContext()
         {
-            var ctx = new SpanContext("1", "1");
+            var ctx = new SpanContext(1, 1);
             var envoyPropagator = new EnvoyPropagator();
             var carrierStream = new MemoryStream();
 
             envoyPropagator.Inject(ctx, BuiltinFormats.Binary, new BinaryInjectAdapter(carrierStream));
-            
+
             Assert.NotNull(carrierStream);
             Assert.True(carrierStream.Length > 0);
 
@@ -200,12 +200,12 @@ namespace LightStep.Tests
 
             var httpPropagator = new HttpHeadersPropagator();
             var extractedContext =
-                httpPropagator.Extract(BuiltinFormats.HttpHeaders, 
+                httpPropagator.Extract(BuiltinFormats.HttpHeaders,
                     new TextMapExtractAdapter(headers));
 
             Assert.NotNull(extractedContext);
-            Assert.Equal(spanId.ToString(), extractedContext.SpanId);
-            Assert.Equal(traceId.ToString(), extractedContext.TraceId);
+            Assert.Equal(spanId.ToString("x"), extractedContext.SpanId);
+            Assert.Equal(traceId.ToString("x"), extractedContext.TraceId);
         }
 
         [Theory]
@@ -225,7 +225,7 @@ namespace LightStep.Tests
 
             var textPropagator = new TextMapPropagator();
             var extractedContext =
-                textPropagator.Extract(BuiltinFormats.TextMap, 
+                textPropagator.Extract(BuiltinFormats.TextMap,
                     new TextMapExtractAdapter(headers));
 
             if (casingType != CasingType.LowerCase)
@@ -235,8 +235,32 @@ namespace LightStep.Tests
             }
 
             Assert.NotNull(extractedContext);
-            Assert.Equal(spanId.ToString(), extractedContext.SpanId);
-            Assert.Equal(traceId.ToString(), extractedContext.TraceId);
+            Assert.Equal(spanId.ToString("x"), extractedContext.SpanId);
+            Assert.Equal(traceId.ToString("x"), extractedContext.TraceId);
+        }
+
+        [Fact]
+        public void B3PropagatorShouldHandle128bitTraceIds()
+        {
+            var propagator = new B3Propagator();
+            var traceId = "aef5705a090040838f1359ebafa5c0c6";
+            var truncatedTraceId = "8f1359ebafa5c0c6";
+            var spanId = "1";
+
+            var headers = new Dictionary<string, string>
+            {
+                {B3Propagator.TraceIdName, traceId},
+                {B3Propagator.SpanIdName, spanId}
+            };
+            var extractedContext = propagator.Extract(BuiltinFormats.TextMap, new TextMapExtractAdapter(headers));
+            Assert.Equal(traceId, extractedContext.OriginalTraceId);
+            Assert.Equal(truncatedTraceId, extractedContext.TraceId);
+            Assert.Equal(spanId, extractedContext.SpanId);
+
+            headers.Clear();
+            propagator.Inject(extractedContext, BuiltinFormats.TextMap, new TextMapInjectAdapter(headers));
+            Assert.Equal(traceId, headers[B3Propagator.TraceIdName]);
+            Assert.Equal(spanId, headers[B3Propagator.SpanIdName]);
         }
     }
 

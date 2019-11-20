@@ -16,8 +16,8 @@ namespace LightStep.Propagation
             {
                 foreach (var entry in context.GetBaggageItems()) text.Set(Keys.BaggagePrefix + entry.Key, entry.Value);
 
-                text.Set(Keys.SpanId, Convert.ToUInt64(context.SpanId).ToString("X"));
-                text.Set(Keys.TraceId, Convert.ToUInt64(context.TraceId).ToString("X"));
+                text.Set(Keys.SpanId, context.SpanId);
+                text.Set(Keys.TraceId, context.TraceId);
                 text.Set(Keys.Sampled, "true");
             }
             else
@@ -36,29 +36,34 @@ namespace LightStep.Propagation
         public SpanContext Extract<TCarrier>(IFormat<TCarrier> format, TCarrier carrier, StringComparison comparison)
         {
             _logger.Trace($"Extracting {format.GetType()} from {carrier.GetType()}");
-            string traceId = null;
-            string spanId = null;
-            var baggage = new Baggage();
             if (carrier is ITextMap text)
+            {
+                ulong? traceId = null;
+                ulong? spanId = null;
+                var baggage = new Baggage();
+
                 foreach (var entry in text)
+                {
                     if (Keys.TraceId.Equals(entry.Key, comparison))
                     {
-                        traceId = Convert.ToUInt64(entry.Value, 16).ToString();
+                        traceId = Convert.ToUInt64(entry.Value, 16);
                     }
                     else if (Keys.SpanId.Equals(entry.Key, comparison))
                     {
-                        spanId = Convert.ToUInt64(entry.Value, 16).ToString();
+                        spanId = Convert.ToUInt64(entry.Value, 16);
                     }
                     else if (entry.Key.StartsWith(Keys.BaggagePrefix, comparison))
                     {
                         var key = entry.Key.Substring(Keys.BaggagePrefix.Length);
                         baggage.Set(key, entry.Value);
                     }
+                }
 
-            if (!string.IsNullOrEmpty(traceId) && !string.IsNullOrEmpty(spanId))
-            {
-                _logger.Trace($"Existing trace/spanID found, returning SpanContext.");
-                return new SpanContext(traceId, spanId, baggage);
+                if (traceId.HasValue && spanId.HasValue)
+                {
+                    _logger.Trace($"Existing trace/spanID found, returning SpanContext.");
+                    return new SpanContext(traceId.Value, spanId.Value);
+                }
             }
 
             return null;

@@ -66,7 +66,7 @@ namespace LightStep
             else
             {
                 // we are a child span
-                _context = new SpanContext(parentContext.TraceId, GetRandomId(), MergeBaggages(_references),
+                _context = new SpanContext(parentContext.TraceIdValue, GetRandomId(), MergeBaggages(_references),
                     parentContext.SpanId);
                 ParentId = parentContext.SpanId;
             }
@@ -80,7 +80,7 @@ namespace LightStep
                     .Start()
                     .Finish();
             }
-            
+
         }
 
         /// <summary>
@@ -200,12 +200,12 @@ namespace LightStep
             }
         }
 
-        private static string GetRandomId()
+        private static ulong GetRandomId()
         {
             var provider = new RNGCryptoServiceProvider();
             var buffer = new byte[64];
             provider.GetBytes(buffer);
-            return BitConverter.ToUInt64(buffer, 0).ToString();
+            return BitConverter.ToUInt64(buffer, 0);
         }
 
         private static SpanContext FindPreferredParentRef(IList<Reference> references)

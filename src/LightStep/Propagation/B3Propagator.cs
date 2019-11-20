@@ -6,38 +6,17 @@ namespace LightStep.Propagation
     /// <inheritdoc />
     public class B3Propagator : IPropagator
     {
-        private const string TraceIdName = "X-B3-TraceId";
-        private const string SpanIdName = "X-B3-SpanId";
-        private const string SampledName = "X-B3-Sampled";
+        public const string TraceIdName = "X-B3-TraceId";
+        public const string SpanIdName = "X-B3-SpanId";
+        public const string SampledName = "X-B3-Sampled";
 
         /// <inheritdoc />
         public void Inject<TCarrier>(SpanContext context, IFormat<TCarrier> format, TCarrier carrier)
         {
-            ulong traceId;
-            ulong spanId;
-
-            try
-            {
-                traceId = Convert.ToUInt64(context.TraceId);
-            }
-            catch (FormatException)
-            {
-                traceId = Convert.ToUInt64(context.TraceId, 16);
-            }
-
-            try
-            {
-                spanId = Convert.ToUInt64(context.SpanId);
-            }
-            catch (FormatException)
-            {
-                spanId = Convert.ToUInt64(context.SpanId, 16);
-            }
-            
             if (carrier is ITextMap text)
             {
-                text.Set(TraceIdName, traceId.ToString("x"));
-                text.Set(SpanIdName, spanId.ToString("x"));
+                text.Set(TraceIdName, context.OriginalTraceId);
+                text.Set(SpanIdName, context.SpanId);
                 text.Set(SampledName, "1");
             }
         }
@@ -45,19 +24,75 @@ namespace LightStep.Propagation
         /// <inheritdoc />
         public SpanContext Extract<TCarrier>(IFormat<TCarrier> format, TCarrier carrier)
         {
-            string traceId = null;
-            string spanId = null;
-
             if (carrier is ITextMap text)
-                foreach (var entry in text)
-                    if (TraceIdName.Equals(entry.Key))
-                        traceId = entry.Value;
-                    else if (SpanIdName.Equals(entry.Key)) spanId = entry.Value;
+            {
+                ulong? traceId = null;
+                string OriginalTraceId = null;
+                ulong? spanId = null;
 
-            if (!string.IsNullOrEmpty(traceId) && !string.IsNullOrEmpty(spanId))
-                return new SpanContext(traceId, spanId);
+                foreach (var entry in text)
+                {
+                    if (TraceIdName.Equals(entry.Key))
+                    {
+                        traceId = ParseTraceId(entry.Value);
+                        OriginalTraceId = entry.Value;
+                    }
+                    else if (SpanIdName.Equals(entry.Key))
+                    {
+                        spanId = Convert.ToUInt64(entry.Value, 16);
+                    }
+                }
+
+                if (traceId.HasValue && spanId.HasValue)
+                {
+                    return new SpanContext(traceId.Value, spanId.Value, originalTraceId: OriginalTraceId);
+                }
+            }
 
             return null;
+        }
+
+        private static ulong ParseTraceId(string str)
+        {
+            ulong traceId;
+
+            if (ContainsHexChar(str))
+            {
+                if (str.Length <= 16)
+                {
+                    traceId = Convert.ToUInt64(str, 16);
+                }
+                else
+                {
+                    traceId = Convert.ToUInt64(str.Substring(str.Length - 16), 16);
+                }
+            }
+            else
+            {
+                if (str.Length <= 20)
+                {
+                    traceId = Convert.ToUInt64(str);
+                }
+                else
+                {
+                    traceId = Convert.ToUInt64(str.Substring(str.Length - 20));
+                }
+            }
+
+            return traceId;
+        }
+
+        private static bool ContainsHexChar(string traceId)
+        {
+            foreach (var c in traceId)
+            {
+                if (char.IsLetter(c))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

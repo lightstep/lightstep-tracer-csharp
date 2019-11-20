@@ -6,14 +6,14 @@ namespace LightStep
     /// <inheritdoc />
     public class SpanContext : ISpanContext
     {
-        private readonly TraceId _traceId;
         private readonly Baggage _baggage = new Baggage();
 
         /// <inheritdoc />
-        public SpanContext(string traceId, string spanId, Baggage baggage = null, string parentId = null)
+        public SpanContext(ulong traceId, ulong spanId, Baggage baggage = null, string parentId = null, string originalTraceId = null)
         {
-            _traceId = LightStep.TraceId.Parse(traceId);
-            SpanId = spanId;
+            TraceIdValue = traceId;
+            OriginalTraceId = originalTraceId ?? TraceId;
+            SpanIdValue = spanId;
             ParentSpanId = parentId;
             _baggage.Merge(baggage);
         }
@@ -23,16 +23,27 @@ namespace LightStep
         /// </summary>
         public string ParentSpanId { get; }
 
+        /// <summary>
+        ///     The trace ID represetned as a ulong (UInt64).
+        /// </summary>
+        public ulong TraceIdValue { get; }
+
         /// <inheritdoc />
-        public string TraceId => _traceId.ToString();
+        public string TraceId => TraceIdValue.ToString("x");
 
         /// <summary>
-        ///     Format the Trace ID with the specified format.
+        ///     The original trace ID used to create this context.
+        ///     <para>This may be a 64 or 128 bit hex value.</para>
         /// </summary>
-        public string TraceIdWithFormat(string format) => _traceId.ToString(format);
+        public string OriginalTraceId { get; }
+
+        /// <summary>
+        ///     The Span ID represented as a ulong (UInt64).
+        /// </summary>
+        public ulong SpanIdValue { get; }
 
         /// <inheritdoc />
-        public string SpanId { get; }
+        public string SpanId => SpanIdValue.ToString("x");
 
         /// <inheritdoc />
         public IEnumerable<KeyValuePair<string, string>> GetBaggageItems()
