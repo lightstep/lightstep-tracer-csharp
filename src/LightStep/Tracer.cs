@@ -67,8 +67,8 @@ namespace LightStep
             var url =
                 $"{protocol}://{_options.Satellite.SatelliteHost}:{_options.Satellite.SatellitePort}/{LightStepConstants.SatelliteReportPath}";
             _httpClient = client ?? new LightStepHttpClient(url, _options);
-            _logger.Debug($"Tracer is reporting to {url}.");          
-            _reportLoop = new Timer(e => Flush(), null, TimeSpan.Zero, _options.ReportPeriod);
+            _logger.Debug($"Tracer is reporting to {url}.");
+            _reportLoop = new Timer(async e => await Flush(), null, TimeSpan.Zero, _options.ReportPeriod);
             _firstReportHasRun = false;
         }
 
