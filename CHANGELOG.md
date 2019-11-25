@@ -1,4 +1,10 @@
 # Changelog
+_v0.6.0_
+- Update Flush to return Task and update usage in Tracer to await it's completion
+- Add basic .editorconfig to help standardize file formats
+- Update csproj to use license expression instead of url when packaging
+- Improve B3 header support, including 128 bit trace IDs
+
 _v0.5.0_
 - Certain span operations (`Log`, `SetBaggageItem`, `Finish`, `SetTag`, `SetOperationName`) will no longer throw `InvalidOperationException` if called on a finished span. Instead, they will log a message at the error level.
 
