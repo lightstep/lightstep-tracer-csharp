@@ -41,8 +41,8 @@ namespace LightStep.Tests
             };
             var spanContext = tracer.Extract(BuiltinFormats.TextMap, new TextMapExtractAdapter(data));
             Assert.NotNull(spanContext);
-            Assert.Equal(traceId.ToString(), spanContext.TraceId);
-            Assert.Equal(spanId.ToString(), spanContext.SpanId);
+            Assert.Equal(traceId.ToString("x"), spanContext.TraceId);
+            Assert.Equal(spanId.ToString("x"), spanContext.SpanId);
         }
 
         [Fact]
@@ -59,8 +59,8 @@ namespace LightStep.Tests
         {
             var tracer = GetTracer();
             var span = tracer.BuildSpan("test").Start();
-            var hexTraceId = Convert.ToUInt64(span.TypedContext().TraceId).ToString("X");
-            var hexSpanId = Convert.ToUInt64(span.TypedContext().SpanId).ToString("X");
+            var hexTraceId = span.TypedContext().TraceId;
+            var hexSpanId = span.TypedContext().SpanId;
             var data = new Dictionary<string, string>();
             tracer.Inject(span.Context, BuiltinFormats.TextMap, new TextMapInjectAdapter(data));
             Assert.Equal(hexTraceId, data["ot-tracer-traceid"]);

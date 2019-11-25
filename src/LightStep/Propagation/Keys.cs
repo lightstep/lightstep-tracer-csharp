@@ -23,6 +23,6 @@
         /// <summary>
         ///     OpenTracing Sampled Prefix
         /// </summary>
-        public const string SampledId = "ot-tracer-sampled";
+        public const string Sampled = "ot-tracer-sampled";
     }
 }
