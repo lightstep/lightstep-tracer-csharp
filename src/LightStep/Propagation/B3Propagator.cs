@@ -32,12 +32,12 @@ namespace LightStep.Propagation
 
                 foreach (var entry in text)
                 {
-                    if (TraceIdName.Equals(entry.Key))
+                    if (TraceIdName.Equals(entry.Key, StringComparison.OrdinalIgnoreCase))
                     {
                         traceId = ParseTraceId(entry.Value);
                         OriginalTraceId = entry.Value;
                     }
-                    else if (SpanIdName.Equals(entry.Key))
+                    else if (SpanIdName.Equals(entry.Key, StringComparison.OrdinalIgnoreCase))
                     {
                         spanId = Convert.ToUInt64(entry.Value, 16);
                     }
