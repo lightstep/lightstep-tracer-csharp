@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Google.Protobuf.WellKnownTypes;
@@ -15,23 +15,8 @@ namespace LightStep.Collector
         /// <returns>Proto SpanContext</returns>
         public SpanContext MakeSpanContextFromOtSpanContext(LightStep.SpanContext ctx)
         {
-            try
-            {
-                SpanId = Convert.ToUInt64(ctx.SpanId);
-            }
-            catch (FormatException)
-            {
-                SpanId = Convert.ToUInt64(ctx.SpanId, 16);
-            }
-
-            try
-            {
-                TraceId = Convert.ToUInt64(ctx.TraceId);
-            }
-            catch (FormatException)
-            {
-                TraceId = Convert.ToUInt64(ctx.TraceId, 16);
-            }
+            SpanId = ctx.SpanIdValue;
+            TraceId = ctx.TraceIdValue;
             
             ctx.GetBaggageItems().ToList().ForEach(baggage => Baggage.Add(baggage.Key, baggage.Value));
             return this;

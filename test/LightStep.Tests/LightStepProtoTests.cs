@@ -145,5 +145,14 @@ namespace LightStep.Tests
                 }
             }
         }
+
+        [Fact]
+        public void SpanContextSpanIdShouldConvert()
+        {
+            var spanContext = new SpanContext(4659, 4660);
+            var protoSpanContext = new LightStep.Collector.SpanContext().MakeSpanContextFromOtSpanContext(spanContext);
+            Assert.Equal(4659ul, protoSpanContext.TraceId);
+            Assert.Equal(4660ul, protoSpanContext.SpanId);
+        }
     }
 }
