@@ -1,4 +1,10 @@
 # Changelog
+_v0.8.0_
+- Improves serialization performance by removing unneeded conversions
+
+_v0.7.0_
+- B3 Header propagation is case-insensitive
+
 _v0.6.0_
 - Update Flush to return Task and update usage in Tracer to await it's completion
 - Add basic .editorconfig to help standardize file formats
