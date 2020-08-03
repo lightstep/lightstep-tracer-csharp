@@ -1,4 +1,7 @@
 # Changelog
+_v0.8.1_
+- Update Google Protobuf to latest stable
+
 _v0.8.0_
 - Improves serialization performance by removing unneeded conversions
 
