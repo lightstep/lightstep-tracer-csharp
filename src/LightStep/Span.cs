@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -185,7 +185,7 @@ namespace LightStep
         /// <inheritdoc />
         public void Finish()
         {
-            Finish(DateTimeOffset.UtcNow);
+            Finish(HighResolutionDateTime.IsAvailable ? new DateTimeOffset(HighResolutionDateTime.UtcNow) : DateTimeOffset.UtcNow);
         }
 
         /// <inheritdoc />

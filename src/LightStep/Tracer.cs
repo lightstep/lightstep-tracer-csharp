@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -68,7 +68,7 @@ namespace LightStep
                 $"{protocol}://{_options.Satellite.SatelliteHost}:{_options.Satellite.SatellitePort}/{LightStepConstants.SatelliteReportPath}";
             _httpClient = client ?? new LightStepHttpClient(url, _options);
             _logger.Debug($"Tracer is reporting to {url}.");
-            _reportLoop = new Timer(async e => await Flush(), null, TimeSpan.Zero, _options.ReportPeriod);
+            _reportLoop = new Timer(async e => await Flush().ConfigureAwait(false), null, TimeSpan.Zero, _options.ReportPeriod);
             _firstReportHasRun = false;
         }
 
@@ -159,7 +159,7 @@ namespace LightStep
                 {
                     // since translate can throw exceptions, place it in the try and drop spans as appropriate
                     var data = _httpClient.Translate(currentBuffer);
-                    var resp = await _httpClient.SendReport(data);
+                    var resp = await _httpClient.SendReport(data).ConfigureAwait(false);
                     
                     if (resp.Errors.Count > 0)
                     {

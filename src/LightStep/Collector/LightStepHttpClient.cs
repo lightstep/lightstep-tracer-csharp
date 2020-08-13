@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -92,9 +92,9 @@ namespace LightStep.Collector
             {
                 var response = await _client.SendAsync(requestMessage);
                 response.EnsureSuccessStatusCode();
-                var responseData = await response.Content.ReadAsStreamAsync();
+                var responseData = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
                 responseValue = ReportResponse.Parser.ParseFrom(responseData);
-                _logger.Debug($"Report HTTP Response {response.StatusCode}");
+                _logger.Trace($"Report HTTP Response {response.StatusCode}");
             }
             catch (HttpRequestException ex)
             {
@@ -124,7 +124,7 @@ namespace LightStep.Collector
         /// <returns>A <see cref="ReportRequest" /></returns>
         public ReportRequest Translate(ISpanRecorder spanBuffer)
         {
-            _logger.Debug($"Serializing {spanBuffer.GetSpans().Count()} spans to proto.");
+            _logger.Trace($"Serializing {spanBuffer.GetSpans().Count()} spans to proto.");
             var timer = new Stopwatch();
             timer.Start();
 
@@ -158,7 +158,7 @@ namespace LightStep.Collector
             request.InternalMetrics = metrics;
 
             timer.Stop();
-            _logger.Debug($"Serialization complete in {timer.ElapsedMilliseconds}ms. Request size: {request.CalculateSize()}b.");
+            _logger.Trace($"Serialization complete in {timer.ElapsedMilliseconds}ms. Request size: {request.CalculateSize()}b.");
             
             return request;
         }

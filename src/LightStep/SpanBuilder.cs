@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using OpenTracing;
@@ -13,7 +13,7 @@ namespace LightStep
         private readonly List<Reference> _references = new List<Reference>();
         private readonly Tracer _tracer;
         private bool _ignoreActiveSpan;
-        private DateTimeOffset _startTimestamp = DateTimeOffset.MinValue;
+        private DateTimeOffset _startTimestamp = HighResolutionDateTime.IsAvailable ? new DateTimeOffset(HighResolutionDateTime.UtcNow) : DateTimeOffset.UtcNow;
         private Dictionary<string, object> _tags = new Dictionary<string, object>();
 
         /// <inheritdoc />
@@ -146,8 +146,6 @@ namespace LightStep
         /// <inheritdoc />
         public ISpan Start()
         {
-            if (_startTimestamp == DateTimeOffset.MinValue) _startTimestamp = DateTimeOffset.Now;
-
             var activeSpanContext = _tracer.ActiveSpan?.Context;
             if (!_references.Any() && !_ignoreActiveSpan && activeSpanContext != null)
                 AddReference(References.ChildOf, activeSpanContext);
