@@ -1,4 +1,9 @@
 # Changelog
+_v0.9.0_
+- Reduce logging verbosity and log output. Several statements that appeared at DEBUG now appear at TRACE.
+- Improve the resolution of span start/finish timestamps.
+- Awaited methods should no longer block on synchronous threads.
+
 _v0.8.1_
 - Update Google Protobuf to latest stable
 
