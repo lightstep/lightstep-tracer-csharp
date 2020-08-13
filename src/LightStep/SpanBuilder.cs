@@ -13,7 +13,7 @@ namespace LightStep
         private readonly List<Reference> _references = new List<Reference>();
         private readonly Tracer _tracer;
         private bool _ignoreActiveSpan;
-        private DateTimeOffset _startTimestamp = new DateTimeOffset(HighResolutionDateTime.UtcNow);
+        private DateTimeOffset _startTimestamp = HighResolutionDateTime.IsAvailable ? new DateTimeOffset(HighResolutionDateTime.UtcNow) : DateTimeOffset.UtcNow;
         private Dictionary<string, object> _tags = new Dictionary<string, object>();
 
         /// <inheritdoc />

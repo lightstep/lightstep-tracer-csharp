@@ -185,7 +185,7 @@ namespace LightStep
         /// <inheritdoc />
         public void Finish()
         {
-            Finish(new DateTimeOffset(HighResolutionDateTime.UtcNow));
+            Finish(HighResolutionDateTime.IsAvailable ? new DateTimeOffset(HighResolutionDateTime.UtcNow) : DateTimeOffset.UtcNow);
         }
 
         /// <inheritdoc />
