@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using LightStep.Logging;
@@ -23,10 +23,8 @@ namespace LightStep
         /// <inheritdoc />
         public void RecordSpan(SpanData span)
         {
-            _logger.Trace($"Waiting for lock in SpanRecorder.");
             lock (Spans)
             {
-                _logger.Trace($"Lock freed, adding new span: {span}");
                 Spans.Add(span);    
             }
         }
@@ -44,10 +42,8 @@ namespace LightStep
         /// <inheritdoc />
         public void ClearSpanBuffer()
         {
-            _logger.Trace("Waiting for lock in SpanRecorder.");
             lock (Spans)
             {
-                _logger.Trace("Lock freed, clearing span buffer.");
                 Spans.Clear();    
             }
         }
