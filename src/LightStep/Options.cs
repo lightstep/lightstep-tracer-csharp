@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Versioning;
+using System.Text.RegularExpressions;
 using LightStep.Logging;
 
 namespace LightStep
@@ -239,7 +240,7 @@ namespace LightStep
 #elif NETSTANDARD2_0
             version = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
 #endif
-            return version.Replace(".NET", "").TrimStart(' ');
+            return version.Remove(0, version.IndexOf(' ', 0));
         }
 
 
