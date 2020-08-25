@@ -1,6 +1,7 @@
 # Changelog
 _v0.10.0_
 - Refactored several interfaces to allow integrators to re-implement the reporting HttpClient more easily.
+- Improved version detection of the underlying CLR
 
 _v0.9.0_
 - Reduce logging verbosity and log output. Several statements that appeared at DEBUG now appear at TRACE.
