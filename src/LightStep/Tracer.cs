@@ -50,18 +50,23 @@ namespace LightStep
             new AsyncLocalScopeManager(), propagator, options, spanRecorder, null)
         {
         }
-
+        /// <inheritdoc />
         public Tracer(Options options, ISpanRecorder spanRecorder, ILightStepHttpClient client) : this(
             new AsyncLocalScopeManager(), Propagators.TextMap, options, spanRecorder, client)
         {
         }
-
+        /// <inheritdoc />
+        public Tracer(Options options, IPropagator propagator, ILightStepHttpClient client) : this(
+            new AsyncLocalScopeManager(), propagator, options, new LightStepSpanRecorder(), client)
+        {
+        }
+        /// <inheritdoc />
         public Tracer(Options options, ISpanRecorder spanRecorder, IReportTranslator translator,
             ILightStepHttpClient client) : this(
             new AsyncLocalScopeManager(), Propagators.TextMap, options, spanRecorder, client, translator)
         {
         }
-
+        /// <inheritdoc />
         private Tracer(IScopeManager scopeManager, IPropagator propagator, Options options, ISpanRecorder spanRecorder, ILightStepHttpClient client, IReportTranslator translator = null)
         {
             ScopeManager = scopeManager;

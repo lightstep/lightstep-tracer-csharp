@@ -62,3 +62,11 @@ var tracer = new Tracer(tracerOptions);
 ## Logging
 This tracer uses [LibLog](https://github.com/damianh/LibLog), a transparent logging abstraction that provides built-in support for NLog, Log4Net, Serilog, and Loupe.
 If you use a logging provider that isn't identified by LibLog, see [this gist](https://gist.github.com/damianh/fa529b8346a83f7f49a9) on how to implement a custom logging provider.
+
+## Integration Notes
+You may notice that there's a lot of overloads for creating a `Tracer`! You have the flexibility to override and re-implement much of this library. In 0.10.0+, the `ILightStepHttpClient` interface has
+been decoupled from report translation, allowing you control over the exact mechanism by which the tracer reports spans to Lightstep. You can reference [this issue](https://github.com/lightstep/lightstep-tracer-csharp/issues/92)
+for more information and a discussion about why you might want to do this.
+
+For most users, sticking with the defaults is fine. You should also look at the `Tracer(Options, IPropagator, ILightStepHttpClient)` ctor for custom integration - the span recorder and span translator overloads are not terribly interesting.
+Creating and managing propagators allows you to either select a built-in propagator (textmap, B3, etc.), create a propagator 'stack' (if you potentially have multiple input or output trace context formats), or write your own propagator.
