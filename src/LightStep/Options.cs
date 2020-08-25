@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -221,9 +221,10 @@ namespace LightStep
 
         private static string GetPlatformVersion()
         {
+            var version = ".NET Unknown";
 #if NET45
-            var version = "";
-            version = AppDomain.CurrentDomain.SetupInformation.TargetFrameworkName;
+            var executingAssembly = Assembly.GetExecutingAssembly().GetCustomAttributes(true);
+            version = executingAssembly.OfType<TargetFrameworkAttribute>().First().FrameworkDisplayName;
             // in unit testing scenarios, GetEntryAssembly returns null so make sure we aren't blowing up if this isn't available
             if (version == null && Assembly.GetEntryAssembly() != null)
             {
@@ -231,15 +232,14 @@ namespace LightStep
                     .SingleOrDefault();
                 if (tfa != null)
                 {
-                    version = tfa.FrameworkName;    
+                    version = tfa.FrameworkDisplayName;    
                 }
             }
-            return version;
+
 #elif NETSTANDARD2_0
-            return Assembly.GetEntryAssembly()?.GetCustomAttribute<TargetFrameworkAttribute>()?.FrameworkName;
-#else
-            return "Unknown Framework Version";
+            version = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
 #endif
+            return version.Replace(".NET", "").TrimStart(' ');
         }
 
 
