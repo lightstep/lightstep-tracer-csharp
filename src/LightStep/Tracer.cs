@@ -20,6 +20,7 @@ namespace LightStep
         internal readonly Options _options;
         private readonly IPropagator _propagator;
         private readonly ILightStepHttpClient _httpClient;
+        private readonly IReportTranslator _translator;
         private ISpanRecorder _spanRecorder;
         private readonly Timer _reportLoop;
         private static readonly ILog _logger = LogProvider.GetCurrentClassLogger();
@@ -49,13 +50,24 @@ namespace LightStep
             new AsyncLocalScopeManager(), propagator, options, spanRecorder, null)
         {
         }
-
+        /// <inheritdoc />
         public Tracer(Options options, ISpanRecorder spanRecorder, ILightStepHttpClient client) : this(
             new AsyncLocalScopeManager(), Propagators.TextMap, options, spanRecorder, client)
         {
         }
-
-        private Tracer(IScopeManager scopeManager, IPropagator propagator, Options options, ISpanRecorder spanRecorder, ILightStepHttpClient client)
+        /// <inheritdoc />
+        public Tracer(Options options, IPropagator propagator, ILightStepHttpClient client) : this(
+            new AsyncLocalScopeManager(), propagator, options, new LightStepSpanRecorder(), client)
+        {
+        }
+        /// <inheritdoc />
+        public Tracer(Options options, ISpanRecorder spanRecorder, IReportTranslator translator,
+            ILightStepHttpClient client) : this(
+            new AsyncLocalScopeManager(), Propagators.TextMap, options, spanRecorder, client, translator)
+        {
+        }
+        /// <inheritdoc />
+        private Tracer(IScopeManager scopeManager, IPropagator propagator, Options options, ISpanRecorder spanRecorder, ILightStepHttpClient client, IReportTranslator translator = null)
         {
             ScopeManager = scopeManager;
             _spanRecorder = spanRecorder;
@@ -67,6 +79,7 @@ namespace LightStep
             var url =
                 $"{protocol}://{_options.Satellite.SatelliteHost}:{_options.Satellite.SatellitePort}/{LightStepConstants.SatelliteReportPath}";
             _httpClient = client ?? new LightStepHttpClient(url, _options);
+            _translator = translator ?? new ReportTranslator(_options);
             _logger.Debug($"Tracer is reporting to {url}.");
             _reportLoop = new Timer(async e => await Flush().ConfigureAwait(false), null, TimeSpan.Zero, _options.ReportPeriod);
             _firstReportHasRun = false;
@@ -158,7 +171,7 @@ namespace LightStep
                 try
                 {
                     // since translate can throw exceptions, place it in the try and drop spans as appropriate
-                    var data = _httpClient.Translate(currentBuffer);
+                    var data = _translator.Translate(currentBuffer);
                     var resp = await _httpClient.SendReport(data).ConfigureAwait(false);
                     
                     if (resp.Errors.Count > 0)

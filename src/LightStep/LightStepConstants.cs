@@ -1,4 +1,4 @@
-﻿namespace LightStep
+namespace LightStep
 {
     /// <summary>
     ///     Constants and other values used by LightStep.
@@ -17,6 +17,8 @@
         public static readonly string TracerVersionKey = "lightstep.tracer_version";
 
         public static readonly string SatelliteReportPath = "api/v2/reports";
+
+        public static readonly string AccessTokenConstant = "Lightstep-Access-Token";
 
         public static class MetaEvent {
             public static readonly string MetaEventKey = "lightstep.meta_event";

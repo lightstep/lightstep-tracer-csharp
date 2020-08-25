@@ -24,16 +24,24 @@ namespace LightStep.Tests
             return new LightStepHttpClient("http://localhost:80", tracerOptions);
         }
 
+        private ReportTranslator GetTranslator()
+        {
+            var satelliteOptions = new SatelliteOptions("localhost", 80, true);
+            var tracerOptions = new Options("TEST").WithSatellite(satelliteOptions).WithAutomaticReporting(false);
+            return new ReportTranslator(tracerOptions);
+        }
+
         [Fact]
         public void ReportShouldBeJsonWithJsonOption()
         {
             var recorder = new SimpleMockRecorder();
+            var translator = GetTranslator();
             var tracer = GetTracer(recorder);
             var span = tracer.BuildSpan("test").Start();
             span.Finish();
 
             var client = GetClient(TransportOptions.JsonProto);
-            var translatedSpans = client.Translate(recorder.GetSpanBuffer());
+            var translatedSpans = translator.Translate(recorder.GetSpanBuffer());
             var report = client.BuildRequest(translatedSpans);
             Assert.Equal("application/json", report.Content.Headers.ContentType.MediaType);
             var contentString = report.Content.ReadAsStringAsync().Result;
@@ -44,12 +52,13 @@ namespace LightStep.Tests
         public void ReportShouldBeBinaryWithoutJsonOption()
         {
             var recorder = new SimpleMockRecorder();
+            var translator = GetTranslator();
             var tracer = GetTracer(recorder);
             var span = tracer.BuildSpan("test").Start();
             span.Finish();
 
             var client = GetClient();
-            var translatedSpans = client.Translate(recorder.GetSpanBuffer());
+            var translatedSpans = translator.Translate(recorder.GetSpanBuffer());
             var report = client.BuildRequest(translatedSpans);
             Assert.Equal("application/octet-stream", report.Content.Headers.ContentType.MediaType);
         }
@@ -58,13 +67,14 @@ namespace LightStep.Tests
         public void InternalMetricsShouldExist()
         {
             var recorder = new SimpleMockRecorder();
+            var translator = GetTranslator();
             var tracer = GetTracer(recorder);
             var span = tracer.BuildSpan("test").Start();
             span.Finish();
 
             var client = GetClient();
 
-            var translatedSpans = client.Translate(recorder.GetSpanBuffer());
+            var translatedSpans = translator.Translate(recorder.GetSpanBuffer());
             Assert.Equal("spans.dropped", translatedSpans.InternalMetrics.Counts[0].Name);
         }
 
@@ -72,10 +82,11 @@ namespace LightStep.Tests
         public void DroppedSpanCountShouldSerializeCorrectly()
         {
             var mockBuffer = new SimpleMockRecorder();
+            var translator = GetTranslator();
             mockBuffer.RecordDroppedSpans(1);
 
             var client = GetClient();
-            var translatedBuffer = client.Translate(mockBuffer.GetSpanBuffer());
+            var translatedBuffer = translator.Translate(mockBuffer.GetSpanBuffer());
             
             Assert.Equal(1, translatedBuffer.InternalMetrics.Counts[0].IntValue);
         }
@@ -84,13 +95,14 @@ namespace LightStep.Tests
         public void DroppedSpanCountShouldIncrementOnBadSpan()
         {
             var recorder = new SimpleMockRecorder();
+            var translator = GetTranslator();
             var badSpan = new SpanData {
                 Duration = new TimeSpan(-1),
                 OperationName = "badSpan"
             };
             recorder.RecordSpan(badSpan);
             var client = GetClient();
-            var translatedBuffer = client.Translate(recorder.GetSpanBuffer());
+            var translatedBuffer = translator.Translate(recorder.GetSpanBuffer());
             Assert.Equal(1, translatedBuffer.InternalMetrics.Counts[0].IntValue);
         }
 
@@ -98,6 +110,7 @@ namespace LightStep.Tests
         public void ConverterShouldConvertValues()
         {
             var recorder = new SimpleMockRecorder();
+            var translator = GetTranslator();
             var tracer = GetTracer(recorder);
             var span = tracer.BuildSpan("testOperation")
                 .WithTag("boolTrueTag", true)
@@ -112,7 +125,7 @@ namespace LightStep.Tests
 
             var client = GetClient();
             
-            var translatedSpans = client.Translate(recorder.GetSpanBuffer());
+            var translatedSpans = translator.Translate(recorder.GetSpanBuffer());
             var translatedSpan = translatedSpans.Spans[0];
 
             foreach (var tag in translatedSpan.Tags)
