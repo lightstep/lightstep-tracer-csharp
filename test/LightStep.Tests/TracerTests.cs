@@ -109,7 +109,7 @@ namespace LightStep.Tests
         }
 
         [Fact]
-        public void TracerShouldTrapExceptions()
+        public async void TracerShouldTrapExceptions()
         {
             var x = false;
             Action<Exception> eh = delegate { x = true; };
@@ -117,7 +117,8 @@ namespace LightStep.Tests
             var tracerOptions = new Options().WithSatellite(satelliteOptions).WithExceptionHandler(eh.Invoke);
             var recorder = new SimpleMockRecorder();
             var mockClient = new Mock<ILightStepHttpClient>();
-            mockClient.Setup(client => client.Translate(recorder)).Throws<OverflowException>();
+            var mockTranslator = new Mock<IReportTranslator>();
+            mockTranslator.Setup(translator => translator.Translate(recorder)).Throws<OverflowException>();
             
             var tracer = new Tracer(tracerOptions, recorder, mockClient.Object);
 
@@ -125,7 +126,7 @@ namespace LightStep.Tests
             span.Finish();
             
             Assert.False(x);
-            tracer.Flush();
+            await tracer.Flush();
             Assert.True(x);
         }
     }
