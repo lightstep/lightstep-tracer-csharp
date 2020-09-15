@@ -67,7 +67,7 @@ namespace LightStep
             {
                 // we are a child span
                 _context = new SpanContext(parentContext.TraceIdValue, GetRandomId(), MergeBaggages(_references),
-                    parentContext.SpanId);
+                    parentContext.SpanIdValue);
                 ParentId = parentContext.SpanId;
             }
             if (_tracer._options.EnableMetaEventLogging && Utilities.IsNotMetaSpan(this))

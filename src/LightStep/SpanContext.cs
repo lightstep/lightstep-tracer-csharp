@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using OpenTracing;
 
 namespace LightStep
@@ -9,19 +9,21 @@ namespace LightStep
         private readonly Baggage _baggage = new Baggage();
 
         /// <inheritdoc />
-        public SpanContext(ulong traceId, ulong spanId, Baggage baggage = null, string parentId = null, string originalTraceId = null)
+        public SpanContext(ulong traceId, ulong spanId, Baggage baggage = null, ulong parentId = 0L, string originalTraceId = null)
         {
             TraceIdValue = traceId;
             OriginalTraceId = originalTraceId ?? TraceId;
             SpanIdValue = spanId;
-            ParentSpanId = parentId;
+            ParentSpanIdValue = parentId;
             _baggage.Merge(baggage);
         }
 
         /// <summary>
         ///     The parent span ID, if any.
         /// </summary>
-        public string ParentSpanId { get; }
+        public ulong ParentSpanIdValue { get; }
+
+        public string ParentSpanId => ParentSpanIdValue.ToString("x");
 
         /// <summary>
         ///     The trace ID represetned as a ulong (UInt64).
