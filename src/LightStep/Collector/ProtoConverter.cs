@@ -42,8 +42,8 @@ namespace LightStep.Collector
             foreach (var logData in span.LogData) Logs.Add(new Log().MakeLogFromLogData(logData));
             foreach (var keyValuePair in span.Tags) Tags.Add(new KeyValue().MakeKeyValueFromKvp(keyValuePair));
 
-            if (!string.IsNullOrWhiteSpace(span.Context.ParentSpanId))
-                References.Add(Reference.MakeReferenceFromParentSpanId(span.Context.ParentSpanId));
+            if (span.Context.ParentSpanIdValue != 0L)
+                References.Add(Reference.MakeReferenceFromParentSpanIdValue(span.Context.ParentSpanIdValue));
 
             return this;
         }
@@ -72,6 +72,15 @@ namespace LightStep.Collector
             }
             reference.SpanContext = new SpanContext {SpanId = spanId};
 
+            return reference;
+        }
+
+        public static Reference MakeReferenceFromParentSpanIdValue(ulong value)
+        {
+            var reference = new Reference
+            {
+                Relationship = Types.Relationship.ChildOf, SpanContext = new SpanContext {SpanId = value}
+            };
             return reference;
         }
     }
