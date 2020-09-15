@@ -1,4 +1,9 @@
 # Changelog
+_v0.11.0_
+*Note* This release changes the public API surface. It should not impact you, but it might if you're manging span contexts manually.
+- The `SpanContext` signature has changed and parent span ID is now a ulong as well (this continues work released in 0.8.0). Performance should be improved for serialization to proto.
+- The minimum target framework is now .NET 4.7.2. Packages have been updated as well. Performance is up, memory consumption and object allocations are down!
+
 _v0.10.0_
 - Refactored several interfaces to allow integrators to re-implement the reporting HttpClient more easily.
 - Improved version detection of the underlying CLR
