@@ -223,7 +223,9 @@ namespace LightStep
         private static string GetPlatformVersion()
         {
             var version = ".NET Unknown";
-#if NET45
+#if NETSTANDARD2_0
+            version = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+#else
             var executingAssembly = Assembly.GetExecutingAssembly().GetCustomAttributes(true);
             version = executingAssembly.OfType<TargetFrameworkAttribute>().First().FrameworkDisplayName;
             // in unit testing scenarios, GetEntryAssembly returns null so make sure we aren't blowing up if this isn't available
@@ -237,8 +239,6 @@ namespace LightStep
                 }
             }
 
-#elif NETSTANDARD2_0
-            version = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
 #endif
             return version.Remove(0, version.IndexOf(' ', 0));
         }
