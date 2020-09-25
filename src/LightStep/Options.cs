@@ -202,7 +202,7 @@ namespace LightStep
 
         private static string GetTracerVersion()
         {
-            return typeof(LightStep.Tracer).Assembly.GetName().Version.ToString();
+            return typeof(LightStep.Tracer).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
         }
 
         private static string GetComponentName()
@@ -223,23 +223,7 @@ namespace LightStep
         private static string GetPlatformVersion()
         {
             var version = ".NET Unknown";
-#if NET45
-            var executingAssembly = Assembly.GetExecutingAssembly().GetCustomAttributes(true);
-            version = executingAssembly.OfType<TargetFrameworkAttribute>().First().FrameworkDisplayName;
-            // in unit testing scenarios, GetEntryAssembly returns null so make sure we aren't blowing up if this isn't available
-            if (version == null && Assembly.GetEntryAssembly() != null)
-            {
-                TargetFrameworkAttribute tfa = (TargetFrameworkAttribute) Assembly.GetEntryAssembly().GetCustomAttributes(typeof(TargetFrameworkAttribute))
-                    .SingleOrDefault();
-                if (tfa != null)
-                {
-                    version = tfa.FrameworkDisplayName;    
-                }
-            }
-
-#elif NETSTANDARD2_0
             version = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
-#endif
             return version.Remove(0, version.IndexOf(' ', 0));
         }
 
