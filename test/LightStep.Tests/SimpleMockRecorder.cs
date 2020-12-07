@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace LightStep.Tests
 {
@@ -35,6 +36,11 @@ namespace LightStep.Tests
         public IEnumerable<SpanData> GetSpans()
         {
             return Spans;
+        }
+
+        public int GetSpanCount()
+        {
+            return Spans.Count();
         }
     }
 }
