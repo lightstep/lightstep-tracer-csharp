@@ -14,7 +14,7 @@ using LightStep.Logging;
 namespace LightStep
 {
     /// <inheritdoc />
-    public sealed class Tracer : ITracer
+    public sealed class Tracer : ITracer, IDisposable
     {
         private readonly object _lock = new object();
         internal readonly Options _options;
@@ -225,6 +225,11 @@ namespace LightStep
                     _logger.Warn($"Dropping span due to too many spans in buffer.");
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            _reportLoop?.Dispose();
         }
     }
 }
