@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace LightStep
@@ -49,5 +49,11 @@ namespace LightStep
         /// </summary>
         /// <returns></returns>
         IEnumerable<SpanData> GetSpans();
+
+        /// <summary>
+        /// Gets the count of spans in the buffer.
+        /// </summary>
+        /// <returns></returns>
+        int GetSpanCount();
     }
 }

@@ -154,7 +154,7 @@ namespace LightStep
                 {
                     currentBuffer = _spanRecorder.GetSpanBuffer();
                     _spanRecorder = new LightStepSpanRecorder();
-                    _logger.Trace($"{currentBuffer.GetSpans().Count()} spans in buffer.");
+                    _logger.Trace($"{currentBuffer.GetSpanCount()} spans in buffer.");
                 }
                 
                 /**
@@ -198,8 +198,8 @@ namespace LightStep
                 {
                     lock (_lock)
                     {
-                        _logger.Warn($"Adding {currentBuffer.GetSpans().Count()} spans to dropped span count (current total: {currentDroppedSpanCount})");
-                        currentDroppedSpanCount += currentBuffer.GetSpans().Count();
+                        _logger.Warn($"Adding {currentBuffer.GetSpanCount()} spans to dropped span count (current total: {currentDroppedSpanCount})");
+                        currentDroppedSpanCount += currentBuffer.GetSpanCount();
                         if (this._options.ExceptionHandlerRegistered)
                         {
                             this._options.ExceptionHandler.Invoke(ex);
@@ -215,7 +215,7 @@ namespace LightStep
         {
             lock (_lock)
             {
-                if (_spanRecorder.GetSpans().Count() < _options.ReportMaxSpans )
+                if (_spanRecorder.GetSpanCount() < _options.ReportMaxSpans )
                 {
                     _spanRecorder.RecordSpan(span);
                 }

@@ -26,7 +26,7 @@ namespace LightStep.Collector
         /// <returns>A <see cref="ReportRequest" /></returns>
         public ReportRequest Translate(ISpanRecorder spanBuffer)
         {
-            _logger.Trace($"Serializing {spanBuffer.GetSpans().Count()} spans to proto.");
+            _logger.Trace($"Serializing {spanBuffer.GetSpanCount()} spans to proto.");
             var timer = new Stopwatch();
             timer.Start();
 
