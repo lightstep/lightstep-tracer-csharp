@@ -1,4 +1,10 @@
 # Changelog
+_v0.12.0_
+*Note* This release modifies the `Tracer` object to make it disposable. You may wish to check your integrations and wrappers to ensure that this doesn't break anything.
+- The `Tracer` now implements `IDisposable`. This is intended to be used by implementors to add an "off" switch that can stop span recording.
+- The version of certain Protobuf libraries required has been relaxed to it's pre-0.11 state.
+- We no longer make a copy of the span buffer to count how many spans are in it in certain cases, improving performance.
+
 _v0.11.0_
 *Note* This release changes the public API surface. It should not impact you, but it might if you're manging span contexts manually.
 - The `SpanContext` signature has changed and parent span ID is now a ulong as well (this continues work released in 0.8.0). Performance should be improved for serialization to proto.
