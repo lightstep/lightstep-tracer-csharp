@@ -65,7 +65,6 @@ namespace LightStep
 
         public int GetSpanCount()
         {
-
             return Spans.Count;
         }
     }

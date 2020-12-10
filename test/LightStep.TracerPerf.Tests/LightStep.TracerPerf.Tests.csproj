@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <IsPackable>false</IsPackable>
+        <RootNamespace>LightStep.TracerPerf.Tests</RootNamespace>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <WarningsAsErrors />
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <WarningsAsErrors />
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Serilog" Version="2.10.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="3.0.0" />
+        <PackageReference Include="FakeItEasy" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.4" />
+        <PackageReference Include="NUnit" Version="3.12.0" />
+        <PackageReference Include="NUnit3TestAdapter" Version="3.16.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.0" />
+    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\LightStep\LightStep.csproj" />
+  </ItemGroup>
+</Project>
