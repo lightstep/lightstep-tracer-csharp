@@ -65,8 +65,8 @@ Task("Test")
 	.IsDependentOn("Build")
     .Does(() =>
 	{
-		var unitProject = GetFiles("./test/LightStep.Tests/*.csproj");
-		var perfProject = GetFiles("./test/LightStep.TracerPerf.Tests/*.csproj");
+		var unitProject = "./test/LightStep.Tests/LightStep.Tests.csproj";
+		var perfProject = "./test/LightStep.TracerPerf.Tests/LightStep.TracerPerf.Tests.csproj";
 		var coverletSettings = new CoverletSettings {
 			CollectCoverage = true,
 			CoverletOutputFormat = CoverletOutputFormat.opencover,
@@ -74,10 +74,10 @@ Task("Test")
 			CoverletOutputName = $"coverage.xml",
 			ExcludeByFile = { "../../src/LightStep/Collector/Collector.cs", "../../src/LightStep/LightStep.cs" }
 		};
-		DotNetCoreTest(unitProject.FullPath, new DotNetCoreTestSettings {
+		DotNetCoreTest(unitProject, new DotNetCoreTestSettings {
 			Logger = "xunit;LogFilePath=../../build/test_results.xml"
 		}, coverletSettings);
-		DotNetCoreTest(perfProject.FullPath, new DotNetCoreTestSettings {
+		DotNetCoreTest(perfProject, new DotNetCoreTestSettings {
 			Logger = "nunit;LogFilePath=../../build/perf_results.xml"
 		});
 });
