@@ -82,10 +82,9 @@ namespace LightStep.TracerPerf.Tests
                 {
                     buildSpan(Tracer);
                 }
-
-                var gcMemoryInfo = GC.GetGCMemoryInfo();
-                heapInfo.Add(gcMemoryInfo.HeapSizeBytes);
-                Console.WriteLine(gcMemoryInfo.HeapSizeBytes);
+                var gcMemoryInfo = GC.GetTotalMemory(true);
+                heapInfo.Add(gcMemoryInfo);
+                Console.WriteLine(gcMemoryInfo);
                 Tracer.Flush();
             }
 
