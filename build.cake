@@ -8,6 +8,7 @@ var buildDir = Directory("./build");
 var distDir = Directory("./dist");
 var solution = "./LightStep.sln";
 var library = "./src/LightStep/LightStep.csproj";
+var testLib = "./test/LightStep.Tests/LightStep.Tests.csproj";
 var lightStepAssemblyInfoFile = "./src/LightStep/Properties/AssemblyInfo.cs";		
 var version = EnvironmentVariable("CIRCLE_TAG") ?? "v0.0.0";
 version = version.TrimStart('v');
@@ -35,7 +36,8 @@ Task("Restore")
     .IsDependentOn("Clean")
     .Does( ()=> 
 {
-    DotNetCoreRestore(solution);
+    DotNetCoreRestore(library);
+		DotNetCoreRestore(testLib);
 });
 
 Task("Build")
@@ -65,7 +67,7 @@ Task("Test")
 	.IsDependentOn("Build")
     .Does(() =>
 	{
-		var projects = GetFiles("./test/**/*.csproj");
+		var unitProject = "./test/LightStep.Tests/LightStep.Tests.csproj";
 		var coverletSettings = new CoverletSettings {
 			CollectCoverage = true,
 			CoverletOutputFormat = CoverletOutputFormat.opencover,
@@ -73,12 +75,9 @@ Task("Test")
 			CoverletOutputName = $"coverage.xml",
 			ExcludeByFile = { "../../src/LightStep/Collector/Collector.cs", "../../src/LightStep/LightStep.cs" }
 		};
-        foreach(var project in projects)
-        {
-			DotNetCoreTest(project.FullPath, new DotNetCoreTestSettings {
-				Logger = "xunit;LogFilePath=../../build/test_results.xml"
-			}, coverletSettings);
-        }
+		DotNetCoreTest(unitProject, new DotNetCoreTestSettings {
+			Logger = "xunit;LogFilePath=../../build/test_results.xml"
+		}, coverletSettings);
 });
 
 Task("Publish")

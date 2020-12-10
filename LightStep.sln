@@ -1,14 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2016
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30517.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightStep", "src\LightStep\LightStep.csproj", "{E5F75D2A-B882-46BB-A173-0F77E46498E2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{BE409569-9FA2-4741-8ABF-327D56E6598E}"
 	ProjectSection(SolutionItems) = preProject
-		README.md = README.md
 		CHANGELOG.md = CHANGELOG.md
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{1359ACF9-43F2-4E09-94FD-32EB2C6239BA}"
@@ -22,6 +22,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightStep.CSharpAspectTestApp", "examples\LightStep.CSharpAspectTestApp\LightStep.CSharpAspectTestApp.csproj", "{1B83F7CF-E2AA-4A81-9C0B-2DA716D5C982}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightStep.CSharpDITestApp", "examples\LightStep.CSharpDITestApp\LightStep.CSharpDITestApp.csproj", "{358E688A-D19E-4149-85CD-E804738C0C3F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightStep.TracerPerf.Tests", "test\LightStep.TracerPerf.Tests\LightStep.TracerPerf.Tests.csproj", "{B54D212A-812F-4102-9852-15D4F084434D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +51,10 @@ Global
 		{358E688A-D19E-4149-85CD-E804738C0C3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{358E688A-D19E-4149-85CD-E804738C0C3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{358E688A-D19E-4149-85CD-E804738C0C3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B54D212A-812F-4102-9852-15D4F084434D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B54D212A-812F-4102-9852-15D4F084434D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B54D212A-812F-4102-9852-15D4F084434D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B54D212A-812F-4102-9852-15D4F084434D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,6 +65,7 @@ Global
 		{65A11CA6-E7E9-43B6-A36D-6B54EA9BD758} = {113EDBB5-081F-4581-B687-9293B4D74312}
 		{1B83F7CF-E2AA-4A81-9C0B-2DA716D5C982} = {113EDBB5-081F-4581-B687-9293B4D74312}
 		{358E688A-D19E-4149-85CD-E804738C0C3F} = {113EDBB5-081F-4581-B687-9293B4D74312}
+		{B54D212A-812F-4102-9852-15D4F084434D} = {1359ACF9-43F2-4E09-94FD-32EB2C6239BA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0890664C-9CE4-4960-90A4-AD6565C970E3}
