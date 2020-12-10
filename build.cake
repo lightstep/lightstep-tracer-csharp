@@ -1,4 +1,5 @@
 #tool "xunit.runner.console"
+#tool nuget:?package=NUnit.ConsoleRunner
 #addin nuget:?package=Cake.Coverlet
 
 var target = Argument("target", "Default");
@@ -77,9 +78,7 @@ Task("Test")
 		DotNetCoreTest(unitProject, new DotNetCoreTestSettings {
 			Logger = "xunit;LogFilePath=../../build/test_results.xml"
 		}, coverletSettings);
-		DotNetCoreTest(perfProject, new DotNetCoreTestSettings {
-			Logger = "nunit;LogFilePath=../../build/perf_results.xml"
-		});
+		DotNetCoreTest(perfProject);
 });
 
 Task("Publish")
