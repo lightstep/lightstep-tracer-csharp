@@ -8,6 +8,7 @@ var buildDir = Directory("./build");
 var distDir = Directory("./dist");
 var solution = "./LightStep.sln";
 var library = "./src/LightStep/LightStep.csproj";
+var testLib = "./test/LightStep.Tests/LightStep.Tests.csproj";
 var lightStepAssemblyInfoFile = "./src/LightStep/Properties/AssemblyInfo.cs";		
 var version = EnvironmentVariable("CIRCLE_TAG") ?? "v0.0.0";
 version = version.TrimStart('v');
@@ -35,7 +36,8 @@ Task("Restore")
     .IsDependentOn("Clean")
     .Does( ()=> 
 {
-    DotNetCoreRestore(solution);
+    DotNetCoreRestore(library);
+		DotNetCoreRestore(testLib);
 });
 
 Task("Build")
