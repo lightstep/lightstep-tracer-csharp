@@ -8,11 +8,11 @@ namespace LightStep.TracerPerf.Tests
 {
     public class TracerTestBase
     {
-        protected string Host { get; set; } = Environment.GetEnvironmentVariable("LS_HOST") ?? "localhost" ;
+        protected string Host { get; set; } = "localhost" ;
         protected int Port { get; set; } = 8360;
         protected double ReportPeriod { get; set; } = .5;
         protected int BufferSize { get; set; } = 200;
-        protected string Token { get; set; } = Environment.GetEnvironmentVariable("LS_KEY") ?? "developer";
+        protected string Token { get; set; } = "developer";
         protected long Iter { get; set; } = 10;
         protected long Chunk { get; set; } = 10;
         protected Tracer Tracer;
@@ -53,17 +53,7 @@ namespace LightStep.TracerPerf.Tests
                     LightStepConstants.ComponentNameKey, "ServiceName"
                 },
             };
-            if (Environment.GetEnvironmentVariable("LS_PORT") != null)
-            {
-                Port = int.Parse(Environment.GetEnvironmentVariable("LS_PORT"));
-            }
-
-            var usePlaintext = true;
-            if (Environment.GetEnvironmentVariable("LS_USE_PLAINTEXT") != null)
-            {
-                usePlaintext = false;
-            }
-            var satelliteOptions = new SatelliteOptions(Host, Port, usePlaintext);
+            var satelliteOptions = new SatelliteOptions(Host, Port, true);
             Options options = new Options(Token)
                 .WithSatellite(satelliteOptions)
                 .WithTags(overrideTags)
@@ -82,9 +72,9 @@ namespace LightStep.TracerPerf.Tests
                 {
                     buildSpan(Tracer);
                 }
-                var gcMemoryInfo = GC.GetTotalMemory(true);
-                heapInfo.Add(gcMemoryInfo);
-                Console.WriteLine(gcMemoryInfo);
+                var gcMemoryInfo = GC.GetGCMemoryInfo();
+                heapInfo.Add(gcMemoryInfo.HeapSizeBytes);
+                Console.WriteLine(gcMemoryInfo.HeapSizeBytes);
                 Tracer.Flush();
             }
 

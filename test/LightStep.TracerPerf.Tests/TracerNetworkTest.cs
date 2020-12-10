@@ -19,7 +19,7 @@ namespace LightStep.TracerPerf.Tests
         [Test, Order(1)]
         public void TestExecute_Localhost()
         {
-            Host = Environment.GetEnvironmentVariable("LS_HOST") ?? "localhost";
+            Host = "localhost";
             Execute(ExplicitFinish);
             Thread.Sleep(TimeSpan.FromSeconds(20));
         }
