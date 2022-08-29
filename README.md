@@ -1,4 +1,7 @@
 # lightstep-tracer-csharp
+
+> ❗ **This instrumentation is no longer recommended**. Please review [documentation on setting up and configuring the OpenTelemetry client for .NET](https://github.com/open-telemetry/opentelemetry-dotnet) for more information on migrating.
+
 The LightStep distributed tracing library for C#
 
 [![NuGet](https://img.shields.io/nuget/v/LightStep.svg)](https://www.nuget.org/packages/LightStep) [![CircleCI](https://circleci.com/gh/lightstep/lightstep-tracer-csharp.svg?style=svg)](https://circleci.com/gh/lightstep/lightstep-tracer-csharp) [![codecov](https://codecov.io/gh/lightstep/lightstep-tracer-csharp/branch/master/graph/badge.svg)](https://codecov.io/gh/lightstep/lightstep-tracer-csharp)
